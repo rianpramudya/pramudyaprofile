@@ -5,6 +5,7 @@ export interface Project {
   longDescription?: string;
   tags: string[];
   category: string;
+  icon?: string;
   githubUrl?: string;
   liveUrl?: string;
   featured?: boolean;
