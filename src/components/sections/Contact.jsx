@@ -1,10 +1,14 @@
-import { useState, useEffect, useRef } from 'react';
-import { site } from '@/content/site';
+import { useState, useEffect, useRef } from "react";
+import { site } from "@/content/site";
 
-const FORMSPREE_ENDPOINT = 'https://formspree.io/f/mrevgrpr';
+const WEB3FORMS_KEY = "25fe095d-6c02-4f9b-9e95-e80c073b3d43";
 
 export default function Contact() {
-  const [formData, setFormData] = useState({ name: '', email: '', message: '' });
+  const [formData, setFormData] = useState({
+    name: "",
+    email: "",
+    message: "",
+  });
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitted, setSubmitted] = useState(false);
   const [error, setError] = useState(null);
@@ -19,14 +23,14 @@ export default function Contact() {
           observer.disconnect();
         }
       },
-      { threshold: 0.2 }
+      { threshold: 0.2 },
     );
     if (sectionRef.current) observer.observe(sectionRef.current);
     return () => observer.disconnect();
   }, []);
 
   const handleChange = (e) => {
-    setFormData(prev => ({ ...prev, [e.target.name]: e.target.value }));
+    setFormData((prev) => ({ ...prev, [e.target.name]: e.target.value }));
   };
 
   const handleSubmit = async (e) => {
@@ -35,13 +39,14 @@ export default function Contact() {
     setError(null);
 
     try {
-      const response = await fetch(FORMSPREE_ENDPOINT, {
-        method: 'POST',
+      const response = await fetch("https://api.web3forms.com/submit", {
+        method: "POST",
         headers: {
-          'Content-Type': 'application/json',
-          'Accept': 'application/json',
+          "Content-Type": "application/json",
+          Accept: "application/json",
         },
         body: JSON.stringify({
+          access_key: WEB3FORMS_KEY,
           name: formData.name,
           email: formData.email,
           message: formData.message,
@@ -52,14 +57,15 @@ export default function Contact() {
 
       if (response.ok) {
         setSubmitted(true);
-        setFormData({ name: '', email: '', message: '' });
+        setFormData({ name: "", email: "", message: "" });
       } else {
-        const errMsg = result?.errors?.map(e => e.message).join(', ')
-          || 'Terjadi kesalahan. Coba beberapa saat lagi.';
+        const errMsg =
+          result?.errors?.map((e) => e.message).join(", ") ||
+          "Terjadi kesalahan. Coba beberapa saat lagi.";
         setError(errMsg);
       }
     } catch (err) {
-      setError('Gagal terhubung. Periksa koneksi internet kamu.');
+      setError("Gagal terhubung. Periksa koneksi internet kamu.");
     } finally {
       setIsSubmitting(false);
     }
@@ -68,47 +74,86 @@ export default function Contact() {
   const contactInfo = [
     {
       icon: (
-        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-          <rect width="20" height="16" x="2" y="4" rx="2"/><path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"/>
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          width="20"
+          height="20"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          strokeWidth="2"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+        >
+          <rect width="20" height="16" x="2" y="4" rx="2" />
+          <path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7" />
         </svg>
       ),
-      label: 'Email',
+      label: "Email",
       value: site.email,
       href: `mailto:${site.email}`,
     },
     {
       icon: (
-        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-          <path d="M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-2-2 2 2 0 0 0-2 2v7h-4v-7a6 6 0 0 1 6-6z"/><rect width="4" height="12" x="2" y="9"/><circle cx="4" cy="4" r="2"/>
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          width="20"
+          height="20"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          strokeWidth="2"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+        >
+          <path d="M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-2-2 2 2 0 0 0-2 2v7h-4v-7a6 6 0 0 1 6-6z" />
+          <rect width="4" height="12" x="2" y="9" />
+          <circle cx="4" cy="4" r="2" />
         </svg>
       ),
-      label: 'LinkedIn',
-      value: 'rianpramudyaamanda',
+      label: "LinkedIn",
+      value: "rianpramudyaamanda",
       href: site.linkedin,
     },
     {
       icon: (
-        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-          <path d="M15 22v-4a4.8 4.8 0 0 0-1-3.5c3 0 6-2 6-5.5.08-1.25-.27-2.48-1-3.5.28-1.15.28-2.35 0-3.5 0 0-1 0-3 1.5-2.64-.5-5.36-.5-8 0C6 2 5 2 5 2c-.3 1.15-.3 2.35 0 3.5A5.403 5.403 0 0 0 4 9c0 3.5 3 5.5 6 5.5-.39.49-.68 1.05-.85 1.65-.17.6-.22 1.23-.15 1.85v4"/><path d="M9 18c-4.51 2-5-2-7-2"/>
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          width="20"
+          height="20"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          strokeWidth="2"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+        >
+          <path d="M15 22v-4a4.8 4.8 0 0 0-1-3.5c3 0 6-2 6-5.5.08-1.25-.27-2.48-1-3.5.28-1.15.28-2.35 0-3.5 0 0-1 0-3 1.5-2.64-.5-5.36-.5-8 0C6 2 5 2 5 2c-.3 1.15-.3 2.35 0 3.5A5.403 5.403 0 0 0 4 9c0 3.5 3 5.5 6 5.5-.39.49-.68 1.05-.85 1.65-.17.6-.22 1.23-.15 1.85v4" />
+          <path d="M9 18c-4.51 2-5-2-7-2" />
         </svg>
       ),
-      label: 'GitHub',
-      value: 'rianpramudya',
+      label: "GitHub",
+      value: "rianpramudya",
       href: site.github,
     },
   ];
 
   return (
-    <section id="contact" ref={sectionRef} className="relative py-20 md:py-32 bg-dark-900 overflow-hidden">
+    <section
+      id="contact"
+      ref={sectionRef}
+      className="relative py-20 md:py-32 bg-dark-900 overflow-hidden"
+    >
       {/* Background */}
       <div className="absolute inset-0 pointer-events-none">
         <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[800px] h-[400px] bg-primary-500/5 rounded-full blur-[150px]"></div>
       </div>
 
       <div className="relative mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-
         {/* Section Title */}
-        <div className={`max-w-3xl mx-auto mb-16 text-center transition-all duration-700 ${isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'}`}>
+        <div
+          className={`max-w-3xl mx-auto mb-16 text-center transition-all duration-700 ${isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-8"}`}
+        >
           <span className="inline-flex items-center gap-2 text-primary-400 font-semibold text-sm uppercase tracking-wider mb-4">
             <span className="w-8 h-px bg-primary-500"></span>
             Kontak
@@ -118,19 +163,24 @@ export default function Contact() {
             Mari Berkolaborasi <span className="text-primary-400">Bersama</span>
           </h2>
           <p className="text-slate-400 text-base md:text-lg leading-relaxed max-w-2xl mx-auto">
-            Punya ide proyek menarik atau ingin berdiskusi tentang teknologi? Saya terbuka untuk kolaborasi, freelance, dan kesempatan berharga lainnya.
+            Punya ide proyek menarik atau ingin berdiskusi tentang teknologi?
+            Saya terbuka untuk kolaborasi, freelance, dan kesempatan berharga
+            lainnya.
           </p>
         </div>
 
         {/* FIX: grid pakai items-stretch agar kedua kolom ikut tinggi yang lebih besar */}
         <div className="grid grid-cols-1 lg:grid-cols-5 gap-8 lg:gap-12 max-w-6xl mx-auto items-stretch">
-
           {/* ── Kiri: Contact Info ── */}
           {/* FIX: hapus space-y-6 (tidak perlu, 1 anak), tambah h-full */}
-          <div className={`lg:col-span-2 h-full transition-all duration-700 delay-200 ${isVisible ? 'opacity-100 translate-x-0' : 'opacity-0 -translate-x-8'}`}>
+          <div
+            className={`lg:col-span-2 h-full transition-all duration-700 delay-200 ${isVisible ? "opacity-100 translate-x-0" : "opacity-0 -translate-x-8"}`}
+          >
             {/* FIX: h-full + flex flex-col agar card mengisi tinggi grid cell */}
             <div className="h-full flex flex-col rounded-2xl border border-slate-700/50 bg-dark-800/60 backdrop-blur-sm p-6 md:p-8">
-              <h3 className="text-xl font-bold text-white mb-6">Informasi Kontak</h3>
+              <h3 className="text-xl font-bold text-white mb-6">
+                Informasi Kontak
+              </h3>
 
               {/* FIX: flex-1 agar daftar kontak mendorong badge ke bawah */}
               <div className="flex-1 flex flex-col justify-between">
@@ -139,7 +189,9 @@ export default function Contact() {
                     <a
                       key={item.label}
                       href={item.href}
-                      target={item.href.startsWith('http') ? '_blank' : undefined}
+                      target={
+                        item.href.startsWith("http") ? "_blank" : undefined
+                      }
                       rel="noopener noreferrer"
                       className="flex items-center gap-4 p-4 rounded-xl bg-dark-700/30 border border-slate-700/30 hover:border-primary-500/30 hover:bg-primary-500/5 transition-all duration-300 group"
                       style={{ transitionDelay: `${i * 100}ms` }}
@@ -148,8 +200,12 @@ export default function Contact() {
                         {item.icon}
                       </div>
                       <div>
-                        <p className="text-xs text-slate-500 font-medium">{item.label}</p>
-                        <p className="text-white text-sm font-medium group-hover:text-primary-400 transition-colors duration-300">{item.value}</p>
+                        <p className="text-xs text-slate-500 font-medium">
+                          {item.label}
+                        </p>
+                        <p className="text-white text-sm font-medium group-hover:text-primary-400 transition-colors duration-300">
+                          {item.value}
+                        </p>
                       </div>
                     </a>
                   ))}
@@ -163,8 +219,12 @@ export default function Contact() {
                       <span className="relative inline-flex rounded-full h-3 w-3 bg-primary-500"></span>
                     </div>
                     <div>
-                      <p className="text-primary-400 text-sm font-semibold">Respons Cepat</p>
-                      <p className="text-slate-500 text-xs">Biasanya membalas dalam 1-2 hari</p>
+                      <p className="text-primary-400 text-sm font-semibold">
+                        Respons Cepat
+                      </p>
+                      <p className="text-slate-500 text-xs">
+                        Biasanya membalas dalam 1-2 hari
+                      </p>
                     </div>
                   </div>
                 </div>
@@ -173,7 +233,9 @@ export default function Contact() {
           </div>
 
           {/* ── Kanan: Contact Form ── */}
-          <div className={`lg:col-span-3 h-full transition-all duration-700 delay-300 ${isVisible ? 'opacity-100 translate-x-0' : 'opacity-0 translate-x-8'}`}>
+          <div
+            className={`lg:col-span-3 h-full transition-all duration-700 delay-300 ${isVisible ? "opacity-100 translate-x-0" : "opacity-0 translate-x-8"}`}
+          >
             {/* FIX: h-full + flex flex-col agar card mengisi tinggi grid cell */}
             <div className="h-full flex flex-col rounded-2xl border border-slate-700/50 bg-dark-800/60 backdrop-blur-sm p-6 md:p-8">
               <h3 className="text-xl font-bold text-white mb-6">Kirim Pesan</h3>
@@ -183,12 +245,29 @@ export default function Contact() {
                 // ter-center vertikal dan sejajar tinggi dengan card kiri
                 <div className="flex-1 flex flex-col items-center justify-center text-center">
                   <div className="w-16 h-16 rounded-full bg-primary-500/10 flex items-center justify-center mx-auto mb-4">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-primary-400">
-                      <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/>
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      width="32"
+                      height="32"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      strokeWidth="2"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      className="text-primary-400"
+                    >
+                      <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14" />
+                      <polyline points="22 4 12 14.01 9 11.01" />
                     </svg>
                   </div>
-                  <h4 className="text-xl font-bold text-white mb-2">Pesan Terkirim!</h4>
-                  <p className="text-slate-400 mb-6">Terima kasih telah menghubungi saya. Saya akan membalas secepat mungkin.</p>
+                  <h4 className="text-xl font-bold text-white mb-2">
+                    Pesan Terkirim!
+                  </h4>
+                  <p className="text-slate-400 mb-6">
+                    Terima kasih telah menghubungi saya. Saya akan membalas
+                    secepat mungkin.
+                  </p>
                   <button
                     onClick={() => setSubmitted(false)}
                     className="inline-flex items-center gap-2 rounded-xl bg-primary-500/10 border border-primary-500/30 px-6 py-2.5 text-sm font-semibold text-primary-400 hover:bg-primary-500/20 transition-all duration-300"
@@ -198,10 +277,16 @@ export default function Contact() {
                 </div>
               ) : (
                 // FIX: flex-1 + flex flex-col agar form memenuhi sisa ruang card
-                <form onSubmit={handleSubmit} className="flex-1 flex flex-col gap-5">
+                <form
+                  onSubmit={handleSubmit}
+                  className="flex-1 flex flex-col gap-5"
+                >
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
                     <div>
-                      <label htmlFor="name" className="block text-sm font-medium text-slate-300 mb-2">
+                      <label
+                        htmlFor="name"
+                        className="block text-sm font-medium text-slate-300 mb-2"
+                      >
                         Nama Lengkap
                       </label>
                       <input
@@ -216,7 +301,10 @@ export default function Contact() {
                       />
                     </div>
                     <div>
-                      <label htmlFor="email" className="block text-sm font-medium text-slate-300 mb-2">
+                      <label
+                        htmlFor="email"
+                        className="block text-sm font-medium text-slate-300 mb-2"
+                      >
                         Email
                       </label>
                       <input
@@ -234,7 +322,10 @@ export default function Contact() {
 
                   {/* FIX: flex-1 pada wrapper textarea agar textarea mengisi sisa ruang */}
                   <div className="flex-1 flex flex-col">
-                    <label htmlFor="message" className="block text-sm font-medium text-slate-300 mb-2">
+                    <label
+                      htmlFor="message"
+                      className="block text-sm font-medium text-slate-300 mb-2"
+                    >
                       Pesan
                     </label>
                     <textarea
@@ -251,8 +342,21 @@ export default function Contact() {
                   {/* Error message */}
                   {error && (
                     <div className="flex items-start gap-3 p-4 rounded-xl bg-red-500/10 border border-red-500/30">
-                      <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-red-400 flex-shrink-0 mt-0.5">
-                        <circle cx="12" cy="12" r="10"/><line x1="12" x2="12" y1="8" y2="12"/><line x1="12" x2="12.01" y1="16" y2="16"/>
+                      <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        width="18"
+                        height="18"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="currentColor"
+                        strokeWidth="2"
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        className="text-red-400 flex-shrink-0 mt-0.5"
+                      >
+                        <circle cx="12" cy="12" r="10" />
+                        <line x1="12" x2="12" y1="8" y2="12" />
+                        <line x1="12" x2="12.01" y1="16" y2="16" />
                       </svg>
                       <p className="text-red-400 text-sm">{error}</p>
                     </div>
@@ -265,17 +369,44 @@ export default function Contact() {
                   >
                     {isSubmitting ? (
                       <>
-                        <svg className="animate-spin h-5 w-5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                          <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                          <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                        <svg
+                          className="animate-spin h-5 w-5"
+                          xmlns="http://www.w3.org/2000/svg"
+                          fill="none"
+                          viewBox="0 0 24 24"
+                        >
+                          <circle
+                            className="opacity-25"
+                            cx="12"
+                            cy="12"
+                            r="10"
+                            stroke="currentColor"
+                            strokeWidth="4"
+                          ></circle>
+                          <path
+                            className="opacity-75"
+                            fill="currentColor"
+                            d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                          ></path>
                         </svg>
                         Mengirim...
                       </>
                     ) : (
                       <>
                         Kirim Pesan
-                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                          <path d="m22 2-7 20-4-9-9-4Z"/><path d="M22 2 11 13"/>
+                        <svg
+                          xmlns="http://www.w3.org/2000/svg"
+                          width="20"
+                          height="20"
+                          viewBox="0 0 24 24"
+                          fill="none"
+                          stroke="currentColor"
+                          strokeWidth="2"
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                        >
+                          <path d="m22 2-7 20-4-9-9-4Z" />
+                          <path d="M22 2 11 13" />
                         </svg>
                       </>
                     )}
@@ -284,7 +415,6 @@ export default function Contact() {
               )}
             </div>
           </div>
-
         </div>
       </div>
     </section>
