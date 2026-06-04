@@ -1,0 +1,145 @@
+---
+import { site } from '@/content/site';
+import Header from '@/components/layout/Header.astro';
+import Footer from '@/components/layout/Footer.astro';
+
+interface Props {
+  title?: string;
+  description?: string;
+}
+
+const { 
+  title = site.title, 
+  description = site.description 
+} = Astro.props;
+---
+
+<!DOCTYPE html>
+<html lang="id" class="scroll-smooth">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content={description} />
+  <meta name="author" content={site.name} />
+  <meta name="theme-color" content="#0a0f0e" />
+  
+  <!-- Open Graph -->
+  <meta property="og:title" content={title} />
+  <meta property="og:description" content={description} />
+  <meta property="og:type" content="website" />
+  <meta property="og:url" content={site.url} />
+  
+  <!-- Twitter -->
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:title" content={title} />
+  <meta name="twitter:description" content={description} />
+  
+  <title>{title}</title>
+  
+  <!-- Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Space+Grotesk:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+  
+  <!-- Favicon -->
+  <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+  
+  <style is:global>
+    /* Custom scrollbar */
+    ::-webkit-scrollbar {
+      width: 8px;
+    }
+    ::-webkit-scrollbar-track {
+      background: #0a0f0e;
+    }
+    ::-webkit-scrollbar-thumb {
+      background: #1e3a33;
+      border-radius: 4px;
+    }
+    ::-webkit-scrollbar-thumb:hover {
+      background: #059669;
+    }
+
+    /* Selection color */
+    ::selection {
+      background: rgba(16, 185, 129, 0.3);
+      color: white;
+    }
+
+    /* Smooth scroll */
+    html {
+      scroll-behavior: smooth;
+    }
+
+    /* AOS animations */
+    [data-aos] {
+      opacity: 0;
+      transition-property: opacity, transform;
+      transition-duration: 600ms;
+      transition-timing-function: ease-out;
+    }
+    
+    [data-aos="fade-up"] {
+      transform: translateY(30px);
+    }
+    [data-aos="fade-down"] {
+      transform: translateY(-30px);
+    }
+    [data-aos="fade-left"] {
+      transform: translateX(30px);
+    }
+    [data-aos="fade-right"] {
+      transform: translateX(-30px);
+    }
+    [data-aos="zoom-in"] {
+      transform: scale(0.9);
+    }
+    [data-aos="zoom-out"] {
+      transform: scale(1.1);
+    }
+    
+    [data-aos].aos-animate {
+      opacity: 1;
+      transform: translate(0) scale(1);
+    }
+  </style>
+</head>
+<body class="bg-dark-900 text-white font-sans antialiased overflow-x-hidden">
+  <Header />
+  
+  <main>
+    <slot />
+  </main>
+  
+  <Footer />
+
+  <!-- AOS-like scroll animation script -->
+  <script>
+    const observerOptions = {
+      root: null,
+      rootMargin: '0px 0px -10% 0px',
+      threshold: 0.1,
+    };
+
+    const aosObserver = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          const delay = entry.target.getAttribute('data-aos-delay');
+          if (delay) {
+            setTimeout(() => {
+              entry.target.classList.add('aos-animate');
+            }, parseInt(delay));
+          } else {
+            entry.target.classList.add('aos-animate');
+          }
+          aosObserver.unobserve(entry.target);
+        }
+      });
+    }, observerOptions);
+
+    document.querySelectorAll('[data-aos]').forEach(el => {
+      aosObserver.observe(el);
+    });
+  </script>
+</body>
+</html>

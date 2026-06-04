@@ -1,0 +1,41 @@
+---
+import BaseLayout from '@/layouts/BaseLayout.astro';
+import Hero from '@/components/sections/Hero.astro';
+import About from '@/components/sections/About.astro';
+import Skills from '@/components/sections/Skills.astro';
+import Projects from '@/components/sections/Projects.astro';
+import Contact from '@/components/sections/Contact.jsx';
+---
+
+<BaseLayout>
+  <Hero />
+  
+  <!-- Section divider -->
+  <div class="relative">
+    <div class="absolute inset-x-0 h-px bg-gradient-to-r from-transparent via-slate-700/50 to-transparent"></div>
+  </div>
+  
+  <About />
+  
+  <!-- Section divider -->
+  <div class="relative">
+    <div class="absolute inset-x-0 h-px bg-gradient-to-r from-transparent via-slate-700/50 to-transparent"></div>
+  </div>
+  
+  <!-- Section Skills -->
+  <Skills />
+  
+  <!-- Section divider -->
+  <div class="relative">
+    <div class="absolute inset-x-0 h-px bg-gradient-to-r from-transparent via-slate-700/50 to-transparent"></div>
+  </div>
+  
+  <Projects />
+  
+  <!-- Section divider -->
+  <div class="relative">
+    <div class="absolute inset-x-0 h-px bg-gradient-to-r from-transparent via-slate-700/50 to-transparent"></div>
+  </div>
+  
+  <Contact client:visible />
+</BaseLayout>

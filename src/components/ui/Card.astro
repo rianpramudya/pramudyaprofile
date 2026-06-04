@@ -1,0 +1,20 @@
+---
+interface Props {
+  class?: string;
+  hover?: boolean;
+  glow?: boolean;
+}
+
+const { class: className = '', hover = true, glow = false } = Astro.props;
+---
+
+<div class:list={[
+  'relative rounded-2xl border border-slate-700/50 bg-dark-800/60 backdrop-blur-sm overflow-hidden',
+  hover && 'transition-all duration-500 hover:-translate-y-2 hover:border-primary-500/30 hover:shadow-2xl hover:shadow-primary-500/10 group',
+  glow && 'before:absolute before:inset-0 before:bg-gradient-to-br before:from-primary-500/5 before:to-accent-500/5 before:opacity-0 before:transition-opacity before:duration-500 hover:before:opacity-100',
+  className,
+]}>
+  <div class="relative z-10">
+    <slot />
+  </div>
+</div>

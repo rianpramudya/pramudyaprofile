@@ -1,0 +1,228 @@
+---
+import SectionTitle from '@/components/ui/SectionTitle.astro';
+import Card from '@/components/ui/Card.astro';
+import Badge from '@/components/ui/Badge.astro';
+import { projects } from '@/content/projects';
+import { site } from '@/content/site';
+
+const featuredProjects = projects.filter(p => p.featured);
+const otherProjects = projects.filter(p => !p.featured);
+
+// Icon SVG GitHub — dipakai ulang di beberapa tempat
+const githubIconPath = `M15 22v-4a4.8 4.8 0 0 0-1-3.5c3 0 6-2 6-5.5.08-1.25-.27-2.48-1-3.5.28-1.15.28-2.35 0-3.5 0 0-1 0-3 1.5-2.64-.5-5.36-.5-8 0C6 2 5 2 5 2c-.3 1.15-.3 2.35 0 3.5A5.403 5.403 0 0 0 4 9c0 3.5 3 5.5 6 5.5-.39.49-.68 1.05-.85 1.65-.17.6-.22 1.23-.15 1.85v4`;
+const githubIconPath2 = `M9 18c-4.51 2-5-2-7-2`;
+---
+
+<section id="projects" class="relative py-20 md:py-32 bg-dark-900">
+  <!-- Background -->
+  <div class="absolute inset-0 pointer-events-none">
+    <div class="absolute top-1/3 left-0 w-96 h-96 bg-accent-500/5 rounded-full blur-[120px]"></div>
+    <div class="absolute bottom-1/3 right-0 w-80 h-80 bg-primary-500/5 rounded-full blur-[100px]"></div>
+  </div>
+
+  <div class="relative mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+    <SectionTitle
+      label="Portofolio"
+      title="Proyek Unggulan Saya"
+      subtitle="Kumpulan proyek terbaik yang mencakup pengembangan web full-stack, machine learning, dan computer vision. Setiap proyek adalah hasil dedikasi penuh untuk solusi yang inovatif."
+    />
+
+    <!-- ── Featured Projects Grid ── -->
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-10">
+      {featuredProjects.map((project, i) => (
+        <div class="h-full" data-aos="fade-up" data-aos-delay={i * 150}>
+          <!-- overflow-hidden + flex flex-col agar gambar terpotong rapi di sudut card -->
+          <Card class="h-full group cursor-pointer overflow-hidden flex flex-col" glow={true}>
+
+            <!-- Project Image -->
+            {project.image && (
+              <div class="relative h-52 overflow-hidden flex-shrink-0 bg-dark-800">
+                <img
+                  src={project.image}
+                  alt={`Screenshot proyek ${project.title}`}
+                  class="w-full h-full object-cover object-top group-hover:scale-105 transition-transform duration-700"
+                  loading="lazy"
+                />
+                <!-- gradient overlay agar konten di bawah tetap terbaca -->
+                <div class="absolute inset-0 bg-gradient-to-t from-dark-900/70 via-dark-900/10 to-transparent pointer-events-none"></div>
+                <!-- Badge featured di atas gambar -->
+                {project.featured && (
+                  <div class="absolute top-3 left-3">
+                    <Badge variant="accent" size="sm">
+                      <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+                      Featured
+                    </Badge>
+                  </div>
+                )}
+              </div>
+            )}
+
+            <!-- Content -->
+            <div class="relative p-6 md:p-8 flex-1 flex flex-col">
+
+              <!-- Header: icon + category + year + badge (jika tidak ada gambar) -->
+              <div class="flex items-start justify-between mb-4">
+                <div class="flex items-center gap-3">
+                  <div class="w-12 h-12 rounded-xl bg-gradient-to-br from-primary-500/20 to-accent-500/20 border border-primary-500/20 flex items-center justify-center text-primary-400 group-hover:from-primary-500 group-hover:to-accent-500 group-hover:text-white transition-all duration-500 flex-shrink-0">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 2 7 12 12 22 7 12 2"/><polyline points="2 17 12 22 22 17"/><polyline points="2 12 12 17 22 12"/></svg>
+                  </div>
+                  <div>
+                    <span class="text-xs text-slate-500 font-medium">{project.category}</span>
+                    <div class="flex items-center gap-1.5 text-xs text-slate-600 mt-0.5">
+                      <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="18" height="18" x="3" y="4" rx="2" ry="2"/><line x1="16" x2="16" y1="2" y2="6"/><line x1="8" x2="8" y1="2" y2="6"/><line x1="3" x2="21" y1="10" y2="10"/></svg>
+                      {project.year}
+                    </div>
+                  </div>
+                </div>
+                <!-- Tampilkan badge Featured hanya jika tidak ada gambar (sudah ada di atas gambar) -->
+                {project.featured && !project.image && (
+                  <Badge variant="accent" size="sm">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+                    Featured
+                  </Badge>
+                )}
+              </div>
+
+              <!-- Title & Description -->
+              <h3 class="text-xl md:text-2xl font-bold text-white mb-3 group-hover:text-primary-400 transition-colors duration-300 font-display leading-tight">
+                {project.title}
+              </h3>
+              <p class="text-slate-400 text-sm leading-relaxed mb-6 flex-grow">
+                {project.description}
+              </p>
+
+              <!-- Highlights -->
+              <ul class="space-y-2 mb-6">
+                {project.highlights?.slice(0, 3).map((highlight) => (
+                  <li class="flex items-start gap-2 text-sm text-slate-300">
+                    <svg class="w-4 h-4 text-primary-500 mt-0.5 flex-shrink-0" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+                    <span>{highlight}</span>
+                  </li>
+                ))}
+              </ul>
+
+              <!-- Footer: Tech Stack + GitHub Link -->
+              <div class="mt-auto pt-4 border-t border-slate-700/50">
+                <!-- Tech Stack badges -->
+                <div class="flex flex-wrap gap-2 mb-3">
+                  {project.techStack?.map((tech) => (
+                    <Badge variant="ghost" size="sm">{tech}</Badge>
+                  ))}
+                </div>
+
+                <!-- GitHub Link -->
+                {project.githubUrl && (
+                  <a
+                    href={project.githubUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    class="inline-flex items-center gap-2 text-xs text-slate-400 hover:text-primary-400 font-medium transition-colors duration-300"
+                  >
+                    <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                      <path d={githubIconPath}/>
+                      <path d={githubIconPath2}/>
+                    </svg>
+                    Lihat di GitHub
+                    <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 7h10v10"/><path d="M7 17 17 7"/></svg>
+                  </a>
+                )}
+              </div>
+
+              <!-- Hover arrow (absolute terhadap div.relative ini) -->
+              <div class="absolute top-6 right-6 w-10 h-10 rounded-full bg-primary-500/10 flex items-center justify-center opacity-0 group-hover:opacity-100 translate-x-4 group-hover:translate-x-0 transition-all duration-500 pointer-events-none">
+                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-primary-400"><path d="M7 7h10v10"/><path d="M7 17 17 7"/></svg>
+              </div>
+            </div>
+
+          </Card>
+        </div>
+      ))}
+    </div>
+
+    <!-- ── Other Projects ── -->
+    {otherProjects.length > 0 && (
+      <div data-aos="fade-up" data-aos-delay="400">
+        <h3 class="text-xl font-bold text-white mb-6 font-display">Proyek Lainnya</h3>
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+          {otherProjects.map((project) => (
+            <!-- overflow-hidden + flex flex-col agar gambar terpotong rapi -->
+            <Card class="group cursor-pointer overflow-hidden flex flex-col">
+
+              <!-- Project Image -->
+              {project.image && (
+                <div class="relative h-36 overflow-hidden flex-shrink-0 bg-dark-800">
+                  <img
+                    src={project.image}
+                    alt={`Screenshot proyek ${project.title}`}
+                    class="w-full h-full object-cover object-top group-hover:scale-105 transition-transform duration-700"
+                    loading="lazy"
+                  />
+                  <div class="absolute inset-0 bg-gradient-to-t from-dark-800/70 via-dark-800/10 to-transparent pointer-events-none"></div>
+                </div>
+              )}
+
+              <!-- Content -->
+              <div class="p-5 flex-1 flex flex-col">
+                <div class="flex items-center gap-3 mb-3">
+                  <div class="w-10 h-10 rounded-lg bg-primary-500/10 flex items-center justify-center text-primary-400 group-hover:bg-primary-500 group-hover:text-white transition-all duration-300 flex-shrink-0">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 2 7 12 12 22 7 12 2"/><polyline points="2 17 12 22 22 17"/><polyline points="2 12 12 17 22 12"/></svg>
+                  </div>
+                  <div class="min-w-0">
+                    <h4 class="text-white font-semibold text-sm group-hover:text-primary-400 transition-colors duration-300 truncate">{project.title}</h4>
+                    <span class="text-xs text-slate-500">{project.year}</span>
+                  </div>
+                </div>
+
+                <p class="text-slate-400 text-xs leading-relaxed mb-3 line-clamp-2 flex-grow">{project.description}</p>
+
+                <!-- Tech Stack badges -->
+                <div class="flex flex-wrap gap-1.5 mb-3">
+                  {project.techStack?.slice(0, 4).map((tech) => (
+                    <Badge variant="ghost" size="sm" class="text-xs">{tech}</Badge>
+                  ))}
+                </div>
+
+                <!-- GitHub Link -->
+                {project.githubUrl && (
+                  <a
+                    href={project.githubUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    class="inline-flex items-center gap-1.5 text-xs text-slate-500 hover:text-primary-400 font-medium transition-colors duration-300 mt-auto"
+                  >
+                    <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                      <path d={githubIconPath}/>
+                      <path d={githubIconPath2}/>
+                    </svg>
+                    GitHub
+                    <svg xmlns="http://www.w3.org/2000/svg" width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 7h10v10"/><path d="M7 17 17 7"/></svg>
+                  </a>
+                )}
+              </div>
+
+            </Card>
+          ))}
+        </div>
+      </div>
+    )}
+
+    <!-- ── CTA ── -->
+    <div class="text-center mt-16" data-aos="fade-up">
+      <p class="text-slate-400 mb-4">Tertarik untuk melihat lebih banyak?</p>
+      <a
+        href={site.github}
+        target="_blank"
+        rel="noopener noreferrer"
+        class="inline-flex items-center gap-2 text-primary-400 hover:text-primary-300 font-semibold transition-colors duration-300"
+      >
+        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d={githubIconPath}/>
+          <path d={githubIconPath2}/>
+        </svg>
+        Lihat di GitHub
+        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 7h10v10"/><path d="M7 17 17 7"/></svg>
+      </a>
+    </div>
+
+  </div>
+</section>

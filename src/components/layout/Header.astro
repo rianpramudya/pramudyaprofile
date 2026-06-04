@@ -1,0 +1,214 @@
+---
+import { navigation } from '@/content/site';
+---
+
+<header id="header" class="fixed top-0 left-0 right-0 z-50 transition-all duration-500">
+  <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+    <div class="flex h-16 md:h-20 items-center justify-between gap-4">
+
+      <!-- Logo -->
+      <a href="#hero" class="flex items-center gap-3 group flex-shrink-0">
+        <div class="relative w-10 h-10 flex-shrink-0">
+          <!-- Glow ring -->
+          <div class="absolute inset-0 rounded-xl bg-gradient-to-br from-primary-500 to-accent-500 opacity-40 blur-md group-hover:opacity-70 transition-opacity duration-300"></div>
+          <div class="relative w-10 h-10 rounded-xl bg-gradient-to-br from-primary-500 to-accent-500 flex items-center justify-center text-white font-bold text-lg shadow-lg">
+            R
+          </div>
+        </div>
+        <span class="text-white font-bold text-lg hidden sm:block font-display tracking-tight">
+          Rian<span class="text-primary-400">.</span>
+        </span>
+      </a>
+
+      <!-- Desktop Navigation — pill container -->
+      <nav class="hidden md:flex items-center">
+        <div class="relative flex items-center gap-1 rounded-2xl bg-white/5 border border-white/10 px-2 py-1.5 backdrop-blur-sm">
+          <!-- Sliding active indicator -->
+          <div id="nav-indicator" class="absolute h-8 rounded-xl bg-primary-500/15 border border-primary-500/30 transition-all duration-300 pointer-events-none"></div>
+
+          {navigation.map((item) => (
+            <a
+              href={item.href}
+              class="nav-link relative z-10 px-4 py-1.5 text-sm font-medium text-slate-400 hover:text-white rounded-xl transition-colors duration-200 whitespace-nowrap"
+              data-section={item.href}
+            >
+              {item.name}
+            </a>
+          ))}
+        </div>
+      </nav>
+
+      <!-- CTA Button -->
+      <div class="hidden md:flex items-center gap-3 flex-shrink-0">
+        <!-- Status dot — available for work -->
+        <div class="flex items-center gap-2 text-xs text-slate-400">
+          <span class="relative flex h-2 w-2">
+            <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75"></span>
+            <span class="relative inline-flex rounded-full h-2 w-2 bg-green-500"></span>
+          </span>
+          <span class="hidden lg:inline">Available</span>
+        </div>
+
+        <a
+          href="#contact"
+          class="relative group inline-flex items-center gap-2 rounded-xl bg-gradient-to-r from-primary-600 to-primary-500 px-5 py-2.5 text-sm font-semibold text-white overflow-hidden transition-all duration-300 hover:-translate-y-0.5 hover:shadow-lg hover:shadow-primary-500/30"
+        >
+          <!-- Shimmer effect -->
+          <span class="absolute inset-0 -translate-x-full group-hover:translate-x-full transition-transform duration-700 bg-gradient-to-r from-transparent via-white/15 to-transparent skew-x-12"></span>
+          <span class="relative">Hubungi Saya</span>
+          <svg class="relative transition-transform duration-300 group-hover:translate-x-0.5" xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
+        </a>
+      </div>
+
+      <!-- Mobile Menu Button -->
+      <button
+        id="mobile-menu-btn"
+        class="md:hidden relative w-10 h-10 rounded-xl bg-white/5 border border-white/10 flex items-center justify-center text-slate-300 hover:text-white hover:bg-white/10 transition-all duration-300"
+        aria-label="Toggle menu"
+      >
+        <svg id="menu-icon-open" xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <line x1="4" x2="20" y1="6" y2="6"/>
+          <line x1="4" x2="20" y1="12" y2="12"/>
+          <line x1="4" x2="20" y1="18" y2="18"/>
+        </svg>
+        <svg id="menu-icon-close" class="hidden" xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M18 6 6 18"/>
+          <path d="m6 6 12 12"/>
+        </svg>
+      </button>
+
+    </div>
+  </div>
+</header>
+
+<!-- Mobile Navigation -->
+<div id="mobile-menu" class="fixed inset-0 z-40 hidden">
+  <div class="absolute inset-0 bg-dark-900/97 backdrop-blur-2xl"></div>
+
+  <!-- Decorative blobs in mobile menu -->
+  <div class="absolute top-1/4 left-1/4 w-64 h-64 bg-primary-500/10 rounded-full blur-[80px] pointer-events-none"></div>
+  <div class="absolute bottom-1/4 right-1/4 w-48 h-48 bg-accent-500/8 rounded-full blur-[60px] pointer-events-none"></div>
+
+  <nav class="relative flex flex-col items-center justify-center h-full gap-3 px-8">
+    {navigation.map((item, i) => (
+      <a
+        href={item.href}
+        class="mobile-nav-link group flex items-center gap-3 text-2xl font-semibold text-slate-400 hover:text-white transition-all duration-300 py-2"
+        style={`animation-delay: ${i * 80}ms`}
+      >
+        <span class="w-1.5 h-1.5 rounded-full bg-primary-500 opacity-0 group-hover:opacity-100 transition-opacity duration-300 scale-0 group-hover:scale-100 transition-transform"></span>
+        {item.name}
+      </a>
+    ))}
+
+    <div class="mt-6 w-full max-w-xs">
+      <a
+        href="#contact"
+        class="flex items-center justify-center gap-2 w-full rounded-2xl bg-gradient-to-r from-primary-600 to-primary-500 px-8 py-3.5 text-base font-semibold text-white shadow-lg shadow-primary-500/20"
+      >
+        Hubungi Saya
+        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
+      </a>
+
+      <!-- Status in mobile -->
+      <div class="flex items-center justify-center gap-2 mt-4 text-sm text-slate-500">
+        <span class="relative flex h-2 w-2">
+          <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75"></span>
+          <span class="relative inline-flex rounded-full h-2 w-2 bg-green-500"></span>
+        </span>
+        Open to work
+      </div>
+    </div>
+  </nav>
+</div>
+
+<script>
+  const header = document.getElementById('header');
+
+  // ── Scroll effect
+  window.addEventListener('scroll', () => {
+    if (window.scrollY > 50) {
+      header?.classList.add('bg-dark-900/80', 'backdrop-blur-xl', 'border-b', 'border-slate-800/50');
+    } else {
+      header?.classList.remove('bg-dark-900/80', 'backdrop-blur-xl', 'border-b', 'border-slate-800/50');
+    }
+  });
+
+  // ── Mobile menu toggle
+  const mobileMenuBtn = document.getElementById('mobile-menu-btn');
+  const mobileMenu = document.getElementById('mobile-menu');
+  const menuIconOpen = document.getElementById('menu-icon-open');
+  const menuIconClose = document.getElementById('menu-icon-close');
+  let menuOpen = false;
+
+  mobileMenuBtn?.addEventListener('click', () => {
+    menuOpen = !menuOpen;
+    if (menuOpen) {
+      mobileMenu?.classList.remove('hidden');
+      menuIconOpen?.classList.add('hidden');
+      menuIconClose?.classList.remove('hidden');
+      document.body.style.overflow = 'hidden';
+    } else {
+      mobileMenu?.classList.add('hidden');
+      menuIconOpen?.classList.remove('hidden');
+      menuIconClose?.classList.add('hidden');
+      document.body.style.overflow = '';
+    }
+  });
+
+  document.querySelectorAll('.mobile-nav-link').forEach(link => {
+    link.addEventListener('click', () => {
+      menuOpen = false;
+      mobileMenu?.classList.add('hidden');
+      menuIconOpen?.classList.remove('hidden');
+      menuIconClose?.classList.add('hidden');
+      document.body.style.overflow = '';
+    });
+  });
+
+  // ── Sliding nav indicator
+  const indicator = document.getElementById('nav-indicator') as HTMLElement | null;
+  const navLinks = document.querySelectorAll<HTMLElement>('.nav-link');
+
+  function moveIndicator(el: HTMLElement) {
+    if (!indicator) return;
+    const navContainer = el.closest('nav');
+    if (!navContainer) return;
+    const containerRect = navContainer.querySelector('div')?.getBoundingClientRect();
+    const elRect = el.getBoundingClientRect();
+    if (!containerRect) return;
+    indicator.style.left = `${elRect.left - containerRect.left}px`;
+    indicator.style.width = `${elRect.width}px`;
+    indicator.style.opacity = '1';
+  }
+
+  function hideIndicator() {
+    if (!indicator) return;
+    indicator.style.opacity = '0';
+  }
+
+  navLinks.forEach(link => {
+    link.addEventListener('mouseenter', () => moveIndicator(link));
+  });
+
+  document.querySelector('nav')?.addEventListener('mouseleave', hideIndicator);
+
+  // ── Active section highlighting
+  const sections = document.querySelectorAll('section[id]');
+
+  window.addEventListener('scroll', () => {
+    let current = '';
+    sections.forEach(section => {
+      const el = section as HTMLElement;
+      if (window.scrollY >= el.offsetTop - 200) {
+        current = section.getAttribute('id') || '';
+      }
+    });
+
+    navLinks.forEach(link => {
+      const isActive = link.getAttribute('data-section') === `#${current}`;
+      link.classList.toggle('text-white', isActive);
+      link.classList.toggle('text-slate-400', !isActive);
+    });
+  });
+</script>
