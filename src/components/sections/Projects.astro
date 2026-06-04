@@ -2,13 +2,13 @@
 import SectionTitle from '@/components/ui/SectionTitle.astro';
 import Card from '@/components/ui/Card.astro';
 import Badge from '@/components/ui/Badge.astro';
+import ProjectModal from '@/components/ui/ProjectModal.astro';
 import { projects } from '@/content/projects';
 import { site } from '@/content/site';
 
 const featuredProjects = projects.filter(p => p.featured);
 const otherProjects = projects.filter(p => !p.featured);
 
-// Icon SVG GitHub — dipakai ulang di beberapa tempat
 const githubIconPath = `M15 22v-4a4.8 4.8 0 0 0-1-3.5c3 0 6-2 6-5.5.08-1.25-.27-2.48-1-3.5.28-1.15.28-2.35 0-3.5 0 0-1 0-3 1.5-2.64-.5-5.36-.5-8 0C6 2 5 2 5 2c-.3 1.15-.3 2.35 0 3.5A5.403 5.403 0 0 0 4 9c0 3.5 3 5.5 6 5.5-.39.49-.68 1.05-.85 1.65-.17.6-.22 1.23-.15 1.85v4`;
 const githubIconPath2 = `M9 18c-4.51 2-5-2-7-2`;
 ---
@@ -30,22 +30,25 @@ const githubIconPath2 = `M9 18c-4.51 2-5-2-7-2`;
     <!-- ── Featured Projects Grid ── -->
     <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-10">
       {featuredProjects.map((project, i) => (
-        <div class="h-full" data-aos="fade-up" data-aos-delay={i * 150}>
-          <!-- overflow-hidden + flex flex-col agar gambar terpotong rapi di sudut card -->
+        <div
+          class="h-full"
+          data-aos="fade-up"
+          data-aos-delay={i * 150}
+          data-project-slug={project.slug}
+          role="button"
+          tabindex="0"
+          aria-label={`Buka detail proyek ${project.title}`}
+        >
           <Card class="h-full group cursor-pointer overflow-hidden flex flex-col" glow={true}>
-
             <!-- Project Image -->
-            {project.image && (
+            {(project.images?.[0] || project.image) && (
               <div class="relative h-52 overflow-hidden flex-shrink-0 bg-dark-800">
                 <img
-                  src={`${import.meta.env.BASE_URL}/${project.image?.replace(/^\//, '')}`}
-                  alt={`Screenshot proyek ${project.title}`}
+                  src={`${import.meta.env.BASE_URL}/${(project.images?.[0] || project.image)?.replace(/^\//, '')}`}                  alt={`Screenshot proyek ${project.title}`}
                   class="w-full h-full object-cover object-top group-hover:scale-105 transition-transform duration-700"
                   loading="lazy"
                 />
-                <!-- gradient overlay agar konten di bawah tetap terbaca -->
                 <div class="absolute inset-0 bg-gradient-to-t from-dark-900/70 via-dark-900/10 to-transparent pointer-events-none"></div>
-                <!-- Badge featured di atas gambar -->
                 {project.featured && (
                   <div class="absolute top-3 left-3">
                     <Badge variant="accent" size="sm">
@@ -59,8 +62,6 @@ const githubIconPath2 = `M9 18c-4.51 2-5-2-7-2`;
 
             <!-- Content -->
             <div class="relative p-6 md:p-8 flex-1 flex flex-col">
-
-              <!-- Header: icon + category + year + badge (jika tidak ada gambar) -->
               <div class="flex items-start justify-between mb-4">
                 <div class="flex items-center gap-3">
                   <div class="w-12 h-12 rounded-xl bg-gradient-to-br from-primary-500/20 to-accent-500/20 border border-primary-500/20 flex items-center justify-center transition-all duration-500 flex-shrink-0">
@@ -74,8 +75,7 @@ const githubIconPath2 = `M9 18c-4.51 2-5-2-7-2`;
                     </div>
                   </div>
                 </div>
-                <!-- Tampilkan badge Featured hanya jika tidak ada gambar (sudah ada di atas gambar) -->
-                {project.featured && !project.image && (
+                {project.featured && !(project.images?.[0] || project.image) && (
                   <Badge variant="accent" size="sm">
                     <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
                     Featured
@@ -83,7 +83,6 @@ const githubIconPath2 = `M9 18c-4.51 2-5-2-7-2`;
                 )}
               </div>
 
-              <!-- Title & Description -->
               <h3 class="text-xl md:text-2xl font-bold text-white mb-3 group-hover:text-primary-400 transition-colors duration-300 font-display leading-tight">
                 {project.title}
               </h3>
@@ -91,7 +90,6 @@ const githubIconPath2 = `M9 18c-4.51 2-5-2-7-2`;
                 {project.description}
               </p>
 
-              <!-- Highlights -->
               <ul class="space-y-2 mb-6">
                 {project.highlights?.slice(0, 3).map((highlight) => (
                   <li class="flex items-start gap-2 text-sm text-slate-300">
@@ -101,22 +99,20 @@ const githubIconPath2 = `M9 18c-4.51 2-5-2-7-2`;
                 ))}
               </ul>
 
-              <!-- Footer: Tech Stack + GitHub Link -->
               <div class="mt-auto pt-4 border-t border-slate-700/50">
-                <!-- Tech Stack badges -->
                 <div class="flex flex-wrap gap-2 mb-3">
                   {project.techStack?.map((tech) => (
                     <Badge variant="ghost" size="sm">{tech}</Badge>
                   ))}
                 </div>
 
-                <!-- GitHub Link -->
                 {project.githubUrl && (
                   <a
                     href={project.githubUrl}
                     target="_blank"
                     rel="noopener noreferrer"
                     class="inline-flex items-center gap-2 text-xs text-slate-400 hover:text-primary-400 font-medium transition-colors duration-300"
+                    onclick="event.stopPropagation()"
                   >
                     <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                       <path d={githubIconPath}/>
@@ -128,12 +124,10 @@ const githubIconPath2 = `M9 18c-4.51 2-5-2-7-2`;
                 )}
               </div>
 
-              <!-- Hover arrow (absolute terhadap div.relative ini) -->
               <div class="absolute top-6 right-6 w-10 h-10 rounded-full bg-primary-500/10 flex items-center justify-center opacity-0 group-hover:opacity-100 translate-x-4 group-hover:translate-x-0 transition-all duration-500 pointer-events-none">
                 <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-primary-400"><path d="M7 7h10v10"/><path d="M7 17 17 7"/></svg>
               </div>
             </div>
-
           </Card>
         </div>
       ))}
@@ -145,62 +139,62 @@ const githubIconPath2 = `M9 18c-4.51 2-5-2-7-2`;
         <h3 class="text-xl font-bold text-white mb-6 font-display">Proyek Lainnya</h3>
         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
           {otherProjects.map((project) => (
-            <!-- overflow-hidden + flex flex-col agar gambar terpotong rapi -->
-            <Card class="group cursor-pointer overflow-hidden flex flex-col">
-
-              <!-- Project Image -->
-              {project.image && (
-                <div class="relative h-36 overflow-hidden flex-shrink-0 bg-dark-800">
-                  <img
-                    src={`${import.meta.env.BASE_URL}/${project.image?.replace(/^\//, '')}`}
-                    alt={`Screenshot proyek ${project.title}`}
-                    class="w-full h-full object-cover object-top group-hover:scale-105 transition-transform duration-700"
-                    loading="lazy"
-                  />
-                  <div class="absolute inset-0 bg-gradient-to-t from-dark-800/70 via-dark-800/10 to-transparent pointer-events-none"></div>
-                </div>
-              )}
-
-              <!-- Content -->
-              <div class="p-5 flex-1 flex flex-col">
-                <div class="flex items-center gap-3 mb-3">
-                  <div class="w-10 h-10 rounded-lg bg-primary-500/10 flex items-center justify-center transition-all duration-300 flex-shrink-0">
-                    <i class={project.icon || 'devicon-github-original'} style="font-size: 20px;"></i>
+            <div
+              data-project-slug={project.slug}
+              role="button"
+              tabindex="0"
+              aria-label={`Buka detail proyek ${project.title}`}
+            >
+              <Card class="group cursor-pointer overflow-hidden flex flex-col h-full">
+                {(project.images?.[0] || project.image) && (
+                  <div class="relative h-36 overflow-hidden flex-shrink-0 bg-dark-800">
+                    <img
+                      src={`${import.meta.env.BASE_URL}/${(project.images?.[0] || project.image)?.replace(/^\//, '')}`}                      alt={`Screenshot proyek ${project.title}`}
+                      class="w-full h-full object-cover object-top group-hover:scale-105 transition-transform duration-700"
+                      loading="lazy"
+                    />
+                    <div class="absolute inset-0 bg-gradient-to-t from-dark-800/70 via-dark-800/10 to-transparent pointer-events-none"></div>
                   </div>
-                  <div class="min-w-0">
-                    <h4 class="text-white font-semibold text-sm group-hover:text-primary-400 transition-colors duration-300 truncate">{project.title}</h4>
-                    <span class="text-xs text-slate-500">{project.year}</span>
-                  </div>
-                </div>
-
-                <p class="text-slate-400 text-xs leading-relaxed mb-3 line-clamp-2 flex-grow">{project.description}</p>
-
-                <!-- Tech Stack badges -->
-                <div class="flex flex-wrap gap-1.5 mb-3">
-                  {project.techStack?.slice(0, 4).map((tech) => (
-                    <Badge variant="ghost" size="sm" class="text-xs">{tech}</Badge>
-                  ))}
-                </div>
-
-                <!-- GitHub Link -->
-                {project.githubUrl && (
-                  <a
-                    href={project.githubUrl}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    class="inline-flex items-center gap-1.5 text-xs text-slate-500 hover:text-primary-400 font-medium transition-colors duration-300 mt-auto"
-                  >
-                    <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                      <path d={githubIconPath}/>
-                      <path d={githubIconPath2}/>
-                    </svg>
-                    GitHub
-                    <svg xmlns="http://www.w3.org/2000/svg" width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 7h10v10"/><path d="M7 17 17 7"/></svg>
-                  </a>
                 )}
-              </div>
 
-            </Card>
+                <div class="p-5 flex-1 flex flex-col">
+                  <div class="flex items-center gap-3 mb-3">
+                    <div class="w-10 h-10 rounded-lg bg-primary-500/10 flex items-center justify-center transition-all duration-300 flex-shrink-0">
+                      <i class={project.icon || 'devicon-github-original'} style="font-size: 20px;"></i>
+                    </div>
+                    <div class="min-w-0">
+                      <h4 class="text-white font-semibold text-sm group-hover:text-primary-400 transition-colors duration-300 truncate">{project.title}</h4>
+                      <span class="text-xs text-slate-500">{project.year}</span>
+                    </div>
+                  </div>
+
+                  <p class="text-slate-400 text-xs leading-relaxed mb-3 line-clamp-2 flex-grow">{project.description}</p>
+
+                  <div class="flex flex-wrap gap-1.5 mb-3">
+                    {project.techStack?.slice(0, 4).map((tech) => (
+                      <Badge variant="ghost" size="sm" class="text-xs">{tech}</Badge>
+                    ))}
+                  </div>
+
+                  {project.githubUrl && (
+                    <a
+                      href={project.githubUrl}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      class="inline-flex items-center gap-1.5 text-xs text-slate-500 hover:text-primary-400 font-medium transition-colors duration-300 mt-auto"
+                      onclick="event.stopPropagation()"
+                    >
+                      <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d={githubIconPath}/>
+                        <path d={githubIconPath2}/>
+                      </svg>
+                      GitHub
+                      <svg xmlns="http://www.w3.org/2000/svg" width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 7h10v10"/><path d="M7 17 17 7"/></svg>
+                    </a>
+                  )}
+                </div>
+              </Card>
+            </div>
           ))}
         </div>
       </div>
@@ -223,6 +217,34 @@ const githubIconPath2 = `M9 18c-4.51 2-5-2-7-2`;
         <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 7h10v10"/><path d="M7 17 17 7"/></svg>
       </a>
     </div>
-
   </div>
+
+  <!-- Modal Instance -->
+  <ProjectModal />
 </section>
+
+<script define:vars={{ projects, baseUrl: import.meta.env.BASE_URL }}>
+  // Expose project data globally for the modal
+  window.__PROJECTS_DATA__ = projects;
+  window.__BASE_URL__ = baseUrl;
+
+  // Attach click handlers to all project cards
+  document.querySelectorAll('[data-project-slug]').forEach(el => {
+    const slug = el.getAttribute('data-project-slug');
+    if (!slug) return;
+
+    const handler = () => {
+      if (window.openProjectModal) {
+        window.openProjectModal(slug);
+      }
+    };
+
+    el.addEventListener('click', handler);
+    el.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter' || e.key === ' ') {
+        e.preventDefault();
+        handler();
+      }
+    });
+  });
+</script>

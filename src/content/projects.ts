@@ -1,20 +1,5 @@
 import type { Project } from '@/types';
 
-// ─────────────────────────────────────────────────────────────────────────────
-// CATATAN SETUP:
-//
-// 1. GAMBAR — Letakkan file gambar di:
-//    public/projects/<nama-file>.jpg
-//    Lalu ubah nilai `image` tiap project sesuai nama file yang kamu upload.
-//
-// 2. GITHUB URL — Semua link di bawah masih dummy.
-//    Ganti dengan URL repo GitHub kamu yang sebenarnya.
-//
-// 3. TYPES — Tambahkan dua field ini ke interface Project di src/types/index.ts:
-//    githubUrl?: string;
-//    image?: string;
-// ─────────────────────────────────────────────────────────────────────────────
-
 export const projects: Project[] = [
   {
     slug: 'website-pemerintahan-subang',
@@ -27,10 +12,16 @@ export const projects: Project[] = [
     techStack: ['Laravel 11', 'Tailwind CSS', 'PHP', 'MySQL', 'Generative AI', 'REST API'],
     year: '2025',
     featured: true,
-    // ⬇ Ganti dengan URL repo GitHub yang sebenarnya
     githubUrl: 'https://github.com/rianpramudya/WebsiteKabupatenSubang',
-    // ⬇ Ganti dengan nama file gambar yang kamu upload ke public/projects/
     image: '/Subang.jpeg',
+    images: [
+      '/Subang.jpeg',
+      '/Subang-2.png',
+      '/Subang-3.png',
+      '/Subang-4.png',
+      '/Subang-5.png',
+      '/Subang-6.png',
+    ],
     highlights: [
       'Arsitektur portal terintegrasi untuk 60 instansi pemerintahan',
       '30 website Kecamatan + 30 website OPD dalam satu ekosistem',
@@ -40,29 +31,46 @@ export const projects: Project[] = [
     ],
   },
   {
-  slug: 'astra-logistic-tracking',
-  icon: 'devicon-svelte-plain colored',
-  title: 'Astra Logistic & Asset Tracking System',
-  description: 'Sistem manajemen logistik dan pelacakan aset dengan backend RESTful API berkinerja tinggi, simulasi 3D interaktif Three.js, dan dashboard analitik real-time menggunakan SvelteKit.',
-  longDescription: 'Mengembangkan arsitektur backend RESTful API berkinerja tinggi menggunakan FastAPI dan SQLAlchemy (PostgreSQL) untuk manajemen data logistik jutaan aset. Membangun fitur simulasi 3D interaktif menggunakan Three.js untuk memvisualisasikan dan mengoptimalkan penataan muatan (packing) di dalam kontainer industri. Sistem dilengkapi dengan pencatatan riwayat dan pelacakan status pergerakan aset secara real-time berbasis API, serta dashboard analitik real-time menggunakan SvelteKit untuk memantau KPI seperti utilisasi kontainer, performa pengiriman, dan anomali operasional.',
-  tags: ['FastAPI', 'Three.js', 'SvelteKit', 'PostgreSQL', 'REST API'],
-  category: 'Full-Stack Web Development',
-  techStack: ['FastAPI', 'SQLAlchemy', 'PostgreSQL', 'Three.js', 'SvelteKit', 'Python'],
-  year: '2025',
-  featured: true,
-  githubUrl: 'https://github.com/rianpramudya/Astra-Project',
-  
-  // UBAH BARIS INI:
-  image: '/Astra.jpeg', 
-  
-  highlights: [
-    'Backend RESTful API berkinerja tinggi dengan FastAPI',
-    'Simulasi 3D interaktif menggunakan Three.js',
-    'Manajemen data logistik jutaan aset',
-    'Pelacakan status pergerakan aset real-time',
-    'Dashboard analitik real-time dengan SvelteKit',
-  ],
-},
+    slug: 'astra-logistic-tracking',
+    icon: 'devicon-svelte-plain colored',
+    title: 'Astra Logistic & Asset Tracking System',
+    description: 'Sistem manajemen logistik dan pelacakan aset dengan backend RESTful API berkinerja tinggi, simulasi 3D interaktif Three.js, dan dashboard analitik real-time menggunakan SvelteKit.',
+    longDescription: 'Mengembangkan arsitektur backend RESTful API berkinerja tinggi menggunakan FastAPI dan SQLAlchemy (PostgreSQL) untuk manajemen data logistik jutaan aset. Membangun fitur simulasi 3D interaktif menggunakan Three.js untuk memvisualisasikan dan mengoptimalkan penataan muatan (packing) di dalam kontainer industri. Sistem dilengkapi dengan pencatatan riwayat dan pelacakan status pergerakan aset secara real-time berbasis API, serta dashboard analitik real-time menggunakan SvelteKit untuk memantau KPI seperti utilisasi kontainer, performa pengiriman, dan anomali operasional.',
+    tags: ['FastAPI', 'Three.js', 'SvelteKit', 'PostgreSQL', 'REST API'],
+    category: 'Full-Stack Web Development',
+    techStack: ['FastAPI', 'SQLAlchemy', 'PostgreSQL', 'Three.js', 'SvelteKit', 'Python'],
+    year: '2025',
+    featured: true,
+    githubUrl: 'https://github.com/rianpramudya/Astra-Project',
+    image: '/Astra.jpeg',
+    images: [
+      '/Astra.jpeg',
+      '/Astra-2.png',
+      '/Astra-3.png',
+      '/Astra-4.png',
+      '/Astra-5.png',
+      '/Astra-6.png',
+      '/Astra-7.png',
+      '/Astra-8.png',
+      '/Astra-9.png',
+      '/Astra-10.png',
+      '/Astra-11.png',
+      '/Astra-12.png',
+      '/Astra-13.png',
+      '/Astra-14.png',
+      '/Astra-15.png',
+      '/Astra-16.png',
+      '/Astra-17.png',
+      '/Astra-18.png',
+    ],
+    highlights: [
+      'Backend RESTful API berkinerja tinggi dengan FastAPI',
+      'Simulasi 3D interaktif menggunakan Three.js',
+      'Manajemen data logistik jutaan aset',
+      'Pelacakan status pergerakan aset real-time',
+      'Dashboard analitik real-time dengan SvelteKit',
+    ],
+  },
   {
     slug: 'dompet-rantau',
     icon: 'devicon-php-plain colored',
@@ -75,7 +83,15 @@ export const projects: Project[] = [
     year: '2025',
     featured: true,
     githubUrl: 'https://github.com/rianpramudya/Website-Manajemen-Keuangan',
-    image: '/DompetRantau.jpeg',
+    image: '/DompetRantau.png',
+    images: [
+      '/DompetRantau.png',
+      '/DompetRantau-2.png',
+      '/DompetRantau-3.png',
+      '/DompetRantau-4.png',
+      '/DompetRantau-5.png',
+      '/DompetRantau-6.png',
+    ],
     highlights: [
       'Pelacakan arus kas pemasukan & pengeluaran',
       'Sistem alokasi multi-kantong (pocket system)',
@@ -97,6 +113,19 @@ export const projects: Project[] = [
     featured: false,
     githubUrl: 'https://github.com/rianpramudya/My-Portofolio-Website-Profile-',
     image: '/Portofolio.jpeg',
+    images: [
+      '/Portofolio.jpeg',
+      '/Portofolio-2.png',
+      '/Portofolio-3.png',
+      '/Portofolio-4.png',
+      '/Portofolio-5.png',
+      '/Portofolio-6.png',
+      '/Portofolio-7.png',
+      '/Portofolio-8.png',
+      '/Portofolio-9.png',
+      '/Portofolio-10.png',
+      '/Portofolio-11.png',
+    ],
     highlights: [
       'CMS kustom untuk manajemen konten real-time',
       'Admin Panel lengkap dengan sistem inbox',
@@ -118,6 +147,14 @@ export const projects: Project[] = [
     featured: true,
     githubUrl: 'https://github.com/rianpramudya/SistemRekomendasiAmazon',
     image: '/RecSys.jpeg',
+    images: [
+      '/RecSys.jpeg',
+      '/RecSys-2.png',
+      '/RecSys-3.png',
+      '/RecSys-4.png',
+      '/RecSys-5.png',
+      '/RecSys-6.png',
+    ],
     highlights: [
       'Truncated SVD untuk reduksi dimensi data sparsity',
       'K-Means clustering dengan 10 profil minat pengguna',
@@ -139,6 +176,14 @@ export const projects: Project[] = [
     featured: true,
     githubUrl: 'https://github.com/rianpramudya/AcneScan',
     image: '/AcneScan.jpeg',
+    images: [
+      '/AcneScan.jpeg',
+      '/AcneScan-2.png',
+      '/AcneScan-3.png',
+      '/AcneScan-4.png',
+      '/AcneScan-5.png',
+      '/AcneScan-6.png',
+    ],
     highlights: [
       'Pipeline deteksi objek end-to-end dengan YOLOv11m',
       'Teknik SAHI untuk deteksi objek kecil pada citra resolusi tinggi',

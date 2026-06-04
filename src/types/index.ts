@@ -13,6 +13,7 @@ export interface Project {
   techStack?: string[];
   year?: string;
   image?: string;
+  images?: string[];
 }
 
 export interface Skill {
@@ -40,3 +41,4 @@ export interface SiteConfig {
   url: string;
   
 }
+
