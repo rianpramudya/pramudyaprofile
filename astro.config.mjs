@@ -3,11 +3,15 @@ import react from '@astrojs/react';
 import tailwind from '@astrojs/tailwind';
 
 export default defineConfig({
+  site: 'https://rianpramudya.github.io',
+  base: '/pramudyaprofile',
   integrations: [react(), tailwind()],
-  site: 'https://rianpramudya.dev',
   vite: {
     ssr: {
       noExternal: ['lucide-react']
     }
+  },
+  build: {
+    assets: 'assets'
   }
 });
