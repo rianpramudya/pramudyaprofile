@@ -18,6 +18,7 @@ import type { Project } from '@/types';
 export const projects: Project[] = [
   {
     slug: 'website-pemerintahan-subang',
+    icon: 'devicon-laravel-plain colored',
     title: 'Website Pemerintahan Subang - 60 Instansi',
     description: 'Portal web pemerintahan terintegrasi berskala besar yang menaungi 60 instansi (30 website Kecamatan dan 30 website OPD) menggunakan Laravel 11 dan Tailwind CSS dengan integrasi Generative AI.',
     longDescription: 'Memimpin pengembangan arsitektur portal web pemerintahan terintegrasi berskala besar yang menaungi 60 instansi (30 website Kecamatan dan 30 website OPD) menggunakan Laravel 11 dan Tailwind CSS. Proyek ini mengintegrasikan alur kerja berbasis Generative AI untuk mengakselerasi siklus development secara efisien dengan tetap mempertahankan standar keamanan sistem yang ketat. Dilengkapi dengan fitur komprehensif dan optimasi UI/UX yang responsif dan intuitif untuk memastikan kemudahan akses bagi masyarakat luas.',
@@ -39,7 +40,8 @@ export const projects: Project[] = [
     ],
   },
   {
-    slug: 'astra-logistic-tracking',
+  slug: 'astra-logistic-tracking',
+  icon: 'devicon-svelte-plain colored',
   title: 'Astra Logistic & Asset Tracking System',
   description: 'Sistem manajemen logistik dan pelacakan aset dengan backend RESTful API berkinerja tinggi, simulasi 3D interaktif Three.js, dan dashboard analitik real-time menggunakan SvelteKit.',
   longDescription: 'Mengembangkan arsitektur backend RESTful API berkinerja tinggi menggunakan FastAPI dan SQLAlchemy (PostgreSQL) untuk manajemen data logistik jutaan aset. Membangun fitur simulasi 3D interaktif menggunakan Three.js untuk memvisualisasikan dan mengoptimalkan penataan muatan (packing) di dalam kontainer industri. Sistem dilengkapi dengan pencatatan riwayat dan pelacakan status pergerakan aset secara real-time berbasis API, serta dashboard analitik real-time menggunakan SvelteKit untuk memantau KPI seperti utilisasi kontainer, performa pengiriman, dan anomali operasional.',
@@ -63,6 +65,7 @@ export const projects: Project[] = [
 },
   {
     slug: 'dompet-rantau',
+    icon: 'devicon-php-plain colored',
     title: 'Dompet Rantau - Manajemen Keuangan',
     description: 'Sistem manajemen finansial digital berbasis web untuk fleksibilitas keuangan mahasiswa perantau dengan fitur pelacakan arus kas, sistem alokasi multi-kantong, dan kalkulator tagihan.',
     longDescription: 'Mengimplementasikan Laravel 11 untuk mengembangkan sistem manajemen finansial digital berbasis web yang ditargetkan untuk fleksibilitas keuangan mahasiswa perantau. Mengembangkan fitur inti yang mencakup pelacakan arus kas (pemasukan & pengeluaran), sistem alokasi multi-kantong (pocket system), dan kalkulator tagihan. Membangun fungsionalitas pembuatan laporan keuangan komprehensif yang dapat diekspor dan diunduh dalam format PDF oleh pengguna.',
@@ -83,6 +86,7 @@ export const projects: Project[] = [
   },
   {
     slug: 'portfolio-cms',
+    icon: 'devicon-tailwindcss-plain colored',
     title: 'Portfolio Pribadi dengan CMS Kustom',
     description: 'Platform personal branding dinamis terintegrasi dengan CMS kustom menggunakan Laravel 11 dan Tailwind CSS, dilengkapi Admin Panel dan generator dokumen otomatis.',
     longDescription: 'Merancang platform personal branding dinamis terintegrasi dengan Content Management System (CMS) kustom menggunakan Laravel 11 dan Tailwind CSS. Membangun Admin Panel untuk manajemen konten secara real-time (proyek, pengalaman, keahlian, dan layanan) serta sistem inbox untuk interaksi pesan masuk. Mengembangkan fitur unggulan berupa Generator dokumen otomatis yang mampu mengekspor profil menjadi CV (format ATS & Kreatif) dan Surat Lamaran dalam bentuk PDF.',
@@ -103,6 +107,7 @@ export const projects: Project[] = [
   },
   {
     slug: 'amazon-recommendation',
+    icon: 'devicon-python-plain colored',
     title: 'Amazon Electronics Recommendation System',
     description: 'Sistem rekomendasi produk elektronik Amazon menggunakan Machine Learning dengan Truncated SVD, K-Means clustering, dan dashboard analitik interaktif Streamlit.',
     longDescription: 'Memproses dan membersihkan dataset ulasan produk Amazon berskala besar, mengimplementasikan Truncated SVD untuk mereduksi dimensi matriks user-item menjadi 50 fitur laten guna mengatasi masalah data sparsity. Mengembangkan model clustering menggunakan algoritma K-Means untuk memetakan pengguna ke dalam 10 profil minat yang berbeda, menghasilkan rekomendasi produk yang relevan berdasarkan metrik popularitas dalam klaster. Mengevaluasi keandalan algoritma menggunakan 5-Fold Cross Validation untuk memastikan konsistensi akurasi prediksi (Precision, Recall, F1-Score). Membangun antarmuka dashboard analitik interaktif menggunakan Streamlit dan Plotly.',
@@ -123,6 +128,7 @@ export const projects: Project[] = [
   },
   {
     slug: 'acnescan-yolo',
+    icon: 'devicon-pytorch-plain colored',
     title: 'AcneScan - Deteksi Jerawat YOLOv11',
     description: 'Sistem deteksi dan penghitungan lesi jerawat berbasis YOLOv11 dengan teknik SAHI untuk citra resolusi tinggi, dilengkapi antarmuka web Streamlit dan penyimpanan SQLite.',
     longDescription: 'Membangun pipeline deteksi objek dari hulu ke hilir menggunakan YOLOv11m untuk klasifikasi lesi jerawat aktif dengan tingkat presisi yang akurat. Mengintegrasikan teknik Slicing Aided Hyper Inference (SAHI) untuk memproses citra resolusi tinggi dalam jendela kecil, yang secara efektif melipatgandakan kemampuan deteksi pada objek kecil. Mengembangkan antarmuka aplikasi web menggunakan Streamlit untuk mempermudah aksesibilitas model bagi pengguna non-teknis. Menerapkan sistem penyimpanan data menggunakan SQLite untuk manajemen metadata hasil deteksi dan analisis statistik jangka panjang. Melakukan optimasi performa melalui eksperimen hyperparameter pada resolusi 800px dan berbagai strategi augmentasi citra.',
