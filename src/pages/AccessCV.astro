@@ -1,0 +1,380 @@
+---
+// src/pages/cv-private-access.astro
+import BaseLayout from "../layouts/BaseLayout.astro";
+
+const cvPdfLink =
+  "https://drive.google.com/file/d/1NKIyLDsm5LIfNeoHKonPazMyYf2gTr4n/preview";
+const cvDownloadLink =
+  "https://drive.google.com/file/d/1NKIyLDsm5LIfNeoHKonPazMyYf2gTr4n/view?usp=sharing";
+---
+
+<BaseLayout
+  title="Akses Terkunci - Rian Pramudya Amanda"
+  description="Halaman akses privat Curriculum Vitae Rian Pramudya Amanda"
+>
+  <meta slot="head" name="robots" content="noindex, nofollow" />
+
+  <main
+    class="min-h-screen bg-[#04040f] flex flex-col items-center justify-center p-4 pt-28 pb-16 relative overflow-hidden"
+  >
+    <!-- Background glow -->
+    <div
+      class="absolute inset-0 pointer-events-none flex items-center justify-center"
+    >
+      <div
+        class="w-[600px] h-[600px] bg-emerald-500/5 rounded-full blur-[120px]"
+      >
+      </div>
+    </div>
+
+    <!-- Lock Screen -->
+    <div
+      id="lock-screen"
+      class="relative z-10 max-w-md w-full bg-[#0a0a0a]/80 backdrop-blur-xl border border-white/10 rounded-3xl p-8 text-center shadow-[0_20px_60px_rgba(16,185,129,0.1)] transition-all duration-500"
+    >
+      <div
+        class="w-20 h-20 bg-dark-800 rounded-full border border-slate-700/50 flex items-center justify-center mx-auto mb-6 shadow-inner relative overflow-hidden"
+      >
+        <div
+          id="lock-glow"
+          class="absolute inset-0 bg-emerald-500/20 opacity-0 transition-opacity duration-300 rounded-full"
+        >
+        </div>
+        <svg
+          id="lock-icon"
+          xmlns="http://www.w3.org/2000/svg"
+          width="32"
+          height="32"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+          class="text-slate-400 transition-colors duration-300 relative z-10"
+        >
+          <rect width="18" height="11" x="3" y="11" rx="2" ry="2"></rect>
+          <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
+        </svg>
+      </div>
+
+      <h1 class="text-2xl font-bold text-white mb-2 font-display">
+        Akses Terkunci
+      </h1>
+      <p class="text-slate-400 text-sm mb-2">
+        Masukkan kode akses yang telah dikirimkan ke email Anda.
+      </p>
+
+      <!-- Timer countdown kecil -->
+      <div class="flex items-center justify-center gap-2 mb-8">
+        <span class="relative flex h-1.5 w-1.5">
+          <span
+            class="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"
+          ></span>
+          <span
+            class="relative inline-flex rounded-full h-1.5 w-1.5 bg-emerald-500"
+          ></span>
+        </span>
+        <span class="text-xs text-slate-500">
+          Kode aktif, berganti dalam <span
+            id="mini-countdown"
+            class="text-emerald-500 font-mono font-semibold">--:--:--</span
+          >
+        </span>
+      </div>
+
+      <form id="pin-form" class="flex flex-col gap-4">
+        <div class="relative">
+          <input
+            type="password"
+            id="pin-input"
+            placeholder="Masukkan PIN 6 digit"
+            class="w-full bg-dark-900 border border-slate-700/50 rounded-xl px-4 py-3.5 text-center text-white tracking-[0.5em] font-mono text-lg focus:outline-none focus:border-emerald-500/50 focus:ring-1 focus:ring-emerald-500/50 transition-all placeholder:tracking-normal"
+            maxlength="6"
+            inputmode="numeric"
+            autocomplete="off"
+          />
+          <p
+            id="pin-error"
+            class="text-red-400 text-xs mt-2.5 opacity-0 transition-all duration-300"
+          >
+            ✕ Kode akses tidak valid atau sudah expired.
+          </p>
+        </div>
+
+        <button
+          type="submit"
+          class="w-full mt-2 flex items-center justify-center gap-2 px-6 py-3.5 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-bold transition-all duration-300 hover:shadow-lg hover:shadow-emerald-500/25"
+        >
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            width="16"
+            height="16"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2.5"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+          >
+            <path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"></path><polyline
+              points="10 17 15 12 10 7"></polyline><line
+              x1="15"
+              x2="3"
+              y1="12"
+              y2="12"></line>
+          </svg>
+          Buka Dokumen
+        </button>
+
+        <p class="text-xs text-slate-600 mt-1">
+          Belum punya kode? <a
+            href="mailto:pramudya.career@gmail.com?subject=Permintaan%20Akses%20CV&body=Halo%20Rian%2C%0A%0ASaya%20ingin%20meminta%20kode%20akses%20CV%20Anda.%0A%0ANama%3A%20%0APerusahaan%2FInstansi%3A%20"
+            class="text-emerald-600 hover:text-emerald-400 transition-colors underline underline-offset-2"
+            >Hubungi saya</a
+          > terlebih dahulu.
+        </p>
+      </form>
+    </div>
+
+    <!-- CV Content (tersembunyi, muncul setelah PIN benar) -->
+    <div
+      id="cv-content"
+      class="relative z-10 max-w-5xl w-full bg-[#0a0a0a]/80 backdrop-blur-xl border border-white/10 rounded-3xl p-4 sm:p-6 md:p-10 text-center shadow-[0_20px_60px_rgba(16,185,129,0.1)] hidden opacity-0 scale-95 transition-all duration-700"
+    >
+      <div
+        class="w-16 h-16 md:w-20 md:h-20 bg-emerald-500/10 rounded-2xl border border-emerald-500/20 flex items-center justify-center mx-auto mb-6 md:mb-8 transform -rotate-6"
+      >
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          width="36"
+          height="36"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="1.5"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+          class="text-emerald-400"
+        >
+          <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10"></path><path
+            d="m9 12 2 2 4-4"></path>
+        </svg>
+      </div>
+
+      <h1
+        class="text-2xl md:text-4xl font-bold text-white mb-4 tracking-tight font-display"
+      >
+        Akses CV <span class="text-emerald-400">Diberikan</span>
+      </h1>
+      <p
+        class="text-slate-400 mb-8 md:mb-10 max-w-2xl mx-auto text-sm md:text-base leading-relaxed px-2"
+      >
+        Terima kasih atas ketertarikan Anda. Berikut adalah dokumen Curriculum
+        Vitae lengkap saya. Dokumen ini bersifat rahasia dan tidak untuk
+        disebarluaskan.
+      </p>
+
+      <!-- iframe PDF -->
+      <div
+        class="w-full relative rounded-2xl overflow-hidden border border-slate-700/50 mb-8 md:mb-10 bg-[#1c1c1e] shadow-inner"
+        style="height: 75vh; min-height: 500px; max-height: 900px;"
+      >
+        <iframe
+          src={cvPdfLink}
+          class="pdf-iframe absolute top-0 left-0"
+          allow="autoplay"
+          title="CV Rian Pramudya Amanda"></iframe>
+      </div>
+
+      <div class="flex flex-col sm:flex-row justify-center items-center gap-4">
+        <a
+          href={cvDownloadLink}
+          target="_blank"
+          rel="noopener noreferrer"
+          class="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-8 py-3.5 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-bold transition-all duration-300"
+        >
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            width="16"
+            height="16"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2.5"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+          >
+            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline
+              points="7 10 12 15 17 10"></polyline><line
+              x1="12"
+              x2="12"
+              y1="15"
+              y2="3"></line>
+          </svg>
+          Unduh File Asli (PDF)
+        </a>
+        <a
+          href={import.meta.env.BASE_URL}
+          class="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-8 py-3.5 rounded-xl border border-white/10 text-slate-300 hover:text-white hover:bg-white/5 transition-all duration-300"
+        >
+          Kembali ke Beranda
+        </a>
+      </div>
+    </div>
+  </main>
+</BaseLayout>
+
+<style>
+  .pdf-iframe {
+    width: 100%;
+    height: 100%;
+    border: none;
+  }
+
+  @media (max-width: 1024px) {
+    .pdf-iframe {
+      width: 150%;
+      height: 150%;
+      transform: scale(0.6666);
+      transform-origin: top left;
+    }
+  }
+  @media (max-width: 640px) {
+    .pdf-iframe {
+      width: 230%;
+      height: 230%;
+      transform: scale(0.4347);
+      transform-origin: top left;
+    }
+  }
+
+  @keyframes shake {
+    0%,
+    100% {
+      transform: translateX(0);
+    }
+    10%,
+    30%,
+    50%,
+    70%,
+    90% {
+      transform: translateX(-5px);
+    }
+    20%,
+    40%,
+    60%,
+    80% {
+      transform: translateX(5px);
+    }
+  }
+  .shake-animation {
+    animation: shake 0.5s ease-in-out;
+  }
+</style>
+
+<script>
+  // ============================================================
+  // SECRET KEY — HARUS SAMA dengan yang ada di cek-pin-lokal.html
+  // ============================================================
+  const SECRET_KEY = "PRAMUDYA2026RIFKYCV"; // ← Ganti ini, jangan share!
+  const WINDOW_HOURS = 3;
+  const PIN_LENGTH = 6;
+  // ============================================================
+
+  async function generatePIN(timeSlot = 0) {
+    const now = Math.floor(Date.now() / 1000);
+    const windowSeconds = WINDOW_HOURS * 3600;
+    const currentSlot = Math.floor(now / windowSeconds) + timeSlot;
+    const message = `${SECRET_KEY}:${currentSlot}`;
+
+    const encoder = new TextEncoder();
+    const data = encoder.encode(message);
+    const hashBuffer = await crypto.subtle.digest("SHA-256", data);
+    const hashArray = Array.from(new Uint8Array(hashBuffer));
+
+    const num =
+      ((hashArray[0] << 24) |
+        (hashArray[1] << 16) |
+        (hashArray[2] << 8) |
+        hashArray[3]) >>>
+      0;
+
+    return String(num % Math.pow(10, PIN_LENGTH)).padStart(PIN_LENGTH, "0");
+  }
+
+  async function validatePIN(input) {
+    const current = await generatePIN(0);
+    const previous = await generatePIN(-1); // grace period: PIN lama masih bisa dipakai
+    return input === current || input === previous;
+  }
+
+  function getSecondsUntilExpiry() {
+    const now = Math.floor(Date.now() / 1000);
+    const ws = WINDOW_HOURS * 3600;
+    return ws - (now % ws);
+  }
+
+  function formatTime(s) {
+    const h = Math.floor(s / 3600);
+    const m = Math.floor((s % 3600) / 60);
+    const sec = s % 60;
+    return `${String(h).padStart(2, "0")}:${String(m).padStart(2, "0")}:${String(sec).padStart(2, "0")}`;
+  }
+
+  // Countdown timer kecil
+  const miniCountdown = document.getElementById("mini-countdown");
+  function tickMini() {
+    if (miniCountdown)
+      miniCountdown.textContent = formatTime(getSecondsUntilExpiry());
+  }
+  tickMini();
+  setInterval(tickMini, 1000);
+
+  // Form handling
+  const form = document.getElementById("pin-form") as HTMLFormElement;
+  const input = document.getElementById("pin-input") as HTMLInputElement;
+  const errorMsg = document.getElementById("pin-error") as HTMLParagraphElement;
+  const lockScreen = document.getElementById("lock-screen") as HTMLDivElement;
+  const cvContent = document.getElementById("cv-content") as HTMLDivElement;
+  const lockIcon = document.getElementById(
+    "lock-icon",
+  ) as unknown as SVGElement;
+  const lockGlow = document.getElementById("lock-glow") as HTMLDivElement;
+
+  form?.addEventListener("submit", async (e) => {
+    e.preventDefault();
+    const entered = input.value.trim();
+    const valid = await validatePIN(entered);
+
+    if (valid) {
+      // Animasi gembok terbuka
+      lockIcon.classList.replace("text-slate-400", "text-emerald-400");
+      lockGlow.classList.remove("opacity-0");
+      errorMsg.style.opacity = "0";
+      lockIcon.innerHTML = `<rect width="18" height="11" x="3" y="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 9.9-1"></path>`;
+
+      setTimeout(() => {
+        lockScreen.style.opacity = "0";
+        lockScreen.style.transform = "scale(0.95)";
+        setTimeout(() => {
+          lockScreen.style.display = "none";
+          cvContent.classList.remove("hidden");
+          void cvContent.offsetWidth; // trigger reflow
+          cvContent.classList.remove("opacity-0", "scale-95");
+        }, 400);
+      }, 600);
+    } else {
+      // PIN salah
+      errorMsg.style.opacity = "1";
+      form.classList.add("shake-animation");
+      setTimeout(() => form.classList.remove("shake-animation"), 500);
+      input.value = "";
+      input.focus();
+    }
+  });
+
+  input?.addEventListener("input", () => {
+    if (errorMsg.style.opacity === "1") errorMsg.style.opacity = "0";
+  });
+</script>
