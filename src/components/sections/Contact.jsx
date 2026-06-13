@@ -142,11 +142,11 @@ export default function Contact() {
     <section
       id="contact"
       ref={sectionRef}
-      className="relative py-20 md:py-32 bg-dark-900 overflow-hidden"
+      className="relative py-20 md:py-32 bg-[#04040f] overflow-hidden"
     >
       {/* Background */}
       <div className="absolute inset-0 pointer-events-none">
-        <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[800px] h-[400px] bg-primary-500/5 rounded-full blur-[150px]"></div>
+        <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[800px] h-[400px] bg-emerald-500/5 rounded-full blur-[150px]"></div>
       </div>
 
       <div className="relative mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
@@ -154,13 +154,13 @@ export default function Contact() {
         <div
           className={`max-w-3xl mx-auto mb-16 text-center transition-all duration-700 ${isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-8"}`}
         >
-          <span className="inline-flex items-center gap-2 text-primary-400 font-semibold text-sm uppercase tracking-wider mb-4">
-            <span className="w-8 h-px bg-primary-500"></span>
+          <span className="inline-flex items-center gap-2 text-emerald-400 font-semibold text-sm uppercase tracking-wider mb-4">
+            <span className="w-8 h-px bg-emerald-500"></span>
             Kontak
-            <span className="w-8 h-px bg-primary-500"></span>
+            <span className="w-8 h-px bg-emerald-500"></span>
           </span>
           <h2 className="text-3xl md:text-4xl lg:text-5xl font-bold text-white mb-4 font-display leading-tight">
-            Mari Berkolaborasi <span className="text-primary-400">Bersama</span>
+            Mari Berkolaborasi <span className="text-emerald-400">Bersama</span>
           </h2>
           <p className="text-slate-400 text-base md:text-lg leading-relaxed max-w-2xl mx-auto">
             Punya ide proyek menarik atau ingin berdiskusi tentang teknologi?
@@ -193,17 +193,17 @@ export default function Contact() {
                         item.href.startsWith("http") ? "_blank" : undefined
                       }
                       rel="noopener noreferrer"
-                      className="flex items-center gap-4 p-4 rounded-xl bg-dark-700/30 border border-slate-700/30 hover:border-primary-500/30 hover:bg-primary-500/5 transition-all duration-300 group"
+                      className="flex items-center gap-4 p-4 rounded-xl bg-dark-700/30 border border-slate-700/30 hover:border-emerald-500/30 hover:bg-emerald-500/5 transition-all duration-300 group"
                       style={{ transitionDelay: `${i * 100}ms` }}
                     >
-                      <div className="w-12 h-12 rounded-xl bg-primary-500/10 flex items-center justify-center text-primary-400 group-hover:bg-primary-500 group-hover:text-white transition-all duration-300 flex-shrink-0">
+                      <div className="w-12 h-12 rounded-xl bg-emerald-500/10 flex items-center justify-center text-emerald-400 group-hover:bg-emerald-500 group-hover:text-white transition-all duration-300 flex-shrink-0">
                         {item.icon}
                       </div>
                       <div>
                         <p className="text-xs text-slate-500 font-medium">
                           {item.label}
                         </p>
-                        <p className="text-white text-sm font-medium group-hover:text-primary-400 transition-colors duration-300">
+                        <p className="text-white text-sm font-medium group-hover:text-emerald-400 transition-colors duration-300">
                           {item.value}
                         </p>
                       </div>
@@ -212,14 +212,14 @@ export default function Contact() {
                 </div>
 
                 {/* Respons Cepat — selalu di bawah daftar kontak */}
-                <div className="mt-6 p-4 rounded-xl bg-primary-500/5 border border-primary-500/20">
+                <div className="mt-6 p-4 rounded-xl bg-emerald-500/5 border border-emerald-500/20">
                   <div className="flex items-center gap-3">
                     <div className="relative flex-shrink-0">
-                      <span className="absolute inline-flex h-full w-full rounded-full bg-primary-400 opacity-75 animate-ping"></span>
-                      <span className="relative inline-flex rounded-full h-3 w-3 bg-primary-500"></span>
+                      <span className="absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75 animate-ping"></span>
+                      <span className="relative inline-flex rounded-full h-3 w-3 bg-emerald-500"></span>
                     </div>
                     <div>
-                      <p className="text-primary-400 text-sm font-semibold">
+                      <p className="text-emerald-400 text-sm font-semibold">
                         Respons Cepat
                       </p>
                       <p className="text-slate-500 text-xs">
@@ -244,7 +244,7 @@ export default function Contact() {
                 // FIX: flex-1 + items-center justify-center agar success state
                 // ter-center vertikal dan sejajar tinggi dengan card kiri
                 <div className="flex-1 flex flex-col items-center justify-center text-center">
-                  <div className="w-16 h-16 rounded-full bg-primary-500/10 flex items-center justify-center mx-auto mb-4">
+                  <div className="w-16 h-16 rounded-full bg-emerald-500/10 flex items-center justify-center mx-auto mb-4">
                     <svg
                       xmlns="http://www.w3.org/2000/svg"
                       width="32"
@@ -255,7 +255,7 @@ export default function Contact() {
                       strokeWidth="2"
                       strokeLinecap="round"
                       strokeLinejoin="round"
-                      className="text-primary-400"
+                      className="text-emerald-400"
                     >
                       <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14" />
                       <polyline points="22 4 12 14.01 9 11.01" />
@@ -270,7 +270,7 @@ export default function Contact() {
                   </p>
                   <button
                     onClick={() => setSubmitted(false)}
-                    className="inline-flex items-center gap-2 rounded-xl bg-primary-500/10 border border-primary-500/30 px-6 py-2.5 text-sm font-semibold text-primary-400 hover:bg-primary-500/20 transition-all duration-300"
+                    className="inline-flex items-center gap-2 rounded-xl bg-emerald-500/10 border border-emerald-500/30 px-6 py-2.5 text-sm font-semibold text-emerald-400 hover:bg-emerald-500/20 transition-all duration-300"
                   >
                     Kirim Pesan Lain
                   </button>
@@ -296,7 +296,7 @@ export default function Contact() {
                         value={formData.name}
                         onChange={handleChange}
                         required
-                        className="w-full px-4 py-3 rounded-xl bg-dark-700/50 border border-slate-600/50 text-white placeholder-slate-500 focus:outline-none focus:border-primary-500/50 focus:ring-2 focus:ring-primary-500/20 transition-all duration-300"
+                        className="w-full px-4 py-3 rounded-xl bg-dark-700/50 border border-slate-600/50 text-white placeholder-slate-500 focus:outline-none focus:border-emerald-500/50 focus:ring-2 focus:ring-emerald-500/20 transition-all duration-300"
                         placeholder="Nama kamu"
                       />
                     </div>
@@ -314,7 +314,7 @@ export default function Contact() {
                         value={formData.email}
                         onChange={handleChange}
                         required
-                        className="w-full px-4 py-3 rounded-xl bg-dark-700/50 border border-slate-600/50 text-white placeholder-slate-500 focus:outline-none focus:border-primary-500/50 focus:ring-2 focus:ring-primary-500/20 transition-all duration-300"
+                        className="w-full px-4 py-3 rounded-xl bg-dark-700/50 border border-slate-600/50 text-white placeholder-slate-500 focus:outline-none focus:border-emerald-500/50 focus:ring-2 focus:ring-emerald-500/20 transition-all duration-300"
                         placeholder="email@example.com"
                       />
                     </div>
@@ -334,7 +334,7 @@ export default function Contact() {
                       value={formData.message}
                       onChange={handleChange}
                       required
-                      className="flex-1 w-full px-4 py-3 rounded-xl bg-dark-700/50 border border-slate-600/50 text-white placeholder-slate-500 focus:outline-none focus:border-primary-500/50 focus:ring-2 focus:ring-primary-500/20 transition-all duration-300 resize-none min-h-[120px]"
+                      className="flex-1 w-full px-4 py-3 rounded-xl bg-dark-700/50 border border-slate-600/50 text-white placeholder-slate-500 focus:outline-none focus:border-emerald-500/50 focus:ring-2 focus:ring-emerald-500/20 transition-all duration-300 resize-none min-h-[120px]"
                       placeholder="Ceritakan tentang proyek atau ide kamu..."
                     />
                   </div>
@@ -365,7 +365,7 @@ export default function Contact() {
                   <button
                     type="submit"
                     disabled={isSubmitting}
-                    className="w-full inline-flex items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-primary-600 to-primary-500 px-6 py-3.5 text-base font-semibold text-white shadow-lg shadow-primary-500/25 hover:shadow-primary-500/40 hover:from-primary-500 hover:to-primary-400 transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed hover:-translate-y-0.5"
+                    className="w-full inline-flex items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-emerald-600 to-emerald-500 px-6 py-3.5 text-base font-semibold text-white shadow-lg shadow-emerald-500/25 hover:shadow-emerald-500/40 hover:from-emerald-500 hover:to-emerald-400 transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed hover:-translate-y-0.5"
                   >
                     {isSubmitting ? (
                       <>
