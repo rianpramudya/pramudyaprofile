@@ -3,17 +3,23 @@ import { site } from "@/content/site";
 
 const WEB3FORMS_KEY = "25fe095d-6c02-4f9b-9e95-e80c073b3d43";
 
+const MAX_NAME_LENGTH = 100;
+const MAX_EMAIL_LENGTH = 254;
+const MAX_MESSAGE_LENGTH = 5000;
+
 export default function Contact() {
   const [formData, setFormData] = useState({
     name: "",
     email: "",
     message: "",
   });
+  const [fieldErrors, setFieldErrors] = useState({ name: "", message: "" }); // Real-time error per field
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitted, setSubmitted] = useState(false);
   const [error, setError] = useState(null);
   const sectionRef = useRef(null);
   const [isVisible, setIsVisible] = useState(false);
+  const isSubmittingRef = useRef(false);
 
   useEffect(() => {
     const observer = new IntersectionObserver(
@@ -30,13 +36,66 @@ export default function Contact() {
   }, []);
 
   const handleChange = (e) => {
-    setFormData((prev) => ({ ...prev, [e.target.name]: e.target.value }));
+    const { name, value } = e.target;
+
+    // Bug #3 Fix — Reset error global saat user mengedit
+    setError(null);
+
+    // Real-time validasi per field
+    setFieldErrors((prev) => {
+      const next = { ...prev };
+      if (name === "name") {
+        if (value.length > MAX_NAME_LENGTH) {
+          next.name = `Nama maksimal ${MAX_NAME_LENGTH} karakter (sekarang ${value.length}).`;
+        } else {
+          next.name = "";
+        }
+      }
+      if (name === "message") {
+        if (value.length > MAX_MESSAGE_LENGTH) {
+          next.message = `Pesan maksimal ${MAX_MESSAGE_LENGTH} karakter (sekarang ${value.length}).`;
+        } else {
+          next.message = "";
+        }
+      }
+      return next;
+    });
+
+    setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+
+    // Bug #5 Fix — Race condition
+    if (isSubmittingRef.current) return;
+
+    // Blok submit jika masih ada field error
+    if (fieldErrors.name || fieldErrors.message) return;
+
+    isSubmittingRef.current = true;
     setIsSubmitting(true);
     setError(null);
+
+    // Bug #1 Fix — Validasi whitespace-only
+    if (!formData.name.trim()) {
+      setFieldErrors((prev) => ({
+        ...prev,
+        name: "Nama tidak boleh kosong atau hanya spasi.",
+      }));
+      setIsSubmitting(false);
+      isSubmittingRef.current = false;
+      return;
+    }
+    if (!formData.message.trim()) {
+      setFieldErrors((prev) => ({
+        ...prev,
+        message: "Pesan tidak boleh kosong atau hanya spasi.",
+      }));
+      setIsSubmitting(false);
+      isSubmittingRef.current = false;
+      return;
+    }
 
     try {
       const response = await fetch("https://api.web3forms.com/submit", {
@@ -47,9 +106,9 @@ export default function Contact() {
         },
         body: JSON.stringify({
           access_key: WEB3FORMS_KEY,
-          name: formData.name,
-          email: formData.email,
-          message: formData.message,
+          name: formData.name.trim(),
+          email: formData.email.trim(),
+          message: formData.message.trim(),
         }),
       });
 
@@ -58,6 +117,7 @@ export default function Contact() {
       if (response.ok) {
         setSubmitted(true);
         setFormData({ name: "", email: "", message: "" });
+        setFieldErrors({ name: "", message: "" });
       } else {
         const errMsg =
           result?.errors?.map((e) => e.message).join(", ") ||
@@ -68,6 +128,7 @@ export default function Contact() {
       setError("Gagal terhubung. Periksa koneksi internet kamu.");
     } finally {
       setIsSubmitting(false);
+      isSubmittingRef.current = false;
     }
   };
 
@@ -144,13 +205,11 @@ export default function Contact() {
       ref={sectionRef}
       className="relative py-20 md:py-32 bg-[#04040f] overflow-hidden"
     >
-      {/* Background */}
       <div className="absolute inset-0 pointer-events-none">
         <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[800px] h-[400px] bg-emerald-500/5 rounded-full blur-[150px]"></div>
       </div>
 
       <div className="relative mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-        {/* Section Title */}
         <div
           className={`max-w-3xl mx-auto mb-16 text-center transition-all duration-700 ${isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-8"}`}
         >
@@ -169,20 +228,15 @@ export default function Contact() {
           </p>
         </div>
 
-        {/* FIX: grid pakai items-stretch agar kedua kolom ikut tinggi yang lebih besar */}
         <div className="grid grid-cols-1 lg:grid-cols-5 gap-8 lg:gap-12 max-w-6xl mx-auto items-stretch">
           {/* ── Kiri: Contact Info ── */}
-          {/* FIX: hapus space-y-6 (tidak perlu, 1 anak), tambah h-full */}
           <div
             className={`lg:col-span-2 h-full transition-all duration-700 delay-200 ${isVisible ? "opacity-100 translate-x-0" : "opacity-0 -translate-x-8"}`}
           >
-            {/* FIX: h-full + flex flex-col agar card mengisi tinggi grid cell */}
             <div className="h-full flex flex-col rounded-2xl border border-slate-700/50 bg-dark-800/60 backdrop-blur-sm p-6 md:p-8">
               <h3 className="text-xl font-bold text-white mb-6">
                 Informasi Kontak
               </h3>
-
-              {/* FIX: flex-1 agar daftar kontak mendorong badge ke bawah */}
               <div className="flex-1 flex flex-col justify-between">
                 <div className="space-y-4">
                   {contactInfo.map((item, i) => (
@@ -210,8 +264,6 @@ export default function Contact() {
                     </a>
                   ))}
                 </div>
-
-                {/* Respons Cepat — selalu di bawah daftar kontak */}
                 <div className="mt-6 p-4 rounded-xl bg-emerald-500/5 border border-emerald-500/20">
                   <div className="flex items-center gap-3">
                     <div className="relative flex-shrink-0">
@@ -236,13 +288,10 @@ export default function Contact() {
           <div
             className={`lg:col-span-3 h-full transition-all duration-700 delay-300 ${isVisible ? "opacity-100 translate-x-0" : "opacity-0 translate-x-8"}`}
           >
-            {/* FIX: h-full + flex flex-col agar card mengisi tinggi grid cell */}
             <div className="h-full flex flex-col rounded-2xl border border-slate-700/50 bg-dark-800/60 backdrop-blur-sm p-6 md:p-8">
               <h3 className="text-xl font-bold text-white mb-6">Kirim Pesan</h3>
 
               {submitted ? (
-                // FIX: flex-1 + items-center justify-center agar success state
-                // ter-center vertikal dan sejajar tinggi dengan card kiri
                 <div className="flex-1 flex flex-col items-center justify-center text-center">
                   <div className="w-16 h-16 rounded-full bg-emerald-500/10 flex items-center justify-center mx-auto mb-4">
                     <svg
@@ -276,12 +325,21 @@ export default function Contact() {
                   </button>
                 </div>
               ) : (
-                // FIX: flex-1 + flex flex-col agar form memenuhi sisa ruang card
                 <form
                   onSubmit={handleSubmit}
                   className="flex-1 flex flex-col gap-5"
                 >
+                  {/* Bug #4 Fix — Honeypot */}
+                  <input
+                    type="checkbox"
+                    name="botcheck"
+                    className="hidden"
+                    style={{ display: "none" }}
+                    readOnly
+                  />
+
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
+                    {/* Field Nama */}
                     <div>
                       <label
                         htmlFor="name"
@@ -296,10 +354,23 @@ export default function Contact() {
                         value={formData.name}
                         onChange={handleChange}
                         required
-                        className="w-full px-4 py-3 rounded-xl bg-dark-700/50 border border-slate-600/50 text-white placeholder-slate-500 focus:outline-none focus:border-emerald-500/50 focus:ring-2 focus:ring-emerald-500/20 transition-all duration-300"
+                        autoComplete="name"
+                        className={`w-full px-4 py-3 rounded-xl bg-dark-700/50 border text-white placeholder-slate-500 focus:outline-none focus:ring-2 transition-all duration-300 ${
+                          fieldErrors.name
+                            ? "border-red-500/60 focus:border-red-500/60 focus:ring-red-500/20"
+                            : "border-slate-600/50 focus:border-emerald-500/50 focus:ring-emerald-500/20"
+                        }`}
                         placeholder="Nama kamu"
                       />
+                      {/* Real-time error nama */}
+                      {fieldErrors.name && (
+                        <p className="text-red-400 text-xs mt-1.5">
+                          {fieldErrors.name}
+                        </p>
+                      )}
                     </div>
+
+                    {/* Field Email */}
                     <div>
                       <label
                         htmlFor="email"
@@ -314,13 +385,15 @@ export default function Contact() {
                         value={formData.email}
                         onChange={handleChange}
                         required
+                        maxLength={MAX_EMAIL_LENGTH}
+                        autoComplete="email"
                         className="w-full px-4 py-3 rounded-xl bg-dark-700/50 border border-slate-600/50 text-white placeholder-slate-500 focus:outline-none focus:border-emerald-500/50 focus:ring-2 focus:ring-emerald-500/20 transition-all duration-300"
                         placeholder="email@example.com"
                       />
                     </div>
                   </div>
 
-                  {/* FIX: flex-1 pada wrapper textarea agar textarea mengisi sisa ruang */}
+                  {/* Field Pesan */}
                   <div className="flex-1 flex flex-col">
                     <label
                       htmlFor="message"
@@ -334,12 +407,32 @@ export default function Contact() {
                       value={formData.message}
                       onChange={handleChange}
                       required
-                      className="flex-1 w-full px-4 py-3 rounded-xl bg-dark-700/50 border border-slate-600/50 text-white placeholder-slate-500 focus:outline-none focus:border-emerald-500/50 focus:ring-2 focus:ring-emerald-500/20 transition-all duration-300 resize-none min-h-[120px]"
+                      className={`flex-1 w-full px-4 py-3 rounded-xl bg-dark-700/50 border text-white placeholder-slate-500 focus:outline-none focus:ring-2 transition-all duration-300 resize-none min-h-[120px] ${
+                        fieldErrors.message
+                          ? "border-red-500/60 focus:border-red-500/60 focus:ring-red-500/20"
+                          : "border-slate-600/50 focus:border-emerald-500/50 focus:ring-emerald-500/20"
+                      }`}
                       placeholder="Ceritakan tentang proyek atau ide kamu..."
                     />
+                    <div className="flex justify-between items-center mt-1">
+                      {/* Real-time error pesan */}
+                      {fieldErrors.message ? (
+                        <p className="text-red-400 text-xs">
+                          {fieldErrors.message}
+                        </p>
+                      ) : (
+                        <span />
+                      )}
+                      {/* Karakter counter */}
+                      <p
+                        className={`text-xs ml-auto ${formData.message.length > MAX_MESSAGE_LENGTH ? "text-red-400" : "text-slate-600"}`}
+                      >
+                        {formData.message.length}/{MAX_MESSAGE_LENGTH}
+                      </p>
+                    </div>
                   </div>
 
-                  {/* Error message */}
+                  {/* Error global (koneksi / API) */}
                   {error && (
                     <div className="flex items-start gap-3 p-4 rounded-xl bg-red-500/10 border border-red-500/30">
                       <svg
@@ -364,7 +457,11 @@ export default function Contact() {
 
                   <button
                     type="submit"
-                    disabled={isSubmitting}
+                    disabled={
+                      isSubmitting ||
+                      !!fieldErrors.name ||
+                      !!fieldErrors.message
+                    }
                     className="w-full inline-flex items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-emerald-600 to-emerald-500 px-6 py-3.5 text-base font-semibold text-white shadow-lg shadow-emerald-500/25 hover:shadow-emerald-500/40 hover:from-emerald-500 hover:to-emerald-400 transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed hover:-translate-y-0.5"
                   >
                     {isSubmitting ? (
