@@ -7,7 +7,7 @@ export const dictionary = {
     "nav.projects": "Proyek",
     "nav.contact": "Kontak",
 
-        // Contact Form Extra (hardcoded texts)
+    // Contact Form Extra (hardcoded texts)
     "contact.info.uptime": "SYSTEM_UPTIME",
     "contact.info.uptimeValue": "99.9%",
     "contact.info.geo": "GEO_LOC",
@@ -22,10 +22,10 @@ export const dictionary = {
     "contact.launchWhatsapp": "LAUNCH_WHATSAPP",
     "contact.label.subject": "SUBJECT",
     "contact.placeholder.name": "// MASUKKAN_NAMA...",
-"contact.placeholder.email": "// ANDA@DOMAIN.COM",
-"contact.placeholder.subject": "// PENGENAL_OPSIONAL",
-"contact.placeholder.message": "// SAMPAIKAN_PESANMU_DI_SINI...",
-"contact.inputActive": "_INPUT_AKTIF",
+    "contact.placeholder.email": "// ANDA@DOMAIN.COM",
+    "contact.placeholder.subject": "// PENGENAL_OPSIONAL",
+    "contact.placeholder.message": "// SAMPAIKAN_PESANMU_DI_SINI...",
+    "contact.inputActive": "_INPUT_AKTIF",
     "contact.transmissionSuccess": "TRANSMISSION_SUCCESSFUL",
 
     //CekPin & AccessCV
@@ -58,7 +58,8 @@ export const dictionary = {
     "hero.rolePrefix": "$ role::",
     "hero.roles": [
       "Full Stack Developer",
-      "Machine Learning & Deep Learning Engineer",
+      "Machine Learning Engineer",
+      "Deep Learning Engineer",
       "Generative AI Enthusiast",
       "Computer Vision Engineer",
       "UI/UX Designer",
@@ -339,7 +340,7 @@ export const dictionary = {
     "nav.projects": "Projects",
     "nav.contact": "Contact",
 
-        // Contact Form Extra (hardcoded texts)
+    // Contact Form Extra (hardcoded texts)
     "contact.info.uptime": "SYSTEM_UPTIME",
     "contact.info.uptimeValue": "99.9%",
     "contact.info.geo": "GEO_LOC",
