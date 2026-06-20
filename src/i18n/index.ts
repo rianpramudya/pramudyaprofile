@@ -19,14 +19,25 @@ export function getLang(): Lang {
 
 export function setLang(lang: Lang) {
   if (typeof window === 'undefined') return;
-  
+
+  // 1. Simpan ke localStorage
   localStorage.setItem(STORAGE_KEY, lang);
-  
+
+  // 2. Update URL tanpa reload
   const url = new URL(window.location.href);
   url.searchParams.set('lang', lang);
-  
-  // ── RELOAD PAGE agar Astro re-render dengan bahasa baru ──
-  window.location.assign(url.toString());
+  window.history.replaceState({}, '', url.toString());
+
+  // 3. Update lang attribute & store
+  document.documentElement.lang = lang;
+  langStore.set(lang);
+
+  // 4. Update semua teks di halaman
+  updatePageText();
+
+  // 5. Dispatch event — ini yang membuat listener HIDUP
+  window.dispatchEvent(new Event('langchange'));
+  window.dispatchEvent(new Event('pramudya-lang-change'));
 }
 
 export function t(key: string): string {

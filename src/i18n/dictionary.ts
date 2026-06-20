@@ -25,6 +25,13 @@ export const dictionary = {
     "cekPin.linkTitle": "Buka Halaman CV Access",
     "cekPin.linkSub": "/AccessCV — halaman yang dilihat user",
 
+    // 404 Page
+    "404.title": "404 — Halaman Tidak Ditemukan",
+    "404.heading": "Halaman Tidak Ditemukan",
+    "404.desc":
+      "Halaman yang Anda cari mungkin telah dipindahkan, dihapus, atau tidak pernah ada. Periksa URL atau kembali ke beranda.",
+    "404.backBtn": "Kembali ke Beranda",
+
     // Hero
     "hero.sysTag": "PORTFOLIO_SYS // V2.0 // ONLINE",
     "hero.rolePrefix": "$ role::",
@@ -327,6 +334,13 @@ export const dictionary = {
     "cekPin.infoPrevLabel": "Previous PIN",
     "cekPin.linkTitle": "Open CV Access Page",
     "cekPin.linkSub": "/AccessCV — page seen by users",
+
+    // 404 Page
+    "404.title": "404 — Page Not Found",
+    "404.heading": "Page Not Found",
+    "404.desc":
+      "The page you are looking for may have been moved, deleted, or never existed. Check the URL or return to the home page.",
+    "404.backBtn": "Back to Home",
 
     "hero.sysTag": "PORTFOLIO_SYS // V2.0 // ONLINE",
     "hero.rolePrefix": "$ role::",
