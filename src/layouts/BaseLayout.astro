@@ -1,146 +1,466 @@
 ---
-import { site } from '@/content/site';
-import Header from '@/components/layout/Header.astro';
-import Footer from '@/components/layout/Footer.astro';
+import { site } from "@/content/site";
+import Header from "@/components/layout/Header.astro";
+import Footer from "@/components/layout/Footer.astro";
 
 interface Props {
   title?: string;
   description?: string;
 }
 
-const { 
-  title = site.title, 
-  description = site.description 
-} = Astro.props;
+const { title = site.title, description = site.description } = Astro.props;
 ---
 
-<!DOCTYPE html>
-<html lang="id" class="scroll-smooth">
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <meta name="description" content={description} />
-  <meta name="author" content={site.name} />
-  <meta name="theme-color" content="#0a0f0e" />
-  <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/devicon.min.css">
-  
-  <!-- Open Graph -->
-  <meta property="og:title" content={title} />
-  <meta property="og:description" content={description} />
-  <meta property="og:type" content="website" />
-  <meta property="og:url" content={site.url} />
-  
-  <!-- Twitter -->
-  <meta name="twitter:card" content="summary_large_image" />
-  <meta name="twitter:title" content={title} />
-  <meta name="twitter:description" content={description} />
-  
-  <title>{title}</title>
-  
-  <!-- Fonts -->
-  <link rel="preconnect" href="https://fonts.googleapis.com" />
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Space+Grotesk:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
-  
-  <!-- Favicon -->
-  <link rel="icon" type="image/svg+xml" href="/pramudyaprofile/favicon.svg" />
-  
-  <style is:global>
-    /* Custom scrollbar */
-    ::-webkit-scrollbar {
-      width: 8px;
-    }
-    ::-webkit-scrollbar-track {
-      background: #0a0f0e;
-    }
-    ::-webkit-scrollbar-thumb {
-      background: #1e3a33;
-      border-radius: 4px;
-    }
-    ::-webkit-scrollbar-thumb:hover {
-      background: #059669;
-    }
+<!doctype html>
+<html lang="id" class="scroll-smooth" data-theme="dark">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="description" content={description} />
+    <meta name="author" content={site.name} />
+    <meta name="theme-color" content="#0a0f0e" id="themeMeta" />
 
-    /* Selection color */
-    ::selection {
-      background: rgba(16, 185, 129, 0.3);
-      color: white;
-    }
+    <!-- Hreflang for SEO -->
+    <link rel="alternate" hreflang="id" href="https://rianpramudya.dev/?lang=id" />
+    <link rel="alternate" hreflang="en" href="https://rianpramudya.dev/?lang=en" />
 
-    /* Smooth scroll */
-    html {
-      scroll-behavior: smooth;
-    }
+    <link
+      rel="stylesheet"
+      href="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/devicon.min.css"
+    />
 
-    /* AOS animations */
-    [data-aos] {
-      opacity: 0;
-      transition-property: opacity, transform;
-      transition-duration: 600ms;
-      transition-timing-function: ease-out;
-    }
-    
-    [data-aos="fade-up"] {
-      transform: translateY(30px);
-    }
-    [data-aos="fade-down"] {
-      transform: translateY(-30px);
-    }
-    [data-aos="fade-left"] {
-      transform: translateX(30px);
-    }
-    [data-aos="fade-right"] {
-      transform: translateX(-30px);
-    }
-    [data-aos="zoom-in"] {
-      transform: scale(0.9);
-    }
-    [data-aos="zoom-out"] {
-      transform: scale(1.1);
-    }
-    
-    [data-aos].aos-animate {
-      opacity: 1;
-      transform: translate(0) scale(1);
-    }
-  </style>
-</head>
-<body class="bg-dark-900 text-white font-sans antialiased overflow-x-hidden">
-  <Header />
-  
-  <main>
-    <slot />
-  </main>
-  
-  <Footer />
+    <!-- Open Graph -->
+    <meta property="og:title" content={title} />
+    <meta property="og:description" content={description} />
+    <meta property="og:type" content="website" />
+    <meta property="og:url" content={site.url} />
 
-  <!-- AOS-like scroll animation script -->
-  <script>
-    const observerOptions = {
-      root: null,
-      rootMargin: '0px 0px -10% 0px',
-      threshold: 0.1,
-    };
+    <!-- Twitter -->
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content={title} />
+    <meta name="twitter:description" content={description} />
 
-    const aosObserver = new IntersectionObserver((entries) => {
-      entries.forEach(entry => {
-        if (entry.isIntersecting) {
-          const delay = entry.target.getAttribute('data-aos-delay');
-          if (delay) {
-            setTimeout(() => {
-              entry.target.classList.add('aos-animate');
-            }, parseInt(delay));
-          } else {
-            entry.target.classList.add('aos-animate');
-          }
-          aosObserver.unobserve(entry.target);
+    <title>{title}</title>
+
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Space+Grotesk:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap"
+      rel="stylesheet"
+    />
+
+    <!-- Favicon -->
+    <link rel="icon" type="image/svg+xml" href="/pramudyaprofile/favicon.svg" />
+
+    <!-- ===== ANTI-FOUC: Theme & Language (must be inline, before any CSS) ===== -->
+    <script is:inline>
+      (function () {
+        // Theme
+        const theme = localStorage.getItem("pramudya-theme") || "dark";
+        document.documentElement.setAttribute("data-theme", theme);
+        document
+          .getElementById("themeMeta")
+          ?.setAttribute("content", theme === "light" ? "#f0faf5" : "#0a0f0e");
+
+        // Language
+        const url = new URL(window.location.href);
+        let lang = url.searchParams.get("lang");
+        if (!lang) {
+          lang = localStorage.getItem("pramudya-lang");
         }
-      });
-    }, observerOptions);
+        if (!lang) {
+          lang = navigator.language.slice(0, 2) === "id" ? "id" : "en";
+        }
+        document.documentElement.lang = lang;
+        localStorage.setItem("pramudya-lang", lang);
+      })();
+    </script>
 
-    document.querySelectorAll('[data-aos]').forEach(el => {
-      aosObserver.observe(el);
-    });
-  </script>
-</body>
+    <style is:global>
+      /* ============================================================
+         CSS CUSTOM PROPERTIES
+         Design philosophy:
+           - Dark  → rich deep greens, high-contrast whites, vivid accents
+           - Light → crisp white cards on a very light teal-tinted surface,
+                     deep forest-green text for maximum legibility
+         ============================================================ */
+
+      /* ---- DARK MODE (default) ---------------------------------- */
+      :root {
+        color-scheme: dark;
+
+        /* Backgrounds — three clear steps of depth */
+        --bg:   #080e0d;   /* page canvas  */
+        --bg-2: #0f1a18;   /* card surface — noticeably lighter than canvas */
+        --bg-3: #172420;   /* raised / hover state */
+
+        /* Borders — visible but not loud */
+        --border:   #1f3d34;
+        --border-2: #2e5547;
+
+        /* Typography — WCAG AA+ */
+        --t1: #e8faf2;     /* primary   — near-white with green tint, 15:1 on --bg */
+        --t2: #7dd8b0;     /* secondary — soft sage, 6:1 on --bg */
+        --t3: #4a9070;     /* muted     — for labels/captions, 4.5:1 on --bg */
+
+        /* Brand accent */
+        --v:  #10b981;     /* emerald   */
+        --vd: rgba(16, 185, 129, 0.14);
+        --v-ring-rest: rgba(16, 185, 129, 0.45);
+        --v-ring-hov:  rgba(16, 185, 129, 0.80);
+
+        /* Complementary accent */
+        --c:  #34d399;
+        --cd: rgba(52, 211, 153, 0.09);
+
+        /* Warning / orange */
+        --o:  #fbbf24;
+        --od: rgba(251, 191, 36, 0.12);
+
+        /* Success green */
+        --g:  #4ade80;
+
+        /* Nav */
+        --nav-bg: rgba(8, 14, 13, 0.90);
+
+        /* Glow & atmosphere */
+        --shadow-v:   rgba(16, 185, 129, 0.35);
+        --shadow-card: 0 1px 3px rgba(0,0,0,0.6),
+                       0 4px 16px rgba(0,0,0,0.4),
+                       inset 0 1px 0 rgba(52, 211, 153, 0.07);
+        --orb-v:      rgba(16, 185, 129, 0.08);
+        --orb-c:      rgba(52, 211, 153, 0.05);
+        --grid-line:  rgba(16, 185, 129, 0.04);
+        --noise-op: 0.35;
+
+        /* Card specifics */
+        --card-bg:      var(--bg-2);
+        --card-border:  var(--border);
+        --card-hover-border: var(--border-2);
+        --card-shadow:  var(--shadow-card);
+      }
+
+      /* ---- LIGHT MODE ------------------------------------------ */
+      [data-theme="light"] {
+        color-scheme: light;
+
+        /* Backgrounds */
+        --bg:   #edf7f2;   /* page canvas — very light teal-mint */
+        --bg-2: #ffffff;   /* card surface — pure white, clear pop */
+        --bg-3: #f4faf7;   /* section tint */
+
+        /* Borders — crisp and clearly visible */
+        --border:   #b2ddc8;
+        --border-2: #7ec9a8;
+
+        /* Typography — maximum legibility on white/light-teal */
+        --t1: #0b2d22;     /* primary   — deep forest green, 16:1 on #fff */
+        --t2: #1a5c3f;     /* secondary — forest green, 8:1 on #fff */
+        --t3: #2e7d58;     /* muted     — 5.5:1 on #fff, WCAG AA */
+
+        /* Brand accent */
+        --v:  #059669;
+        --vd: rgba(5, 150, 105, 0.10);
+        --v-ring-rest: rgba(5, 150, 105, 0.35);
+        --v-ring-hov:  rgba(5, 150, 105, 0.65);
+
+        /* Complementary accent */
+        --c:  #0d9488;
+        --cd: rgba(13, 148, 136, 0.08);
+
+        /* Warning */
+        --o:  #b45309;
+        --od: rgba(180, 83, 9, 0.09);
+
+        /* Success */
+        --g:  #15803d;
+
+        /* Nav */
+        --nav-bg: rgba(237, 247, 242, 0.92);
+
+        /* Glow & atmosphere */
+        --shadow-v:   rgba(5, 150, 105, 0.15);
+        /* Card shadow: crisp bottom edge + subtle lift */
+        --shadow-card: 0 1px 2px rgba(11, 45, 34, 0.06),
+                       0 4px 12px rgba(11, 45, 34, 0.08),
+                       0 0 0 1px rgba(126, 201, 168, 0.45);
+        --orb-v:      rgba(5, 150, 105, 0.06);
+        --orb-c:      rgba(13, 148, 136, 0.05);
+        --grid-line:  rgba(5, 150, 105, 0.06);
+        --noise-op: 0.10;
+
+        /* Card specifics */
+        --card-bg:           var(--bg-2);
+        --card-border:       var(--border);
+        --card-hover-border: var(--v);
+        --card-shadow:       var(--shadow-card);
+      }
+
+      /* ============================================================
+         THEME TRANSITION
+         ============================================================ */
+      html.theme-transition,
+      html.theme-transition * {
+        transition:
+          background-color 0.35s ease,
+          color            0.35s ease,
+          border-color     0.35s ease,
+          box-shadow       0.35s ease,
+          fill             0.35s ease,
+          stroke           0.35s ease !important;
+      }
+
+      /* ============================================================
+         BASE
+         ============================================================ */
+      *,
+      *::before,
+      *::after {
+        box-sizing: border-box;
+      }
+
+      html {
+        scroll-behavior: smooth;
+      }
+
+      body {
+        background: var(--bg);
+        color: var(--t1);
+        font-family: 'Inter', system-ui, sans-serif;
+        -webkit-font-smoothing: antialiased;
+        -moz-osx-font-smoothing: grayscale;
+        overflow-x: hidden;
+        transition: background 0.35s, color 0.35s;
+      }
+
+      /* ============================================================
+         TYPOGRAPHY HELPERS
+         ============================================================ */
+      .text-t1  { color: var(--t1); }
+      .text-t2  { color: var(--t2); }
+      .text-t3  { color: var(--t3); }
+      .text-v   { color: var(--v);  }
+      .text-c   { color: var(--c);  }
+
+      /* Ensure heading tags inherit the theme colour by default */
+      h1, h2, h3, h4, h5, h6 {
+        color: var(--t1);
+        line-height: 1.2;
+      }
+
+      p, li, span, a, td, th, label {
+        color: var(--t1);
+      }
+
+      /* Links */
+      a {
+        color: var(--v);
+        text-decoration: none;
+        transition: color 0.2s;
+      }
+      a:hover {
+        color: var(--c);
+      }
+
+      /* ============================================================
+         BACKGROUNDS
+         ============================================================ */
+      .bg-bg   { background: var(--bg);   }
+      .bg-bg-2 { background: var(--bg-2); }
+      .bg-bg-3 { background: var(--bg-3); }
+
+      /* ============================================================
+         BORDERS
+         ============================================================ */
+      .border-border   { border-color: var(--border);   }
+      .border-border-2 { border-color: var(--border-2); }
+
+      /* ============================================================
+         CARD — the core utility class
+         Apply to any card element in your components.
+         Usage: class="card" (or compose via Tailwind @apply)
+         ============================================================ */
+      .card {
+        background:    var(--card-bg);
+        border:        1px solid var(--card-border);
+        border-radius: 12px;
+        box-shadow:    var(--card-shadow);
+        transition:
+          border-color 0.2s ease,
+          box-shadow   0.2s ease,
+          transform    0.2s ease;
+      }
+
+      .card:hover {
+        border-color: var(--card-hover-border);
+        box-shadow:
+          var(--card-shadow),
+          0 0 0 1px var(--v-ring-rest);
+        transform: translateY(-2px);
+      }
+
+      /* Light-mode extra: card header label readability */
+      [data-theme="light"] .card {
+        /* Subtle inner top highlight to reinforce the "lifted paper" feel */
+        box-shadow:
+          var(--card-shadow),
+          inset 0 1px 0 rgba(255, 255, 255, 0.90);
+      }
+
+      /* ============================================================
+         BADGE / TAG (PEKERJAAN, ORGANISASI, PENDIDIKAN labels)
+         ============================================================ */
+      .badge {
+        display:        inline-flex;
+        align-items:    center;
+        gap:            4px;
+        padding:        2px 8px;
+        border-radius:  6px;
+        font-size:      0.65rem;
+        font-weight:    700;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+        background:     var(--vd);
+        color:          var(--v);
+        border:         1px solid var(--v-ring-rest);
+      }
+
+      [data-theme="light"] .badge {
+        background: rgba(5, 150, 105, 0.10);
+        color:      var(--v);
+        border-color: rgba(5, 150, 105, 0.30);
+      }
+
+      /* ============================================================
+         SECTION headings
+         ============================================================ */
+      .section-label {
+        font-size:      0.70rem;
+        font-weight:    700;
+        letter-spacing: 0.12em;
+        text-transform: uppercase;
+        color:          var(--t3);
+      }
+
+      /* ============================================================
+         SCROLLBAR
+         ============================================================ */
+      ::-webkit-scrollbar              { width: 7px; }
+      ::-webkit-scrollbar-track        { background: var(--bg); }
+      ::-webkit-scrollbar-thumb        { background: var(--border-2); border-radius: 4px; }
+      ::-webkit-scrollbar-thumb:hover  { background: var(--t3); }
+
+      /* ============================================================
+         TEXT SELECTION
+         ============================================================ */
+      ::selection {
+        background: var(--vd);
+        color:      var(--v);
+      }
+
+      /* ============================================================
+         AOS — scroll-reveal animations
+         ============================================================ */
+      [data-aos] {
+        opacity: 0;
+        transition-property: opacity, transform;
+        transition-duration: 600ms;
+        transition-timing-function: cubic-bezier(0.16, 1, 0.3, 1);
+      }
+      [data-aos="fade-up"]    { transform: translateY(28px);  }
+      [data-aos="fade-down"]  { transform: translateY(-28px); }
+      [data-aos="fade-left"]  { transform: translateX(28px);  }
+      [data-aos="fade-right"] { transform: translateX(-28px); }
+      [data-aos="zoom-in"]    { transform: scale(0.92);       }
+      [data-aos="zoom-out"]   { transform: scale(1.08);       }
+
+      [data-aos].aos-animate {
+        opacity:   1;
+        transform: translate(0) scale(1);
+      }
+
+      /* ============================================================
+         FOCUS — accessible keyboard ring
+         ============================================================ */
+      :focus-visible {
+        outline: 2px solid var(--v);
+        outline-offset: 3px;
+        border-radius: 4px;
+      }
+
+      /* ============================================================
+         REDUCED MOTION
+         ============================================================ */
+      @media (prefers-reduced-motion: reduce) {
+        [data-aos] { opacity: 1; transform: none; }
+        html.theme-transition,
+        html.theme-transition * { transition: none !important; }
+      }
+
+      /* ============================================================
+         UTILITY: grid / orb atmosphere (used in hero sections)
+         ============================================================ */
+      .bg-grid {
+        background-image:
+          linear-gradient(var(--grid-line) 1px, transparent 1px),
+          linear-gradient(90deg, var(--grid-line) 1px, transparent 1px);
+        background-size: 40px 40px;
+      }
+
+      .orb {
+        border-radius: 50%;
+        filter: blur(80px);
+        pointer-events: none;
+        position: absolute;
+      }
+      .orb-v { background: var(--orb-v); }
+      .orb-c { background: var(--orb-c); }
+    </style>
+  </head>
+
+  <body class="font-sans antialiased overflow-x-hidden">
+    <Header />
+
+    <main>
+      <slot />
+    </main>
+
+    <Footer />
+
+    <!-- ===== GLOBAL SCRIPTS ===== -->
+    <script>
+      import { initLang } from "@/i18n/index";
+
+      // AOS-like scroll animation
+      const observerOptions = {
+        root: null,
+        rootMargin: "0px 0px -10% 0px",
+        threshold: 0.08,
+      };
+
+      const aosObserver = new IntersectionObserver((entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            const delay = entry.target.getAttribute("data-aos-delay");
+            if (delay) {
+              setTimeout(
+                () => entry.target.classList.add("aos-animate"),
+                parseInt(delay),
+              );
+            } else {
+              entry.target.classList.add("aos-animate");
+            }
+            aosObserver.unobserve(entry.target);
+          }
+        });
+      }, observerOptions);
+
+      document.querySelectorAll("[data-aos]").forEach((el) => {
+        aosObserver.observe(el);
+      });
+
+      initLang();
+    </script>
+  </body>
 </html>

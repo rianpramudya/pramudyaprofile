@@ -1,4 +1,4 @@
-import type { SiteConfig } from '@/types';
+import type { SiteConfig, NavItem, SocialLink } from '@/types';
 
 export const site: SiteConfig = {
   name: 'Rian Pramudya Amanda',
@@ -10,15 +10,16 @@ export const site: SiteConfig = {
   url: 'https://rianpramudya.dev',
 };
 
-export const navigation = [
-  { name: 'Beranda', href: '#hero' },
-  { name: 'Tentang', href: '#about' },
-  { name: 'Skills', href: '#skills' },
-  { name: 'Proyek', href: '#projects' },
-  { name: 'Kontak', href: '#contact' },
+// Navigation pakai key untuk i18n, bukan string hardcoded
+export const navigation: NavItem[] = [
+  { key: 'nav.home', href: '#hero' },
+  { key: 'nav.about', href: '#about' },
+  { key: 'nav.skills', href: '#skills' },
+  { key: 'nav.projects', href: '#projects' },
+  { key: 'nav.contact', href: '#contact' },
 ];
 
-export const socialLinks = [
+export const socialLinks: SocialLink[] = [
   {
     name: 'GitHub',
     href: 'https://github.com/rianpramudya',

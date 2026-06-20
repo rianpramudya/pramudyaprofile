@@ -9,33 +9,40 @@ import Contact from '@/components/sections/Contact.jsx';
 
 <BaseLayout>
   <Hero />
-  
+
   <!-- Section divider -->
-  <div class="relative">
-    <div class="absolute inset-x-0 h-px bg-gradient-to-r from-transparent via-slate-700/50 to-transparent"></div>
-  </div>
-  
+  <div class="section-divider"></div>
+
   <About />
-  
+
   <!-- Section divider -->
-  <div class="relative">
-    <div class="absolute inset-x-0 h-px bg-gradient-to-r from-transparent via-slate-700/50 to-transparent"></div>
-  </div>
-  
-  <!-- Section Skills -->
+  <div class="section-divider"></div>
+
   <Skills />
-  
+
   <!-- Section divider -->
-  <div class="relative">
-    <div class="absolute inset-x-0 h-px bg-gradient-to-r from-transparent via-slate-700/50 to-transparent"></div>
-  </div>
-  
+  <div class="section-divider"></div>
+
   <Projects />
-  
+
   <!-- Section divider -->
-  <div class="relative">
-    <div class="absolute inset-x-0 h-px bg-gradient-to-r from-transparent via-slate-700/50 to-transparent"></div>
-  </div>
-  
+  <div class="section-divider"></div>
+
   <Contact client:visible />
 </BaseLayout>
+
+<style>
+  .section-divider {
+    position: relative;
+    height: 1px;
+    background: linear-gradient(
+      to right,
+      transparent,
+      var(--border) 30%,
+      var(--border-2) 50%,
+      var(--border) 70%,
+      transparent
+    );
+    opacity: 0.6;
+  }
+</style>

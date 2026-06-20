@@ -1,263 +1,469 @@
 ---
-import SectionTitle from '@/components/ui/SectionTitle.astro';
-import Card from '@/components/ui/Card.astro';
-import { experiences } from '@/content/skills';
+import { dictionary } from "@/i18n/dictionary";
+import type { Lang } from "@/i18n/dictionary";
 
-const typeColors = {
-  work: 'from-emerald-500/20 to-emerald-600/10 border-emerald-500/30',
-  organization: 'from-cyan-500/20 to-cyan-600/10 border-cyan-500/30',
-  education: 'from-violet-500/20 to-violet-600/10 border-violet-500/30',
-};
+function getLangFromUrl(url: URL): Lang {
+  const q = url.searchParams.get("lang");
+  if (q === "en" || q === "id") return q;
+  return "id";
+}
 
-const typeLabels = {
-  work: 'Pekerjaan',
-  organization: 'Organisasi',
-  education: 'Pendidikan',
-};
+const lang = getLangFromUrl(Astro.url);
 
-const typeGlowColors = {
-  work: 'rgba(16,185,129,',
-  organization: 'rgba(6,182,212,',
-  education: 'rgba(139,92,246,',
-};
+function ts(key: string): string {
+  const dict = dictionary[lang] as Record<string, any>;
+  const val = dict[key];
+  if (typeof val === "string") return val;
+  return key;
+}
 
-const typeBorderLeft = {
-  work: 'border-l-emerald-500/40',
-  organization: 'border-l-cyan-500/40',
-  education: 'border-l-violet-500/40',
+const experiences = [
+  {
+    type: "work",
+    typeKey: "timeline.work",
+    titleKey: "timeline.job1.title",
+    companyKey: "timeline.job1.company",
+    periodKey: "timeline.job1.period",
+    descKeys: [
+      "timeline.job1.desc1",
+      "timeline.job1.desc2",
+      "timeline.job1.desc3",
+    ],
+  },
+  {
+    type: "organization",
+    typeKey: "timeline.org",
+    titleKey: "timeline.org1.title",
+    companyKey: "timeline.org1.company",
+    periodKey: "timeline.org1.period",
+    descKeys: [
+      "timeline.org1.desc1",
+      "timeline.org1.desc2",
+      "timeline.org1.desc3",
+    ],
+  },
+  {
+    type: "education",
+    typeKey: "timeline.edu",
+    titleKey: "timeline.edu1.title",
+    companyKey: "timeline.edu1.company",
+    periodKey: "timeline.edu1.period",
+    descKeys: [
+      "timeline.edu1.desc1",
+      "timeline.edu1.desc2",
+      "timeline.edu1.desc3",
+    ],
+  },
+];
+
+const badgeMap: Record<string, string> = {
+  work: "bw",
+  organization: "bo",
+  education: "be",
 };
 ---
 
-<section id="about" class="relative py-20 md:py-32 bg-[#04040f] overflow-hidden">
-  <!-- Background decoration -->
-  <div class="absolute top-0 right-0 w-1/3 h-full bg-gradient-to-l from-emerald-500/3 to-transparent pointer-events-none"></div>
-  <div class="absolute bottom-0 left-0 w-1/3 h-1/2 bg-gradient-to-r from-cyan-500/3 to-transparent pointer-events-none"></div>
+<section id="about" class="about-section">
+  {/* ── AMBIENT BACKGROUND ── */}
+  <div class="orb1"></div>
+  <div class="orb2"></div>
+  <div class="grid-bg"></div>
 
-  <!-- Floating ambient particles -->
-  <div class="absolute inset-0 pointer-events-none overflow-hidden">
-    <div class="absolute top-1/4 left-1/4 w-64 h-64 bg-emerald-500/5 rounded-full blur-3xl animate-float"></div>
-    <div class="absolute bottom-1/4 right-1/4 w-48 h-48 bg-cyan-500/5 rounded-full blur-3xl animate-float-delayed"></div>
-  </div>
-
-  <div class="relative mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-
-    <!-- HEADER -->
-    <div class="flex flex-col items-center gap-8 lg:gap-12 mb-20 text-center">
-      <div class="max-w-2xl mx-auto">
-        <SectionTitle
-          label="Tentang Saya"
-          title="Mengubah Ide Menjadi Solusi Digital"
-          subtitle="Saya adalah mahasiswa Informatika Telkom University dengan passion mendalam dalam pengembangan teknologi. Berfokus pada Full-stack Web Development, Machine Learning, dan pemanfaatan Generative AI untuk solusi yang inovatif."
-        />
-
-        <!-- Professional Summary -->
-        <div class="mt-8" data-aos="fade-up" data-aos-delay="200">
-          <Card class="p-6 md:p-8" glow={true}>
-            <div class="flex flex-col sm:flex-row items-center sm:items-start gap-4 text-center sm:text-left">
-              <div class="relative w-10 h-10 rounded-xl bg-gradient-to-br from-[#0d1f1e] to-[#060e0d] border border-emerald-500/20 flex items-center justify-center flex-shrink-0" style="box-shadow: inset 0 1px 0 rgba(16,185,129,0.12), 0 0 18px rgba(16,185,129,0.15);">
-                <div class="absolute inset-0 rounded-xl bg-[radial-gradient(circle_at_30%_30%,rgba(16,185,129,0.4),transparent_65%)] blur-sm opacity-70"></div>
-                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
-              </div>
-              <div>
-                <h3 class="text-lg font-bold text-white mb-2">Professional Summary</h3>
-                <p class="text-slate-400 leading-relaxed text-sm md:text-base">
-                  Saya Rian Pramudya Amanda, mahasiswa Informatika Telkom University yang berfokus pada pengembangan
-                  <span class="text-emerald-400 font-medium">Machine Learning</span>,
-                  <span class="text-emerald-400 font-medium">Full-stack Web Development</span>, dan
-                  pemanfaatan ekosistem <span class="text-emerald-400 font-medium">Generative AI</span>.
-                  Berkomitmen untuk terus belajar dan membangun solusi teknologi yang inovatif, efisien, serta berdampak nyata.
-                </p>
-              </div>
-            </div>
-          </Card>
-        </div>
-      </div>
+  <div class="wrap">
+    <div class="section-header">
+      <div class="eyebrow" data-i18n="about.eyebrow">{ts("about.eyebrow")}</div>
+      <h2 class="sec-h rv" data-i18n-html="about.title">
+        <span class="sec-h-line1">{ts("about.title").split(' ').slice(0, -1).join(' ')}</span>
+        <span class="sec-h-line2">{ts("about.title").split(' ').slice(-1)}</span>
+      </h2>
     </div>
 
-    <!-- Experience Timeline -->
-    <div class="mb-8 md:mb-12">
-      <div class="text-center mb-12 md:mb-16" data-aos="fade-up">
-        <span class="inline-block px-4 py-1.5 rounded-full text-xs font-semibold tracking-wider uppercase bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 mb-4">
-          Perjalanan Karir
-        </span>
-        <h3 class="text-3xl md:text-5xl font-bold text-white font-display leading-tight">
-          Pengalaman & <span class="text-transparent bg-clip-text bg-gradient-to-r from-emerald-400 to-cyan-400">Pendidikan</span>
-        </h3>
-        <p class="text-slate-500 mt-4 max-w-lg mx-auto text-sm md:text-base">
-          Setiap langkah membentuk fondasi keahlian dan wawasan dalam dunia teknologi.
-        </p>
-      </div>
+    <div class="bio-full rv">
+      <p data-i18n-html="about.p1">{ts("about.p1")}</p>
+      <p data-i18n-html="about.p2">{ts("about.p2")}</p>
+      <p data-i18n-html="about.p3">{ts("about.p3")}</p>
+    </div>
 
-      <!-- Experience Cards - Clean Vertical Stack with Hover -->
-      <div class="relative max-w-3xl mx-auto space-y-6 md:space-y-8">
-        {experiences.map((exp, i) => (
-          <div 
-            class="group relative"
-            data-aos="fade-up"
-            data-aos-delay={i * 100}
+    <div class="timeline-full">
+      {
+        experiences.map((exp, i) => (
+          <div
+            class="exp-card rv"
+            style={`transition-delay: ${200 + i * 120}ms`}
           >
-            <div class="exp-card relative overflow-hidden rounded-2xl border border-white/[0.06] bg-gradient-to-br from-[#0d0d1a] to-[#080810] transition-all duration-700 cursor-default">
-
-              <!-- Left accent border -->
-              <div class:list={['absolute left-0 top-4 bottom-4 w-[3px] rounded-full bg-gradient-to-b opacity-60 group-hover:opacity-100 transition-opacity duration-500', typeBorderLeft[exp.type].replace('border-l-', 'from-').replace('/40', '')]}></div>
-
-              <!-- Hover glow overlay -->
-              <div class="absolute inset-0 rounded-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-700 pointer-events-none"
-                style={`background: radial-gradient(800px circle at var(--mouse-x, 50%) var(--mouse-y, 50%), ${typeGlowColors[exp.type]}0.06), transparent 50%);`}
-              ></div>
-
-              <!-- Border glow on hover -->
-              <div class="absolute inset-0 rounded-2xl border border-white/[0.06] group-hover:border-white/[0.12] transition-colors duration-700"
-                style={`box-shadow: inset 0 1px 0 ${typeGlowColors[exp.type]}0.1);`}
-              ></div>
-
-              <!-- Content -->
-              <div class="relative p-6 md:p-8 pl-8 md:pl-10">
-                <div class="flex flex-col md:flex-row md:items-start md:justify-between gap-4 mb-6">
-                  <div class="flex items-start gap-4">
-                    <div class="relative flex-shrink-0 w-12 h-12 rounded-xl bg-gradient-to-br from-white/10 to-white/[0.03] border border-white/15 flex items-center justify-center overflow-hidden shadow-lg group-hover:shadow-xl transition-shadow duration-700">
-                      <div class="absolute inset-0 bg-gradient-to-br opacity-30 group-hover:opacity-50 transition-opacity duration-700" class:list={[typeColors[exp.type].split(' ')[0], typeColors[exp.type].split(' ')[1]]}></div>
-                      {exp.type === 'work' && (
-                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" class="text-emerald-400 relative z-10">
-                          <rect x="2" y="7" width="20" height="14" rx="2" ry="2"/><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/>
-                        </svg>
-                      )}
-                      {exp.type === 'organization' && (
-                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" class="text-cyan-400 relative z-10">
-                          <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/>
-                        </svg>
-                      )}
-                      {exp.type === 'education' && (
-                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" class="text-violet-400 relative z-10">
-                          <path d="M22 10v6M2 10l10-5 10 5-10 5z"/><path d="M6 12v5c0 1.66 1.79 3 4 3s4-1.34 4-3v-5"/>
-                        </svg>
-                      )}
-                    </div>
-
-                    <div>
-                      <span class:list={[
-                        'inline-block px-3 py-1 rounded-full text-[10px] font-bold tracking-wider uppercase mb-2 border backdrop-blur-sm',
-                        'bg-gradient-to-r',
-                        typeColors[exp.type]
-                      ]}>
-                        {typeLabels[exp.type]}
-                      </span>
-                      <h4 class="text-xl md:text-2xl font-bold text-white group-hover:text-white transition-colors duration-500">{exp.title}</h4>
-                      <p class="text-emerald-400/80 font-medium text-sm mt-1">{exp.company}</p>
-                    </div>
-                  </div>
-
-                  <div class="flex-shrink-0">
-                    <span class="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-white/[0.05] border border-white/10 text-slate-400 text-xs font-medium backdrop-blur-sm">
-                      <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-slate-500">
-                        <rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/>
-                      </svg>
-                      {exp.period}
-                    </span>
-                  </div>
-                </div>
-
-                <div class="pl-0 md:pl-16">
-                  <ul class="space-y-3">
-                    {exp.description.map((desc) => (
-                      <li class="text-slate-400 text-sm flex items-start gap-3 group/item">
-                        <span class="relative flex-shrink-0 w-5 h-5 rounded-full bg-emerald-500/15 border border-emerald-500/30 flex items-center justify-center mt-0.5 group-hover/item:bg-emerald-500/25 group-hover/item:border-emerald-500/50 transition-all duration-300 shadow-sm shadow-emerald-500/10">
-                          <svg class="w-3 h-3 text-emerald-400" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
-                            <polyline points="20 6 9 17 4 12"/>
-                          </svg>
-                        </span>
-                        <span class="leading-relaxed">{desc}</span>
-                      </li>
-                    ))}
-                  </ul>
-                </div>
+            <div class="exp-header">
+              <div class="exp-meta">
+                <span
+                  class:list={["badge", badgeMap[exp.type]]}
+                  data-i18n={exp.typeKey}
+                >
+                  {ts(exp.typeKey)}
+                </span>
+                <span class="exp-period" data-i18n={exp.periodKey}>
+                  {ts(exp.periodKey)}
+                </span>
               </div>
+              <h3 class="exp-title" data-i18n={exp.titleKey}>
+                {ts(exp.titleKey)}
+              </h3>
+              <p class="exp-company" data-i18n={exp.companyKey}>
+                {ts(exp.companyKey)}
+              </p>
             </div>
+            <ul class="exp-desc">
+              {exp.descKeys.map((key) => (
+                <li data-i18n={key}>{ts(key)}</li>
+              ))}
+            </ul>
           </div>
-        ))}
-      </div>
+        ))
+      }
     </div>
-
   </div>
 </section>
 
 <style>
-  /* Floating ambient particles */
-  @keyframes float {
-    0%, 100% { transform: translateY(0) scale(1); }
-    50% { transform: translateY(-20px) scale(1.05); }
+  .about-section {
+    background: var(--bg);
+    padding: 7rem 2.5rem;
+    position: relative;
+    overflow: hidden;
   }
 
-  @keyframes float-delayed {
-    0%, 100% { transform: translateY(0) scale(1); }
-    50% { transform: translateY(15px) scale(0.95); }
+  /* ── AMBIENT BACKGROUND ── */
+  .orb1 {
+    position: absolute;
+    width: 600px;
+    height: 600px;
+    background: radial-gradient(circle, var(--orb-v) 0%, transparent 65%);
+    top: -10%;
+    right: -10%;
+    pointer-events: none;
+    opacity: 0.08;
   }
 
-  .animate-float {
-    animation: float 8s ease-in-out infinite;
+  .orb2 {
+    position: absolute;
+    width: 500px;
+    height: 500px;
+    background: radial-gradient(circle, var(--orb-c) 0%, transparent 65%);
+    bottom: 0;
+    left: -10%;
+    pointer-events: none;
+    opacity: 0.05;
   }
 
-  .animate-float-delayed {
-    animation: float-delayed 10s ease-in-out infinite;
-    animation-delay: 2s;
+  .grid-bg {
+    position: absolute;
+    inset: 0;
+    background-image:
+      linear-gradient(var(--grid-line) 1px, transparent 1px),
+      linear-gradient(90deg, var(--grid-line) 1px, transparent 1px);
+    background-size: 64px 64px;
+    mask-image: radial-gradient(ellipse 70% 70% at 50% 50%, #000 30%, transparent 100%);
+    -webkit-mask-image: radial-gradient(ellipse 70% 70% at 50% 50%, #000 30%, transparent 100%);
+    pointer-events: none;
+    opacity: 0.5;
   }
 
-  /* ============================================
-     CLEAN CARDS - Hover Elevation
-     ============================================ */
+  .wrap {
+    max-width: 1200px;
+    margin: 0 auto;
+    position: relative;
+    z-index: 1;
+  }
+
+  .section-header {
+    margin-bottom: 4.5rem;
+    text-align: left;
+  }
+
+  /* ── Eyebrow: border-left vertikal (konsisten dengan Skills & Contact) ── */
+  .eyebrow {
+    font-family: "JetBrains Mono", monospace;
+    font-size: 0.65rem;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--v);
+    margin-bottom: 1.2rem;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.6rem;
+    border-left: 2px solid var(--v);
+    padding-left: 0.75rem;
+  }
+
+  /* ── Section Title: brutalism hover, sama dengan Projects ── */
+  .sec-h {
+    font-family: "Syne", "Inter", "Helvetica Neue", sans-serif;
+    font-weight: 900;
+    font-size: clamp(2.6rem, 6vw, 5rem);
+    line-height: 0.85;
+    letter-spacing: -0.03em;
+    text-transform: uppercase;
+    color: var(--t1);
+    margin: 0;
+    cursor: default;
+    transition: color 0.5s ease;
+  }
+
+  .sec-h:hover {
+    color: var(--v);
+  }
+
+  .sec-h-line1 {
+    display: block;
+    color: var(--t1);
+    transition: color 0.5s ease;
+  }
+
+  .sec-h-line2 {
+    display: block;
+    color: transparent;
+    -webkit-text-stroke: 1.5px var(--t1);
+    opacity: 0.7;
+    transition:
+      -webkit-text-stroke-color 0.5s ease,
+      opacity 0.5s ease,
+      transform 0.5s ease;
+  }
+
+  .sec-h:hover .sec-h-line1 {
+    color: var(--v);
+  }
+
+  .sec-h:hover .sec-h-line2 {
+    -webkit-text-stroke-color: var(--v);
+    opacity: 1;
+    transform: translateX(8px);
+  }
+
+  .bio-full {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 2.5rem;
+    margin-bottom: 5rem;
+    padding: 0 1rem;
+  }
+
+  .bio-full p {
+    color: var(--t2);
+    line-height: 1.85;
+    font-size: 0.9rem;
+    font-weight: 300;
+    margin: 0;
+  }
+
+  .bio-full p :global(strong) {
+    color: var(--t1);
+    font-weight: 500;
+  }
+
+  .timeline-full {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1.5rem;
+  }
 
   .exp-card {
-    transform: translateY(0) scale(1);
-    box-shadow: 
-      0 4px 24px -8px rgba(0, 0, 0, 0.4),
-      0 0 0 1px rgba(255, 255, 255, 0.03);
+    background: var(--bg-2);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 2rem;
+    position: relative;
+    overflow: hidden;
+    transition:
+      border-color 0.3s,
+      transform 0.3s,
+      box-shadow 0.3s;
   }
 
   .exp-card:hover {
-    transform: translateY(-4px) scale(1.005);
-    box-shadow: 
-      0 20px 60px -15px rgba(0, 0, 0, 0.6),
-      0 0 0 1px rgba(255, 255, 255, 0.08),
-      0 -2px 20px -5px rgba(16, 185, 129, 0.06);
+    border-color: var(--v);
+    transform: translateY(-4px);
+    box-shadow: 0 20px 40px -20px rgba(0, 0, 0, 0.4);
   }
 
-  /* Mobile adjustments */
+  .exp-card::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 2px;
+    background: linear-gradient(90deg, var(--v), var(--c));
+    opacity: 0;
+    transition: opacity 0.3s;
+  }
+
+  .exp-card:hover::before {
+    opacity: 1;
+  }
+
+  .exp-header {
+    margin-bottom: 1.5rem;
+    padding-bottom: 1.25rem;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .exp-meta {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    margin-bottom: 0.75rem;
+    flex-wrap: wrap;
+  }
+
+  .badge {
+    font-family: "JetBrains Mono", monospace;
+    font-size: 0.58rem;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    padding: 0.25rem 0.6rem;
+    border-radius: 2px;
+    font-weight: 500;
+    line-height: 1;
+  }
+
+  .bw {
+    background: var(--vd);
+    color: var(--v);
+  }
+  .bo {
+    background: var(--cd);
+    color: var(--c);
+  }
+  .be {
+    background: var(--od);
+    color: var(--o);
+  }
+
+  .exp-period {
+    font-family: "JetBrains Mono", monospace;
+    font-size: 0.65rem;
+    color: var(--t3);
+    letter-spacing: 0.04em;
+  }
+
+  .exp-title {
+    font-family: "Syne", "Inter", "Helvetica Neue", sans-serif;
+    font-size: 1.15rem;
+    font-weight: 800;
+    color: var(--t1);
+    letter-spacing: -0.01em;
+    margin: 0 0 0.3rem 0;
+    line-height: 1.25;
+    transition: color 0.3s ease;
+  }
+
+  .exp-card:hover .exp-title {
+    color: var(--v);
+  }
+
+  .exp-company {
+    font-size: 0.85rem;
+    color: var(--t2);
+    margin: 0;
+  }
+
+  .exp-desc {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 0.6rem;
+  }
+
+  .exp-desc li {
+    position: relative;
+    padding-left: 1.2rem;
+    font-size: 0.82rem;
+    line-height: 1.7;
+    color: var(--t3);
+  }
+
+  .exp-desc li::before {
+    content: "›";
+    position: absolute;
+    left: 0;
+    color: var(--v);
+    font-weight: 700;
+    font-size: 1rem;
+    line-height: 1.4;
+  }
+
+  .rv {
+    opacity: 0;
+    transform: translateY(24px);
+    transition:
+      opacity 0.7s cubic-bezier(0.4, 0, 0.2, 1),
+      transform 0.7s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  .rv.in {
+    opacity: 1;
+    transform: none;
+  }
+
+  @media (max-width: 1024px) {
+    .bio-full {
+      grid-template-columns: 1fr;
+      gap: 1.5rem;
+      padding: 0;
+    }
+
+    .timeline-full {
+      grid-template-columns: 1fr;
+      gap: 1.25rem;
+    }
+  }
+
   @media (max-width: 768px) {
-    .exp-card:hover {
-      transform: translateY(-2px) scale(1);
+    .about-section {
+      padding: 5rem 1.2rem;
+    }
+
+    .section-header {
+      margin-bottom: 2rem;
+    }
+
+    .bio-full {
+      margin-bottom: 3rem;
+    }
+
+    .exp-card {
+      padding: 1.5rem;
     }
   }
 
-  /* Reduced motion */
   @media (prefers-reduced-motion: reduce) {
-    .exp-card {
+    .rv {
+      opacity: 1;
+      transform: none;
       transition: none;
-      transform: none !important;
     }
 
-    .exp-card:hover {
-      transform: none !important;
+    .sec-h-line2 {
+      transition: none;
     }
   }
 </style>
 
 <script>
-  (function() {
-    'use strict';
-
-    // Mouse tracking for glow effect
-    document.querySelectorAll('.group').forEach(card => {
-      const inner = card.querySelector('.exp-card');
-      if (!inner) return;
-
-      card.addEventListener('mousemove', (e) => {
-        const rect = inner.getBoundingClientRect();
-        const x = ((e.clientX - rect.left) / rect.width) * 100;
-        const y = ((e.clientY - rect.top) / rect.height) * 100;
-        inner.style.setProperty('--mouse-x', x + '%');
-        inner.style.setProperty('--mouse-y', y + '%');
+  const rvObserver = new IntersectionObserver(
+    (entries) => {
+      entries.forEach((entry) => {
+        if (entry.isIntersecting) {
+          entry.target.classList.add("in");
+          rvObserver.unobserve(entry.target);
+        }
       });
-    });
+    },
+    { threshold: 0.1, rootMargin: "0px 0px -50px 0px" },
+  );
 
-  })();
+  document.querySelectorAll(".rv").forEach((el) => {
+    rvObserver.observe(el);
+  });
 </script>

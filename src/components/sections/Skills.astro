@@ -1,153 +1,345 @@
 ---
-import { skills, skillCategories } from '@/content/skills';
+import { dictionary } from "@/i18n/dictionary";
+import type { Lang } from "@/i18n/dictionary";
+import { skills, skillCategories } from "@/content/skills";
+
+function getLangFromUrl(url: URL): Lang {
+  const q = url.searchParams.get("lang");
+  if (q === "en" || q === "id") return q;
+  return "id";
+}
+
+const lang = getLangFromUrl(Astro.url);
+
+function ts(key: string): string {
+  const dict = dictionary[lang] as Record<string, any>;
+  const val = dict[key];
+  if (typeof val === "string") return val;
+  return key;
+}
+
+function getLevelKey(level: number): string {
+  if (level >= 90) return "skills.lvl.expert";
+  if (level >= 80) return "skills.lvl.advanced";
+  if (level >= 70) return "skills.lvl.proficient";
+  return "skills.lvl.intermediate";
+}
+
+const RADIUS = 18;
+const CIRC = 2 * Math.PI * RADIUS;
+
+function ringOffset(level: number): number {
+  const clamped = Math.max(0, Math.min(100, level));
+  return CIRC - (clamped / 100) * CIRC;
+}
 
 const iconMap: Record<string, string> = {
-  server: '<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="20" height="8" x="2" y="2" rx="2" ry="2"></rect><rect width="20" height="8" x="2" y="14" rx="2" ry="2"></rect><line x1="6" x2="6.01" y1="6" y2="6"></line><line x1="6" x2="6.01" y1="18" y2="18"></line></svg>',
-  layout: '<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="18" height="18" x="3" y="3" rx="2"></rect><path d="M3 9h18"></path><path d="M9 21V9"></path></svg>',
-  brain: '<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5a3 3 0 1 0-5.997.125 4 4 0 0 0-2.526 5.77 4 4 0 0 0 .556 6.588A4 4 0 1 0 12 18Z"></path><path d="M12 5a3 3 0 1 1 5.997.125 4 4 0 0 1 2.526 5.77 4 4 0 0 1-.556 6.588A4 4 0 1 1 12 18Z"></path><path d="M15 13a4.5 4.5 0 0 1-3-4 4.5 4.5 0 0 1-3 4"></path><path d="M17.599 6.5a3 3 0 0 0 .399-1.375"></path><path d="M6.003 5.125A3 3 0 0 0 6.401 6.5"></path><path d="M3.477 10.896a4 4 0 0 1 .585-.396"></path><path d="M19.938 10.5a4 4 0 0 1 .585.396"></path><path d="M6 18a4 4 0 0 1-1.967-.516"></path><path d="M19.967 17.484A4 4 0 0 1 18 18"></path></svg>',
-  wrench: '<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"></path></svg>',
-  palette: '<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="13.5" cy="6.5" r=".5" fill="currentColor"></circle><circle cx="17.5" cy="10.5" r=".5" fill="currentColor"></circle><circle cx="8.5" cy="7.5" r=".5" fill="currentColor"></circle><circle cx="6.5" cy="12.5" r=".5" fill="currentColor"></circle><path d="M12 2C6.5 2 2 6.5 2 12s4.5 10 10 10c.926 0 1.648-.746 1.648-1.688 0-.437-.18-.835-.437-1.125-.29-.289-.438-.652-.438-1.125a1.64 1.64 0 0 1 1.668-1.668h1.996c3.051 0 5.555-2.503 5.555-5.554C21.965 6.01 17.461 2 12 2z"></path></svg>',
+  server:
+    '<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="20" height="8" x="2" y="2" rx="2" ry="2"></rect><rect width="20" height="8" x="2" y="14" rx="2" ry="2"></rect><line x1="6" x2="6.01" y1="6" y2="6"></line><line x1="6" x2="6.01" y1="18" y2="18"></line></svg>',
+  layout:
+    '<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="18" height="18" x="3" y="3" rx="2"></rect><path d="M3 9h18"></path><path d="M9 21V9"></path></svg>',
+  brain:
+    '<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5a3 3 0 1 0-5.997.125 4 4 0 0 0-2.526 5.77 4 4 0 0 0 .556 6.588A4 4 0 1 0 12 18Z"></path><path d="M12 5a3 3 0 1 1 5.997.125 4 4 0 0 1 2.526 5.77 4 4 0 0 1-.556 6.588A4 4 0 1 1 12 18Z"></path><path d="M15 13a4.5 4.5 0 0 1-3-4 4.5 4.5 0 0 1-3 4"></path><path d="M17.599 6.5a3 3 0 0 0 .399-1.375"></path><path d="M6.003 5.125A3 3 0 0 0 6.401 6.5"></path><path d="M3.477 10.896a4 4 0 0 1 .585-.396"></path><path d="M19.938 10.5a4 4 0 0 1 .585.396"></path><path d="M6 18a4 4 0 0 1-1.967-.516"></path><path d="M19.967 17.484A4 4 0 0 1 18 18"></path></svg>',
+  wrench:
+    '<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"></path></svg>',
+  palette:
+    '<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="13.5" cy="6.5" r=".5" fill="currentColor"></circle><circle cx="17.5" cy="10.5" r=".5" fill="currentColor"></circle><circle cx="8.5" cy="7.5" r=".5" fill="currentColor"></circle><circle cx="6.5" cy="12.5" r=".5" fill="currentColor"></circle><path d="M12 2C6.5 2 2 6.5 2 12s4.5 10 10 10c.926 0 1.648-.746 1.648-1.688 0-.437-.18-.835-.437-1.125-.29-.289-.438-.652-.438-1.125a1.64 1.64 0 0 1 1.668-1.668h1.996c3.051 0 5.555-2.503 5.555-5.554C21.965 6.01 17.461 2 12 2z"></path></svg>',
 };
 
+const RING_CLASSES = ["rv-", "rc-", "ro-", "rg-"];
+const categoryRingClass: Record<string, string> = {};
+skillCategories.forEach((cat, i) => {
+  categoryRingClass[cat.id] = RING_CLASSES[i % RING_CLASSES.length];
+});
+
 const MAX_VISIBLE = 8;
+const showMoreLabel = ts("skills.showMore");
+const showLessLabel = ts("skills.showLess");
 ---
 
-<section id="skills" class="relative py-20 md:py-32 bg-[#04040f] overflow-hidden">
-  <div class="absolute top-0 left-0 w-full h-px bg-gradient-to-r from-transparent via-slate-800 to-transparent"></div>
-  <div class="absolute top-1/4 right-0 w-96 h-96 bg-cyan-600/10 rounded-full blur-[120px]"></div>
+<section id="skills" class="relative bg-[var(--bg)] overflow-hidden py-28 z-0">
+  {/* ── AMBIENT BACKGROUND ── */}
+  <div class="absolute inset-0 pointer-events-none overflow-hidden z-0">
+    <div
+      class="absolute top-[-10%] left-[-10%] w-[600px] h-[600px] bg-[var(--orb-v)] rounded-full blur-[150px] opacity-10"
+    >
+    </div>
+    <div
+      class="absolute bottom-[10%] right-[-10%] w-[500px] h-[500px] bg-[var(--orb-c)] rounded-full blur-[120px] opacity-[0.05]"
+    >
+    </div>
+    <div
+      class="absolute inset-0 opacity-[0.02]"
+      style="background-image: linear-gradient(var(--t1) 1px, transparent 1px), linear-gradient(90deg, var(--t1) 1px, transparent 1px); background-size: 48px 48px;"
+    >
+    </div>
+  </div>
 
-  <div class="relative mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-    <h3 class="text-2xl md:text-3xl font-bold text-white text-center mb-12 font-display" data-aos="fade-up">
-      Skills & <span class="text-emerald-400">Competencies</span>
-    </h3>
-
-    <!-- Category Tabs -->
-    <div class="flex flex-wrap justify-center gap-2 mb-10" data-aos="fade-up" data-aos-delay="100">
-      {skillCategories.map((cat) => (
-        <button
-          class="skill-tab px-4 py-2 rounded-xl text-sm font-medium transition-all duration-300 border border-slate-700/50 text-slate-400 hover:text-white hover:border-emerald-500/30 hover:bg-emerald-500/5"
-          data-category={cat.id}
-        >
-          <span class="flex items-center gap-2">
-            <span set:html={iconMap[cat.icon] || ''} />
-            {cat.label}
-          </span>
-        </button>
-      ))}
-      <button
-        class="skill-tab px-4 py-2 rounded-xl text-sm font-medium transition-all duration-300 border border-emerald-500/50 text-emerald-400 bg-emerald-500/10"
-        data-category="all"
+  {/* Container: max-w-[1200px] (konsisten) */}
+  <div class="relative z-10 mx-auto max-w-[1200px] px-6 lg:px-12">
+    <div class="flex flex-col mb-16 rv">
+      <div
+        class="inline-flex items-center gap-4 border-l-2 border-[var(--v)] pl-3 mb-6"
       >
-        Semua
-      </button>
+        <span
+          class="font-mono text-[0.65rem] tracking-[0.2em] text-[var(--t3)] uppercase"
+          data-i18n="skills.eyebrow"
+        >
+          {ts("skills.eyebrow")}
+        </span>
+      </div>
+
+      <h2
+        class="font-['Syne','Inter','Helvetica_Neue',sans-serif] font-black uppercase leading-[0.85] tracking-tight mb-8 group cursor-default w-full"
+      >
+        <span
+          class="block text-[clamp(2.8rem,7vw,4.5rem)] text-[var(--t1)] transition-colors duration-500 group-hover:text-[var(--v)] break-words hyphens-auto"
+          data-i18n="skills.title"
+        >
+          {ts("skills.title")}
+        </span>
+      </h2>
+
+      <div class="flex flex-wrap gap-3 mt-4">
+        <button
+          class="fb act relative group overflow-hidden flex items-center gap-2 bg-[var(--bg)] border border-[var(--border-2)] text-[var(--t3)] font-mono text-[0.6rem] tracking-[0.1em] uppercase px-5 py-3 transition-all duration-300 hover:border-[var(--v)] hover:text-[var(--v)]"
+          data-f="all"
+          type="button"
+          data-i18n="skills.filter.all"
+        >
+          <span class="relative z-10">{ts("skills.filter.all")}</span>
+        </button>
+        {
+          skillCategories.map((cat) => (
+            <button
+              class="fb relative group overflow-hidden flex items-center gap-2 bg-[var(--bg)] border border-[var(--border-2)] text-[var(--t3)] font-mono text-[0.6rem] tracking-[0.1em] uppercase px-5 py-3 transition-all duration-300 hover:border-[var(--v)] hover:text-[var(--v)]"
+              data-f={cat.id}
+              type="button"
+              data-i18n={`skills.filter.${cat.id}`}
+            >
+              <span class="relative z-10 flex items-center gap-2">
+                <span
+                  set:html={iconMap[cat.icon] || ""}
+                  class="opacity-70 group-hover:opacity-100"
+                />
+                {ts(`skills.filter.${cat.id}`)}
+              </span>
+            </button>
+          ))
+        }
+      </div>
     </div>
 
     <div
-      class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 md:gap-5 max-w-6xl mx-auto"
-      id="skills-grid"
+      class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 rv"
+      id="skGrid"
     >
-      {skills.map((skill, i) => (
-        <div
-          class="skill-item group relative rounded-xl border border-slate-700/50 bg-dark-800/40 p-5 transition-all duration-500 hover:-translate-y-1 hover:border-emerald-500/30 hover:bg-dark-800/80 hover:shadow-lg hover:shadow-emerald-500/10"
-          data-category={skill.category}
-          data-index={i}
-          style="display: none; opacity: 0;"
-        >
-          <div class="flex items-center justify-between mb-3">
-            <div class="flex items-center gap-3">
-              <div class="w-8 h-8 rounded-lg bg-emerald-500/10 flex items-center justify-center transition-all duration-300 group-hover:bg-dark-700">
-                <i class={skill.icon} style="font-size: 20px;"></i>
-              </div>
-              <span class="text-slate-300 text-sm font-medium group-hover:text-white transition-colors duration-300">{skill.name}</span>
-            </div>
-            <span class="text-xs font-bold text-emerald-400 bg-emerald-500/10 px-2 py-1 rounded-md border border-emerald-500/20">
-              {skill.level}%
-            </span>
-          </div>
-
-          <div class="h-2 bg-slate-700/50 rounded-full overflow-hidden">
+      {
+        skills.map((skill, i) => {
+          const off = ringOffset(skill.level);
+          const ringClass = categoryRingClass[skill.category] || "rv-";
+          const levelKey = getLevelKey(skill.level);
+          return (
             <div
-              class="skill-progress h-full bg-gradient-to-r from-emerald-500 to-cyan-500 rounded-full transition-all duration-1000 ease-out group-hover:from-emerald-400 group-hover:to-cyan-400"
-              style={`width: 0%; --target-width: ${skill.level}%;`}
-            ></div>
-          </div>
+              class="sk-card relative group flex items-center gap-4 bg-[var(--bg-3)] border border-[var(--border-2)] p-5 overflow-hidden transition-colors duration-300 hover:border-[var(--v)] hover:bg-[var(--vd)]"
+              data-category={skill.category}
+              data-index={i}
+              style="display: none; opacity: 0;"
+            >
+              <div class="absolute left-0 top-0 bottom-0 w-1 bg-[var(--v)] scale-y-0 group-hover:scale-y-100 transition-transform duration-300 origin-top" />
 
-          <div class="mt-2 flex items-center justify-between">
-            <span class="text-[10px] text-slate-500 uppercase tracking-wider">{skill.category}</span>
-            <span class:list={[
-              'text-[10px] font-semibold px-1.5 py-0.5 rounded',
-              skill.level >= 90 ? 'text-emerald-400 bg-emerald-500/10' :
-              skill.level >= 80 ? 'text-cyan-400 bg-cyan-500/10' :
-              skill.level >= 70 ? 'text-amber-400 bg-amber-500/10' :
-              'text-slate-400 bg-slate-500/10'
-            ]}>
-              {skill.level >= 90 ? 'Expert' : skill.level >= 80 ? 'Advanced' : skill.level >= 70 ? 'Proficient' : 'Intermediate'}
-            </span>
-          </div>
-        </div>
-      ))}
+              <div class="ring-w relative flex-shrink-0 w-[42px] h-[42px]">
+                <svg
+                  width="42"
+                  height="42"
+                  viewBox="0 0 42 42"
+                  class="-rotate-90"
+                >
+                  <circle class="rt" cx="21" cy="21" r={RADIUS} />
+                  <circle
+                    class={`rf ${ringClass}`}
+                    data-off={off.toFixed(2)}
+                    cx="21"
+                    cy="21"
+                    r={RADIUS}
+                    stroke-dasharray={CIRC.toFixed(2)}
+                    stroke-dashoffset={CIRC.toFixed(2)}
+                  />
+                </svg>
+                <div class="absolute inset-0 flex items-center justify-center font-mono text-[0.55rem] text-[var(--t2)] group-hover:text-[var(--v)] transition-colors">
+                  {skill.level}%
+                </div>
+              </div>
+
+              <div class="flex-1 min-w-0">
+                <div class="font-['Syne','Inter','Helvetica_Neue',sans-serif] font-bold text-base text-[var(--t1)] group-hover:text-[var(--v)] transition-colors truncate mb-1.5">
+                  {skill.name}
+                </div>
+                <div class="flex items-center justify-between gap-2">
+                  <span
+                    class="font-mono text-[0.5rem] text-[var(--t3)] uppercase tracking-widest truncate"
+                    data-i18n={`skills.filter.${skill.category}`}
+                  >
+                    {ts(`skills.filter.${skill.category}`)}
+                  </span>
+                  <span
+                    class:list={[
+                      "font-mono text-[0.45rem] font-bold uppercase tracking-wider px-1.5 py-0.5 border rounded-sm flex-shrink-0",
+                      skill.level >= 90
+                        ? "text-emerald-400 border-emerald-500/30 bg-emerald-500/10"
+                        : skill.level >= 80
+                          ? "text-cyan-400 border-cyan-500/30 bg-cyan-500/10"
+                          : skill.level >= 70
+                            ? "text-amber-400 border-amber-500/30 bg-amber-500/10"
+                            : "text-slate-400 border-slate-500/30 bg-slate-500/10",
+                    ]}
+                    data-i18n={levelKey}
+                  >
+                    {ts(levelKey)}
+                  </span>
+                </div>
+              </div>
+            </div>
+          );
+        })
+      }
     </div>
 
-    <!-- Show More / Show Less Button -->
-    <div class="text-center mt-10" id="show-more-container" style="display: none;">
+    <div
+      class="flex justify-center mt-12 rv"
+      id="showMoreContainer"
+      style="display: none;"
+    >
       <button
-        id="show-more-btn"
-        class="inline-flex items-center gap-2 px-6 py-3 rounded-xl border border-emerald-500/30 text-emerald-400 bg-emerald-500/5 hover:bg-emerald-500/10 hover:border-emerald-500/50 transition-all duration-300 font-medium text-sm"
+        id="showMoreBtn"
+        type="button"
+        class="relative group overflow-hidden flex items-center justify-center gap-3 bg-[var(--bg)] border border-[var(--border-2)] text-[var(--t1)] hover:border-[var(--v)] hover:text-[var(--v)] hover:bg-[var(--vd)] font-bold font-mono text-xs tracking-[0.2em] uppercase px-10 py-5 transition-all duration-300 [clip-path:polygon(0_0,100%_0,100%_calc(100%-12px),calc(100%-12px)_100%,0_100%)]"
       >
-        <span id="show-more-text">Lihat Skill Lainnya</span>
-        <svg id="show-more-icon" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"></path></svg>
+        <span id="showMoreText" class="relative z-10"
+          >{showMoreLabel.replace("{count}", "0")}</span
+        >
+        <svg
+          id="showMoreIcon"
+          width="14"
+          height="14"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2.5"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+          class="relative z-10 group-hover:translate-y-1 transition-transform"
+        >
+          <path d="m6 9 6 6 6-6"></path>
+        </svg>
       </button>
     </div>
   </div>
 </section>
 
+<style>
+  .fb.act {
+    border-color: var(--v);
+    color: var(--v);
+    background: var(--vd);
+  }
+
+  .rt {
+    fill: none;
+    stroke: var(--border-2);
+    stroke-width: 3;
+  }
+  .rf {
+    fill: none;
+    stroke-width: 3;
+    stroke-linecap: round;
+    transition: stroke-dashoffset 1s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  .rv- {
+    stroke: var(--v);
+  }
+  .rc- {
+    stroke: var(--c);
+  }
+  .ro- {
+    stroke: var(--o);
+  }
+  .rg- {
+    stroke: var(--g);
+  }
+
+  /* RV duration: 0.7s (konsisten dengan About/Projects) */
+  .rv {
+    opacity: 0;
+    transform: translateY(24px);
+    transition:
+      opacity 0.7s cubic-bezier(0.4, 0, 0.2, 1),
+      transform 0.7s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+  .rv.in {
+    opacity: 1;
+    transform: none;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .rf,
+    .rv {
+      transition: none;
+      opacity: 1;
+      transform: none;
+    }
+  }
+</style>
+
 <script>
+  import { t, getLang } from "@/i18n/index";
+
   (function () {
     const MAX_VISIBLE = 8;
     let isExpanded = false;
-    let currentCategory = 'all';
-    let progressAnimated = false;
+    let currentCategory = "all";
+    let ringsAnimated = false;
 
-    const skillTabs = document.querySelectorAll('.skill-tab');
-    const skillItems = document.querySelectorAll<HTMLElement>('.skill-item');
-    const showMoreBtn = document.getElementById('show-more-btn');
-    const showMoreText = document.getElementById('show-more-text');
-    const showMoreIcon = document.getElementById('show-more-icon');
-    const showMoreContainer = document.getElementById('show-more-container') as HTMLElement | null;
+    const filterBtns = document.querySelectorAll(".fb");
+    const skillCards = document.querySelectorAll(".sk-card");
+    const showMoreBtn = document.getElementById("showMoreBtn");
+    const showMoreText = document.getElementById("showMoreText");
+    const showMoreIcon = document.getElementById("showMoreIcon");
+    const showMoreContainer = document.getElementById("showMoreContainer");
 
     function applyFilter() {
       let visibleCount = 0;
       let totalInCategory = 0;
 
-      skillItems.forEach((item) => {
-        const itemCategory = item.getAttribute('data-category');
+      skillCards.forEach((item) => {
+        const itemCategory = item.getAttribute("data-category");
         const matchesCategory =
-          currentCategory === 'all' || itemCategory === currentCategory;
+          currentCategory === "all" || itemCategory === currentCategory;
 
         if (matchesCategory) {
           totalInCategory++;
           const shouldShow = isExpanded || visibleCount < MAX_VISIBLE;
 
           if (shouldShow) {
-            item.style.display = 'block';
-            item.classList.add('aos-animate');
+            item.style.display = "flex";
             requestAnimationFrame(() => {
-              item.style.opacity = '1';
-              item.style.transform = 'translateY(0)';
+              item.style.opacity = "1";
+              item.style.transform = "translateY(0)";
             });
             visibleCount++;
           } else {
-            item.style.opacity = '0';
-            item.style.transform = 'translateY(10px)';
+            item.style.opacity = "0";
+            item.style.transform = "translateY(10px)";
             setTimeout(() => {
-              if (item.style.opacity === '0') item.style.display = 'none';
+              if (item.style.opacity === "0") item.style.display = "none";
             }, 300);
           }
         } else {
-          item.style.opacity = '0';
-          item.style.transform = 'translateY(10px)';
+          item.style.opacity = "0";
+          item.style.transform = "translateY(10px)";
           setTimeout(() => {
-            if (item.style.opacity === '0') item.style.display = 'none';
+            if (item.style.opacity === "0") item.style.display = "none";
           }, 300);
         }
       });
@@ -155,7 +347,7 @@ const MAX_VISIBLE = 8;
       updateShowMoreButton(totalInCategory);
     }
 
-    function updateShowMoreButton(totalInCategory: number) {
+    function updateShowMoreButton(totalInCategory) {
       if (!showMoreContainer || !showMoreText || !showMoreIcon) return;
 
       const shownCount = isExpanded
@@ -163,98 +355,95 @@ const MAX_VISIBLE = 8;
         : Math.min(totalInCategory, MAX_VISIBLE);
       const hiddenCount = totalInCategory - shownCount;
 
+      const strShowMore = t("skills.showMore");
+      const strShowLess = t("skills.showLess");
+
       if (!isExpanded && hiddenCount > 0) {
-        showMoreContainer.style.display = 'block';
-        showMoreText.textContent = `Lihat ${hiddenCount} Skill Lainnya`;
+        showMoreContainer.style.display = "block";
+        showMoreText.textContent = strShowMore.replace(
+          "{count}",
+          String(hiddenCount),
+        );
         showMoreIcon.innerHTML = '<path d="m6 9 6 6 6-6"></path>';
       } else if (isExpanded && totalInCategory > MAX_VISIBLE) {
-        showMoreContainer.style.display = 'block';
-        showMoreText.textContent = 'Sembunyikan Skill';
+        showMoreContainer.style.display = "block";
+        showMoreText.textContent = strShowLess;
         showMoreIcon.innerHTML = '<path d="m18 15-6-6-6 6"></path>';
       } else {
-        showMoreContainer.style.display = 'none';
+        showMoreContainer.style.display = "none";
       }
     }
 
-    skillTabs.forEach((tab) => {
-      tab.addEventListener('click', function (this: HTMLElement, e) {
+    window.addEventListener("langchange", () => {
+      applyFilter();
+    });
+
+    filterBtns.forEach((btn) => {
+      btn.addEventListener("click", function (e) {
         e.preventDefault();
         e.stopPropagation();
-
-        currentCategory = this.getAttribute('data-category') ?? 'all';
+        currentCategory = this.getAttribute("data-f") ?? "all";
         isExpanded = false;
-
-        skillTabs.forEach((t) => {
-          t.classList.remove('border-emerald-500/50', 'text-emerald-400', 'bg-emerald-500/10');
-          t.classList.add('border-slate-700/50', 'text-slate-400');
-        });
-        this.classList.remove('border-slate-700/50', 'text-slate-400');
-        this.classList.add('border-emerald-500/50', 'text-emerald-400', 'bg-emerald-500/10');
-
+        filterBtns.forEach((b) => b.classList.remove("act"));
+        this.classList.add("act");
         applyFilter();
       });
     });
 
     if (showMoreBtn) {
-      showMoreBtn.addEventListener('click', (e) => {
+      showMoreBtn.addEventListener("click", (e) => {
         e.preventDefault();
         e.stopPropagation();
-
         isExpanded = !isExpanded;
         applyFilter();
-
         if (!isExpanded) {
-          const skillsSection = document.getElementById('skills');
-          if (skillsSection) {
-            skillsSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
-          }
+          document
+            .getElementById("skills")
+            ?.scrollIntoView({ behavior: "smooth", block: "start" });
         }
       });
     }
 
-    const skillsGrid = document.getElementById('skills-grid');
-    if (skillsGrid) {
-      const progressObserver = new IntersectionObserver(
+    const skGrid = document.getElementById("skGrid");
+    if (skGrid) {
+      const ringObserver = new IntersectionObserver(
         (entries) => {
           entries.forEach((entry) => {
-            if (entry.isIntersecting && !progressAnimated) {
-              progressAnimated = true;
-              const bars = entry.target.querySelectorAll<HTMLElement>('.skill-progress');
-              bars.forEach((bar, i) => {
-                const targetWidth = bar.style.getPropertyValue('--target-width');
-                if (targetWidth) {
+            if (entry.isIntersecting && !ringsAnimated) {
+              ringsAnimated = true;
+              const rings = entry.target.querySelectorAll(".rf");
+              rings.forEach((ring, i) => {
+                const off = ring.getAttribute("data-off");
+                if (off)
                   setTimeout(() => {
-                    bar.style.width = targetWidth;
-                  }, i * 50);
-                }
+                    ring.style.strokeDashoffset = off;
+                  }, i * 35);
               });
-              progressObserver.unobserve(entry.target);
+              ringObserver.unobserve(entry.target);
             }
           });
         },
-        { threshold: 0.1 }
+        { threshold: 0.1 },
       );
-      progressObserver.observe(skillsGrid);
+      ringObserver.observe(skGrid);
     }
 
-    function init() {
-      skillTabs.forEach((t) => {
-        t.classList.remove('border-emerald-500/50', 'text-emerald-400', 'bg-emerald-500/10');
-        t.classList.add('border-slate-700/50', 'text-slate-400');
-      });
-      const allTab = document.querySelector<HTMLElement>('[data-category="all"]');
-      if (allTab) {
-        allTab.classList.remove('border-slate-700/50', 'text-slate-400');
-        allTab.classList.add('border-emerald-500/50', 'text-emerald-400', 'bg-emerald-500/10');
-      }
+    const rvObserver = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            entry.target.classList.add("in");
+            rvObserver.unobserve(entry.target);
+          }
+        });
+      },
+      { threshold: 0.1, rootMargin: "0px 0px -50px 0px" },
+    );
 
-      applyFilter();
-    }
+    document.querySelectorAll(".rv").forEach((el) => {
+      rvObserver.observe(el);
+    });
 
-    if (document.readyState === 'loading') {
-      document.addEventListener('DOMContentLoaded', init);
-    } else {
-      init();
-    }
+    applyFilter();
   })();
 </script>

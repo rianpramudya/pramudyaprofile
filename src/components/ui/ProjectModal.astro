@@ -1,137 +1,124 @@
 ---
 // src/components/ui/ProjectModal.astro
-import Badge from './Badge.astro';
 ---
 
 <div
   id="project-modal"
-  class="fixed inset-0 z-50 hidden"
+  class="fixed inset-0 z-[300] hidden items-center justify-center p-4 sm:p-6 md:p-8"
   role="dialog"
   aria-modal="true"
   aria-labelledby="modal-title"
 >
-  {/* Backdrop */}
+  {/* ── BACKDROP (FADE IN/OUT) ── */}
   <div
     id="modal-backdrop"
-    class="absolute inset-0 bg-black/70 backdrop-blur-sm opacity-0 transition-opacity duration-300 ease-out"
+    class="absolute inset-0 bg-[var(--bg)]/85 backdrop-blur-sm opacity-0 transition-opacity duration-400 ease-out"
   ></div>
 
-  {/* Modal Container */}
-  <div class="relative z-10 flex items-center justify-center min-h-screen p-4 pointer-events-none">
-    <div
-      id="modal-content"
-      class="bg-[#04040f] border border-emerald-500/10 shadow-[0_20px_60px_-15px_rgba(16,185,129,0.15)] rounded-2xl max-w-3xl w-full max-h-[90vh] overflow-hidden flex flex-col opacity-0 scale-95 transition-all duration-300 ease-out pointer-events-auto"
-    >
-      {/* ── Image Carousel (FULL WIDTH, DI ATAS) ── */}
-      <div class="relative w-full h-64 sm:h-72 md:h-80 lg:h-96 bg-gradient-to-br from-slate-900 to-[#04040f] border-b border-slate-800 flex-shrink-0">
+  {/* ── MODAL BOX (SPRING ANIMATION) ── */}
+  <div
+    id="modal-content"
+    class="relative w-full max-w-4xl bg-[var(--bg-2)] border border-[var(--border)] rounded-xl shadow-[0_30px_60px_-15px_rgba(0,0,0,0.6)] z-10 flex flex-col overflow-hidden opacity-0 scale-95 translate-y-12 transition-all duration-500 ease-[cubic-bezier(0.34,1.56,0.64,1)] pointer-events-auto max-h-[95vh] md:max-h-[90vh]"
+  >
+    {/* Terminal Header ala Cyberpunk */}
+    <div class="flex items-center justify-between px-4 py-3 bg-[var(--bg-3)] border-b border-[var(--border)] flex-shrink-0 relative z-30">
+      <div class="flex gap-2">
+        <button
+          id="modal-close-btn"
+          class="w-3.5 h-3.5 rounded-full bg-[#fb7185] hover:bg-[#e11d48] transition-colors border border-transparent focus:outline-none focus:ring-2 focus:ring-[#fb7185]/50 flex items-center justify-center cursor-pointer group"
+          aria-label="Tutup modal"
+          type="button"
+        >
+          {/* Ikon X mini yang muncul saat di-hover (Fitur ala MacOS) */}
+          <svg xmlns="http://www.w3.org/2000/svg" width="8" height="8" viewBox="0 0 24 24" fill="none" stroke="black" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" class="opacity-0 group-hover:opacity-100 transition-opacity"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>
+        </button>
+        <div class="w-3.5 h-3.5 rounded-full bg-[#fbbf24] border border-transparent"></div>
+        <div class="w-3.5 h-3.5 rounded-full bg-[var(--g)] border border-transparent"></div>
+      </div>
+      <div class="text-[0.6rem] font-mono text-[var(--t3)] tracking-widest uppercase ml-4 truncate">
+        sys.view_project // <span id="modal-terminal-slug" class="text-[var(--v)]"></span>
+      </div>
+    </div>
+
+    {/* Ambient Glow di Pojok Kanan Atas */}
+    <div class="absolute top-12 right-0 w-48 h-48 bg-[var(--orb-v)] rounded-full blur-[60px] pointer-events-none z-0"></div>
+
+    {/* ── Scrollable Body ── */}
+    <div class="flex flex-col flex-1 overflow-y-auto custom-scrollbar relative z-10">
+      
+      {/* ── Image Carousel ── */}
+      <div class="relative w-full h-64 sm:h-72 md:h-80 lg:h-96 bg-gradient-to-br from-[var(--bg-3)] to-[var(--bg-2)] border-b border-[var(--border)] flex-shrink-0">
         {/* Slide Counter */}
-        <div class="absolute top-3 left-3 z-20 bg-black/60 backdrop-blur-sm rounded-full px-3 py-1 text-xs font-mono text-white">
+        <div class="absolute top-3 left-3 z-20 bg-[var(--bg-2)]/80 border border-[var(--border)] backdrop-blur-sm rounded-full px-3 py-1 text-[0.65rem] tracking-widest font-mono text-[var(--t1)] shadow-sm">
           <span id="carousel-counter">1</span> / <span id="carousel-total">1</span>
         </div>
 
         {/* Carousel Track */}
-        <div
-          id="carousel-track-container"
-          class="relative w-full h-full overflow-hidden touch-pan-y"
-        >
-          <div
-            id="carousel-track"
-            class="flex h-full transition-transform duration-300 ease-out will-change-transform"
-            style="transform: translateX(0%);"
-          >
-            {/* Slides injected via JS */}
-          </div>
+        <div id="carousel-track-container" class="relative w-full h-full overflow-hidden touch-pan-y cursor-grab active:cursor-grabbing">
+          <div id="carousel-track" class="flex h-full transition-transform duration-300 ease-out will-change-transform" style="transform: translateX(0%);"></div>
         </div>
 
         {/* Nav Arrows */}
-        <button
-          id="carousel-prev"
-          class="absolute left-3 top-1/2 -translate-y-1/2 z-20 w-10 h-10 rounded-full bg-black/50 hover:bg-black/70 text-white flex items-center justify-center transition-colors"
-          aria-label="Slide sebelumnya"
-          type="button"
-        >
-          <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m15 18-6-6 6-6"/></svg>
+        <button id="carousel-prev" class="absolute left-3 top-1/2 -translate-y-1/2 z-20 w-10 h-10 rounded-full bg-[var(--bg-3)]/80 backdrop-blur-sm border border-[var(--border)] hover:bg-[var(--vd)] hover:border-[var(--v)] text-[var(--t3)] hover:text-[var(--v)] flex items-center justify-center transition-all shadow-lg" aria-label="Slide sebelumnya" type="button">
+          <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m15 18-6-6 6-6"/></svg>
         </button>
-        <button
-          id="carousel-next"
-          class="absolute right-3 top-1/2 -translate-y-1/2 z-20 w-10 h-10 rounded-full bg-black/50 hover:bg-black/70 text-white flex items-center justify-center transition-colors"
-          aria-label="Slide berikutnya"
-          type="button"
-        >
-          <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"/></svg>
+        <button id="carousel-next" class="absolute right-3 top-1/2 -translate-y-1/2 z-20 w-10 h-10 rounded-full bg-[var(--bg-3)]/80 backdrop-blur-sm border border-[var(--border)] hover:bg-[var(--vd)] hover:border-[var(--v)] text-[var(--t3)] hover:text-[var(--v)] flex items-center justify-center transition-all shadow-lg" aria-label="Slide berikutnya" type="button">
+          <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"/></svg>
         </button>
 
         {/* Dots Indicator */}
-        <div
-          id="carousel-dots"
-          class="absolute bottom-3 left-1/2 -translate-x-1/2 z-20 flex gap-2"
-        ></div>
+        <div id="carousel-dots" class="absolute bottom-4 left-1/2 -translate-x-1/2 z-20 flex gap-2"></div>
       </div>
 
-      {/* ── Content (DI BAWAH GAMBAR) ── */}
-      <div class="w-full flex-1 flex flex-col min-h-0">
-        {/* Close button */}
-        <div class="flex justify-end p-4 pb-0">
-          <button
-            id="modal-close-btn"
-            class="w-8 h-8 rounded-full bg-slate-800/50 hover:bg-slate-700 border border-slate-700/50 text-slate-400 hover:text-white flex items-center justify-center transition-colors"
-            aria-label="Tutup modal"
-            type="button"
-          >
-            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>
-          </button>
+      {/* ── Text Content ── */}
+      <div class="w-full flex-1 flex flex-col p-6 md:p-8 pt-6">
+        {/* Category & Year */}
+        <div class="flex items-center gap-3 mb-4">
+          <span id="modal-category" class="text-[0.65rem] font-mono font-bold text-[var(--c)] uppercase tracking-[0.15em] px-2.5 py-1 bg-[var(--cd)] border border-[var(--c)]/20 rounded"></span>
+          <span class="text-[var(--t3)]">//</span>
+          <span id="modal-year" class="text-[0.65rem] font-mono text-[var(--t3)] flex items-center gap-1.5 px-2.5 py-1 bg-[var(--bg-3)] border border-[var(--border)] rounded">
+            <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="18" height="18" x="3" y="4" rx="2" ry="2"/><line x1="16" x2="16" y1="2" y2="6"/><line x1="8" x2="8" y1="2" y2="6"/><line x1="3" x2="21" y1="10" y2="10"/></svg>
+            <span id="modal-year-text"></span>
+          </span>
         </div>
 
-        {/* Scrollable Content */}
-        <div
-          id="modal-scroll-area"
-          class="flex-1 overflow-y-auto p-6 pt-2 custom-scrollbar"
-        >
-          {/* Category & Year */}
-          <div class="flex items-center gap-3 mb-3">
-            <span id="modal-category" class="text-xs font-medium text-emerald-400 uppercase tracking-wider"></span>
-            <span class="text-slate-600">•</span>
-            <span id="modal-year" class="text-xs text-slate-500 flex items-center gap-1">
-              <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="18" height="18" x="3" y="4" rx="2" ry="2"/><line x1="16" x2="16" y1="2" y2="6"/><line x1="8" x2="8" y1="2" y2="6"/><line x1="3" x2="21" y1="10" y2="10"/></svg>
-              <span id="modal-year-text"></span>
-            </span>
+        {/* Title */}
+        <h2 id="modal-title" class="text-2xl md:text-3xl font-bold text-[var(--t1)] mb-5 font-['Syne'] uppercase tracking-tight leading-tight"></h2>
+        
+        {/* Long Description */}
+        <p id="modal-description" class="text-[var(--t2)] text-sm md:text-[0.9rem] leading-relaxed mb-8 font-light"></p>
+
+        {/* Highlights & Tech Stack Grid */}
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-8 mb-8">
+          <div>
+            <h3 class="text-[0.65rem] font-mono tracking-widest text-[var(--t3)] uppercase mb-4 flex items-center gap-2">
+              <span class="w-4 h-px bg-[var(--border-2)]"></span> HIGHLIGHTS
+            </h3>
+            <ul id="modal-highlights" class="space-y-2.5"></ul>
           </div>
 
-          {/* Title */}
-          <h2
-            id="modal-title"
-            class="text-2xl font-bold text-white mb-4 font-display leading-tight"
-          ></h2>
-
-          {/* Long Description */}
-          <p
-            id="modal-description"
-            class="text-slate-400 text-sm leading-relaxed mb-6"
-          ></p>
-
-          {/* Highlights */}
-          <div class="mb-6">
-            <h3 class="text-sm font-semibold text-white mb-3">Highlights</h3>
-            <ul id="modal-highlights" class="space-y-2"></ul>
-          </div>
-
-          {/* Tech Stack */}
-          <div class="mb-8">
-            <h3 class="text-sm font-semibold text-white mb-3">Tech Stack</h3>
+          <div>
+            <h3 class="text-[0.65rem] font-mono tracking-widest text-[var(--t3)] uppercase mb-4 flex items-center gap-2">
+              <span class="w-4 h-px bg-[var(--border-2)]"></span> TECH STACK
+            </h3>
             <div id="modal-techstack" class="flex flex-wrap gap-2"></div>
           </div>
+        </div>
 
-          {/* CTA */}
+        {/* CTA (Sticky/Bottom area behavior) */}
+        <div class="mt-auto pt-6 border-t border-[var(--border)]">
           <a
             id="modal-github"
             href="#"
             target="_blank"
             rel="noopener noreferrer"
-            class="inline-flex items-center gap-2 px-5 py-2.5 rounded-lg bg-emerald-500 hover:bg-emerald-400 text-slate-950 text-sm font-bold transition-colors duration-300"
+            class="group relative overflow-hidden inline-flex items-center justify-center gap-2 px-6 py-3.5 rounded bg-[var(--v)] text-[var(--bg)] shadow-lg hover:shadow-[0_8px_30px_var(--shadow-v)] transition-all duration-300 hover:-translate-y-0.5 w-full sm:w-auto"
           >
-            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 22v-4a4.8 4.8 0 0 0-1-3.5c3 0 6-2 6-5.5.08-1.25-.27-2.48-1-3.5.28-1.15.28-2.35 0-3.5 0 0-1 0-3 1.5-2.64-.5-5.36-.5-8 0C6 2 5 2 5 2c-.3 1.15-.3 2.35 0 3.5A5.403 5.403 0 0 0 4 9c0 3.5 3 5.5 6 5.5-.39.49-.68 1.05-.85 1.65-.17.6-.22 1.23-.15 1.85v4"/><path d="M9 18c-4.51 2-5-2-7-2"/></svg>
-            Lihat di GitHub
-            <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 7h10v10"/><path d="M7 17 17 7"/></svg>
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" class="relative z-10"><path d="M15 22v-4a4.8 4.8 0 0 0-1-3.5c3 0 6-2 6-5.5.08-1.25-.27-2.48-1-3.5.28-1.15.28-2.35 0-3.5 0 0-1 0-3 1.5-2.64-.5-5.36-.5-8 0C6 2 5 2 5 2c-.3 1.15-.3 2.35 0 3.5A5.403 5.403 0 0 0 4 9c0 3.5 3 5.5 6 5.5-.39.49-.68 1.05-.85 1.65-.17.6-.22 1.23-.15 1.85v4"/><path d="M9 18c-4.51 2-5-2-7-2"/></svg>
+            <span id="modal-github-text" class="text-xs font-mono tracking-widest font-bold uppercase relative z-10">SOURCE CODE</span>
+            <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" class="group-hover:translate-x-1 transition-transform relative z-10"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
+            {/* Sweep Effect */}
+            <div class="absolute inset-0 bg-white/20 translate-y-full group-hover:translate-y-0 transition-transform duration-300 ease-out pointer-events-none rounded"></div>
           </a>
         </div>
       </div>
@@ -147,41 +134,43 @@ import Badge from './Badge.astro';
     background: transparent;
   }
   .custom-scrollbar::-webkit-scrollbar-thumb {
-    background: rgba(100, 116, 139, 0.4);
+    background: var(--border-2);
     border-radius: 999px;
+    border: 2px solid var(--bg-2);
   }
   .custom-scrollbar::-webkit-scrollbar-thumb:hover {
-    background: rgba(100, 116, 139, 0.6);
+    background: var(--v);
   }
   .custom-scrollbar {
     scrollbar-width: thin;
-    scrollbar-color: rgba(100, 116, 139, 0.4) transparent;
+    scrollbar-color: var(--border-2) transparent;
   }
 </style>
 
 <script>
+  import { t } from "@/i18n/index";
+
   type ProjectData = {
-    slug: string;
-    title: string;
-    description: string;
-    longDescription?: string;
-    category: string;
-    year?: string;
-    highlights?: string[];
-    techStack?: string[];
-    githubUrl?: string;
-    images?: string[];
-    image?: string;
+    slug: string; title: string; description: string; longDescription?: string;
+    category: string; year?: string; highlights?: string[]; techStack?: string[];
+    githubUrl?: string; images?: string[]; image?: string;
   };
 
-  // ── DOM Refs ──
+  const slugMap: Record<string, number> = {
+    'website-pemerintahan-subang': 1,
+    'astra-logistic-tracking': 2,
+    'dompet-rantau': 3,
+    'portfolio-cms': 4,
+    'amazon-recommendation': 5,
+    'acnescan-yolo': 6
+  };
+
   const modal = document.getElementById('project-modal') as HTMLDivElement;
   const backdrop = document.getElementById('modal-backdrop') as HTMLDivElement;
   const content = document.getElementById('modal-content') as HTMLDivElement;
   const closeBtn = document.getElementById('modal-close-btn') as HTMLButtonElement;
-  const scrollArea = document.getElementById('modal-scroll-area') as HTMLDivElement;
+  const scrollArea = content.querySelector('.custom-scrollbar') as HTMLDivElement;
 
-  // Carousel refs
   const track = document.getElementById('carousel-track') as HTMLDivElement;
   const trackContainer = document.getElementById('carousel-track-container') as HTMLDivElement;
   const counterEl = document.getElementById('carousel-counter') as HTMLSpanElement;
@@ -190,7 +179,7 @@ import Badge from './Badge.astro';
   const prevBtn = document.getElementById('carousel-prev') as HTMLButtonElement;
   const nextBtn = document.getElementById('carousel-next') as HTMLButtonElement;
 
-  // Content refs
+  const terminalSlug = document.getElementById('modal-terminal-slug') as HTMLSpanElement;
   const titleEl = document.getElementById('modal-title') as HTMLHeadingElement;
   const categoryEl = document.getElementById('modal-category') as HTMLSpanElement;
   const yearTextEl = document.getElementById('modal-year-text') as HTMLSpanElement;
@@ -198,231 +187,173 @@ import Badge from './Badge.astro';
   const highlightsEl = document.getElementById('modal-highlights') as HTMLUListElement;
   const techStackEl = document.getElementById('modal-techstack') as HTMLDivElement;
   const githubEl = document.getElementById('modal-github') as HTMLAnchorElement;
+  const githubTextEl = document.getElementById('modal-github-text') as HTMLSpanElement;
 
-  // ── State ──
-  let currentSlide = 0;
-  let slideCount = 0;
-  let touchStartX = 0;
-  let touchCurrentX = 0;
-  let isDragging = false;
-  let previouslyFocused: Element | null = null;
+  let currentSlide = 0; let slideCount = 0; let isDragging = false;
+  let touchStartX = 0; let touchCurrentX = 0; let previouslyFocused: Element | null = null;
 
-  // ── Helpers ──
-  function getProjects(): ProjectData[] {
-    return (window as any).__PROJECTS_DATA__ || [];
-  }
-
-  function getBaseUrl(): string {
-    return (window as any).__BASE_URL__ || '';
-  }
+  function getProjects(): ProjectData[] { return (window as any).__PROJECTS_DATA__ || []; }
+  function getBaseUrl(): string { return (window as any).__BASE_URL__ || ''; }
 
   function trapFocus(e: KeyboardEvent) {
-    if (e.key !== 'Tab' || !modal.classList.contains('block')) return;
-    const focusables = modal.querySelectorAll<<HTMLElement>(
-      'a[href], button, textarea, input[type="text"], input[type="radio"], input[type="checkbox"], select'
-    );
+    if (e.key !== 'Tab' || !modal.classList.contains('flex')) return;
+    const focusables = modal.querySelectorAll<HTMLElement>('a[href], button, textarea, input, select');
     if (focusables.length === 0) return;
-    const first = focusables[0];
-    const last = focusables[focusables.length - 1];
-    if (e.shiftKey) {
-      if (document.activeElement === first) {
-        e.preventDefault();
-        last.focus();
-      }
-    } else {
-      if (document.activeElement === last) {
-        e.preventDefault();
-        first.focus();
-      }
-    }
+    const first = focusables[0]; const last = focusables[focusables.length - 1];
+    if (e.shiftKey && document.activeElement === first) { e.preventDefault(); last.focus(); }
+    else if (!e.shiftKey && document.activeElement === last) { e.preventDefault(); first.focus(); }
   }
 
   function renderSlides(images: string[]) {
-    track.innerHTML = '';
-    dotsContainer.innerHTML = '';
-    slideCount = images.length;
-    totalEl.textContent = String(slideCount);
-    currentSlide = 0;
+    track.innerHTML = ''; dotsContainer.innerHTML = '';
+    slideCount = images.length; totalEl.textContent = String(slideCount); currentSlide = 0;
 
     images.forEach((src, i) => {
       const slide = document.createElement('div');
-      slide.className = 'w-full h-full flex-shrink-0 flex items-center justify-center bg-dark-900';
+      slide.className = 'w-full h-full flex-shrink-0 flex items-center justify-center bg-[var(--bg)] relative';
+      
+      // Efek grid samar di belakang gambar
+      const grid = document.createElement('div');
+      grid.className = 'absolute inset-0 pointer-events-none opacity-[0.03]';
+      grid.style.backgroundImage = 'linear-gradient(var(--v) 1px, transparent 1px), linear-gradient(90deg, var(--v) 1px, transparent 1px)';
+      grid.style.backgroundSize = '20px 20px';
+      slide.appendChild(grid);
+
       const img = document.createElement('img');
       img.src = `${getBaseUrl().replace(/\/$/, '')}/${src.replace(/^\//, '')}`;
-      img.alt = 'Slide ' + (i + 1);
-      img.className = 'w-full h-full object-contain';
-      img.draggable = false;
-      slide.appendChild(img);
-      track.appendChild(slide);
+      img.alt = 'Slide ' + (i + 1); img.className = 'w-full h-full object-contain relative z-10 drop-shadow-2xl'; img.draggable = false;
+      slide.appendChild(img); track.appendChild(slide);
 
-      // Dot
       const dot = document.createElement('button');
-      dot.className = 'w-2 h-2 rounded-full transition-colors ' + (i === 0 ? 'bg-white' : 'bg-white/40');
-      dot.ariaLabel = 'Lihat slide ' + (i + 1);
+      dot.className = 'w-2 h-2 rounded-full transition-all duration-300 ' + (i === 0 ? 'bg-[var(--v)] scale-125' : 'bg-[var(--border-2)] hover:bg-[var(--t3)]');
       dot.addEventListener('click', () => goToSlide(i));
       dotsContainer.appendChild(dot);
     });
-
     updateCarousel();
   }
 
   function updateCarousel() {
     track.style.transform = 'translateX(-' + (currentSlide * 100) + '%)';
     counterEl.textContent = String(currentSlide + 1);
-
     Array.from(dotsContainer.children).forEach((dot, i) => {
-      dot.className = 'w-2 h-2 rounded-full transition-colors ' + (i === currentSlide ? 'bg-white' : 'bg-white/40');
+      dot.className = 'w-2 h-2 rounded-full transition-all duration-300 ' + (i === currentSlide ? 'bg-[var(--v)] scale-125' : 'bg-[var(--border-2)] hover:bg-[var(--t3)]');
     });
-
-    prevBtn.style.opacity = slideCount <= 1 ? '0' : '1';
-    prevBtn.style.pointerEvents = slideCount <= 1 ? 'none' : 'auto';
-    nextBtn.style.opacity = slideCount <= 1 ? '0' : '1';
-    nextBtn.style.pointerEvents = slideCount <= 1 ? 'none' : 'auto';
+    prevBtn.style.opacity = slideCount <= 1 ? '0' : '1'; prevBtn.style.pointerEvents = slideCount <= 1 ? 'none' : 'auto';
+    nextBtn.style.opacity = slideCount <= 1 ? '0' : '1'; nextBtn.style.pointerEvents = slideCount <= 1 ? 'none' : 'auto';
   }
 
   function goToSlide(index: number) {
     if (index < 0) index = slideCount - 1;
     if (index >= slideCount) index = 0;
-    currentSlide = index;
-    updateCarousel();
+    currentSlide = index; updateCarousel();
   }
 
   function nextSlide() { goToSlide(currentSlide + 1); }
   function prevSlide() { goToSlide(currentSlide - 1); }
 
-  // ── Touch / Swipe ──
-  function onTouchStart(e: TouchEvent) {
-    isDragging = true;
-    touchStartX = e.touches[0].clientX;
-    touchCurrentX = touchStartX;
-    track.style.transition = 'none';
-  }
-
-  function onTouchMove(e: TouchEvent) {
-    if (!isDragging) return;
-    touchCurrentX = e.touches[0].clientX;
-    const diff = touchCurrentX - touchStartX;
-    const offset = -currentSlide * 100 + (diff / trackContainer.offsetWidth) * 100;
-    track.style.transform = 'translateX(' + offset + '%)';
-  }
-
+  function onTouchStart(e: TouchEvent) { isDragging = true; touchStartX = e.touches[0].clientX; touchCurrentX = touchStartX; track.style.transition = 'none'; }
+  function onTouchMove(e: TouchEvent) { if (!isDragging) return; touchCurrentX = e.touches[0].clientX; const diff = touchCurrentX - touchStartX; track.style.transform = 'translateX(' + (-currentSlide * 100 + (diff / trackContainer.offsetWidth) * 100) + '%)'; }
   function onTouchEnd() {
-    if (!isDragging) return;
-    isDragging = false;
-    track.style.transition = 'transform 300ms ease-out';
-    const diff = touchCurrentX - touchStartX;
-    const threshold = trackContainer.offsetWidth * 0.15;
-    if (diff < -threshold) {
-      nextSlide();
-    } else if (diff > threshold) {
-      prevSlide();
-    } else {
-      updateCarousel();
-    }
+    if (!isDragging) return; isDragging = false; track.style.transition = 'transform 300ms ease-out';
+    const diff = touchCurrentX - touchStartX; const threshold = trackContainer.offsetWidth * 0.15;
+    if (diff < -threshold) nextSlide(); else if (diff > threshold) prevSlide(); else updateCarousel();
   }
 
-  // ── Open / Close ──
   function openModal(project: ProjectData) {
     previouslyFocused = document.activeElement;
 
-    // Populate content
-    titleEl.textContent = project.title;
+    // Terminal Slug Name
+    terminalSlug.textContent = `${project.slug}.exe`;
+
+    const dictIdx = slugMap[project.slug];
+    const title = dictIdx ? t(`project${dictIdx}.title`) : project.title;
+    let desc = dictIdx ? t(`project${dictIdx}.longDesc`) : project.longDescription;
+    if (desc === `project${dictIdx}.longDesc`) desc = t(`project${dictIdx}.desc`);
+    if (!desc || desc.includes("project")) desc = project.description;
+
+    titleEl.innerHTML = title;
     categoryEl.textContent = project.category;
     yearTextEl.textContent = project.year || '';
-    descEl.textContent = project.longDescription || project.description;
+    descEl.innerHTML = desc;
+
+    if (githubTextEl) {
+      const btnText = t("projects.viewGithubShort");
+      githubTextEl.textContent = btnText !== "projects.viewGithubShort" ? btnText : "SOURCE CODE";
+    }
     githubEl.href = project.githubUrl || '#';
     githubEl.style.display = project.githubUrl ? 'inline-flex' : 'none';
 
     // Highlights
     highlightsEl.innerHTML = '';
-    (project.highlights || []).forEach(function(h) {
+    let hList: string[] = [];
+    if (dictIdx) {
+      for (let i = 1; i <= 5; i++) {
+        const h = t(`project${dictIdx}.highlight${i}`);
+        if (h && h !== `project${dictIdx}.highlight${i}`) hList.push(h);
+      }
+    }
+    if (hList.length === 0) hList = project.highlights || [];
+
+    hList.forEach((h) => {
       const li = document.createElement('li');
-      li.className = 'flex items-start gap-2 text-sm text-slate-300';
-      li.innerHTML = '<svg class="w-4 h-4 text-emerald-500 mt-0.5 flex-shrink-0" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg><span>' + h + '</span>';
+      li.className = 'flex items-start gap-2.5 text-sm text-[var(--t2)]';
+      li.innerHTML = '<svg class="w-4 h-4 text-[var(--g)] mt-0.5 flex-shrink-0" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg><span class="leading-relaxed">' + h + '</span>';
       highlightsEl.appendChild(li);
     });
 
-    // Tech stack
+    // Tech Stack
     techStackEl.innerHTML = '';
-    (project.techStack || []).forEach(function(t) {
+    (project.techStack || []).forEach((tStr) => {
       const badge = document.createElement('span');
-      badge.className = 'inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-emerald-500/10 text-emerald-300 border border-emerald-500/20';
-      badge.textContent = t;
+      badge.className = 'inline-flex items-center px-2.5 py-1.5 rounded bg-[var(--bg-3)] border border-[var(--border)] text-[var(--t3)] font-mono text-[0.6rem] uppercase tracking-wider shadow-inner';
+      badge.textContent = tStr;
       techStackEl.appendChild(badge);
     });
 
-    // Images
     const images = project.images && project.images.length > 0 ? project.images : (project.image ? [project.image] : []);
     renderSlides(images);
 
-    // Show modal
-    modal.classList.remove('hidden');
-    modal.classList.add('block');
+    // Animasi Masuk (Bouncy)
+    modal.classList.remove('hidden'); 
+    modal.classList.add('flex');
     document.body.style.overflow = 'hidden';
 
-    // Animate in
-    requestAnimationFrame(function() {
-      backdrop.classList.remove('opacity-0');
-      content.classList.remove('opacity-0', 'scale-95');
-      content.classList.add('opacity-100', 'scale-100');
-    });
+    setTimeout(() => {
+      backdrop.classList.remove('opacity-0'); 
+      content.classList.remove('opacity-0', 'scale-95', 'translate-y-12'); 
+      content.classList.add('opacity-100', 'scale-100', 'translate-y-0');
+    }, 10);
 
-    // Focus first focusable
-    setTimeout(function() {
-      closeBtn.focus();
-    }, 100);
-
-    // Reset scroll
-    scrollArea.scrollTop = 0;
+    setTimeout(() => { closeBtn.focus(); }, 100); 
+    if(scrollArea) scrollArea.scrollTop = 0;
   }
 
   function closeModal() {
-    // Animate out
-    backdrop.classList.add('opacity-0');
-    content.classList.remove('opacity-100', 'scale-100');
-    content.classList.add('opacity-0', 'scale-95');
-
-    setTimeout(function() {
-      modal.classList.remove('block');
-      modal.classList.add('hidden');
+    // Animasi Keluar
+    backdrop.classList.add('opacity-0'); 
+    content.classList.remove('opacity-100', 'scale-100', 'translate-y-0'); 
+    content.classList.add('opacity-0', 'scale-95', 'translate-y-12');
+    
+    setTimeout(() => {
+      modal.classList.remove('flex'); 
+      modal.classList.add('hidden'); 
       document.body.style.overflow = '';
-      currentSlide = 0;
-      track.innerHTML = '';
-      dotsContainer.innerHTML = '';
-      if (previouslyFocused && 'focus' in previouslyFocused) {
-        (previouslyFocused as HTMLElement).focus();
-      }
-    }, 300);
+      currentSlide = 0; track.innerHTML = ''; dotsContainer.innerHTML = '';
+      if (previouslyFocused && 'focus' in previouslyFocused) (previouslyFocused as HTMLElement).focus();
+    }, 400);
   }
 
-  // ── Event Listeners ──
-  closeBtn.addEventListener('click', closeModal);
+  closeBtn.addEventListener('click', closeModal); 
   backdrop.addEventListener('click', closeModal);
+  modal.addEventListener('click', (e) => { if (e.target === modal) closeModal(); });
+  document.addEventListener('keydown', (e) => { if (e.key === 'Escape' && modal.classList.contains('flex')) closeModal(); trapFocus(e); });
+  
+  prevBtn.addEventListener('click', prevSlide); nextBtn.addEventListener('click', nextSlide);
+  trackContainer.addEventListener('touchstart', onTouchStart, { passive: true }); trackContainer.addEventListener('touchmove', onTouchMove, { passive: true }); trackContainer.addEventListener('touchend', onTouchEnd);
 
-  modal.addEventListener('click', function(e) {
-    if (e.target === modal) closeModal();
-  });
-
-  document.addEventListener('keydown', function(e) {
-    if (e.key === 'Escape' && modal.classList.contains('block')) {
-      closeModal();
-    }
-    trapFocus(e as KeyboardEvent);
-  });
-
-  prevBtn.addEventListener('click', prevSlide);
-  nextBtn.addEventListener('click', nextSlide);
-
-  // Touch events
-  trackContainer.addEventListener('touchstart', onTouchStart, { passive: true });
-  trackContainer.addEventListener('touchmove', onTouchMove, { passive: true });
-  trackContainer.addEventListener('touchend', onTouchEnd);
-
-  // ── Global API ──
   (window as any).openProjectModal = function(slug: string) {
-    const project = getProjects().find(function(p: ProjectData) { return p.slug === slug; });
+    const project = getProjects().find((p: ProjectData) => p.slug === slug);
     if (project) openModal(project);
   };
-
   (window as any).closeProjectModal = closeModal;
 </script>

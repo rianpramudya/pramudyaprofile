@@ -1,537 +1,483 @@
 ---
-import { site } from '@/content/site';
-import Button from '@/components/ui/Button.astro';
-import Badge from '@/components/ui/Badge.astro';
+import { dictionary } from "@/i18n/dictionary";
+import type { Lang } from "@/i18n/dictionary";
+
+// Dapatkan bahasa dari URL untuk Server-Side Rendering (SSR)
+function getLangFromUrl(url: URL): Lang {
+  const q = url.searchParams.get('lang');
+  if (q === 'en' || q === 'id') return q;
+  return 'id';
+}
+
+const lang = getLangFromUrl(Astro.url);
+
+// Fungsi terjemahan untuk string tunggal
+function ts(key: string): string {
+  const dict = dictionary[lang] as Record<string, any>;
+  const val = dict[key];
+  if (typeof val === 'string') return val;
+  return key;
+}
+
+// Fungsi terjemahan untuk array (seperti roles)
+function ta(key: string): string[] {
+  const dict = dictionary[lang] as Record<string, any>;
+  const val = dict[key];
+  if (Array.isArray(val)) return val;
+  return [];
+}
+
+// Persiapkan data untuk script client-side
+const roles = ta("hero.roles");
+const termLines = [
+  { p: ts("terminal.whoami"), o: ts("terminal.whoamiOut") },
+  { p: ts("terminal.status"), o: ts("terminal.statusOut") },
+  { p: ts("terminal.stack"), o: ts("terminal.stackOut") },
+  { p: ts("terminal.focus"), o: ts("terminal.focusOut") }
+];
+
+// GANTI path ini dengan foto Anda. Untuk Astro, taruh file di /public/images/
+// lalu pakai path "/images/nama-file.jpg"
+const PHOTO_SRC = import.meta.env.BASE_URL + "/SelfPhoto.jpeg";
+const PHOTO_ALT = "Rian Pramudya Amanda";
 ---
 
-<section id="hero" class="relative min-h-screen flex items-center justify-center overflow-hidden bg-[#04040f]">
+<section id="hero" class="cyber-hero">
+  <div class="orb1"></div>
+  <div class="orb2"></div>
 
-  <!--
-    BACKGROUND: Constellation Field
-    - Canvas fullscreen, pointer-events-none agar tidak block interaksi konten
-    - Tiga layer bintang dengan kecepatan parallax berbeda
-    - Nebula clouds, koneksi konstelasi, meteor shower acak
-    - Mouse parallax: bintang bergerak mengikuti kursor
-  -->
-  <canvas
-    id="hero-canvas"
-    class="absolute inset-0 w-full h-full pointer-events-none"
-    aria-hidden="true"
-  ></canvas>
+  <div class="hero-inner">
+    <div class="hero-text" data-aos="fade-up">
+      <div class="sys-tag" data-i18n="hero.sysTag">{ts("hero.sysTag")}</div>
 
-  <!-- Content -->
-  <div class="relative z-10 mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-20">
-    <div class="grid grid-cols-1 lg:grid-cols-4 gap-8 lg:gap-12 items-center">
+      <h1 class="title">
+        <div class="solid">RIAN</div>
+        <div class="ghost">PRAMUDYA</div>
+        <div class="grad">Amanda.</div>
+      </h1>
 
-      <!-- LEFT / TOP: Hero Content -->
-      <div class="lg:col-span-3 text-center">
-
-        <!-- Availability Badge -->
-        <div class="inline-flex mb-8 opacity-0" id="hero-badge">
-          <Badge variant="primary" size="md">
-            <span class="relative flex h-2.5 w-2.5">
-              <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-primary-400 opacity-75"></span>
-              <span class="relative inline-flex rounded-full h-2.5 w-2.5 bg-primary-500"></span>
-            </span>
-            Tersedia untuk proyek baru
-          </Badge>
-        </div>
-
-        <!-- Name -->
-        <h1 class="text-4xl sm:text-5xl md:text-7xl lg:text-8xl font-bold text-white mb-6 leading-tight">
-          <span class="block opacity-0 translate-y-8" id="hero-line1">Rian Pramudya</span>
-          <span class="block opacity-0 translate-y-8" id="hero-line2">
-            <span class="bg-gradient-to-r from-primary-400 via-accent-400 to-primary-400 bg-clip-text text-transparent animate-gradient bg-[length:200%_auto]">Amanda</span>
-          </span>
-        </h1>
-
-        <!-- Role -->
-        <p class="text-lg sm:text-xl md:text-2xl text-slate-400 mb-4 font-medium opacity-0" id="hero-role">
-          Full Stack Web Developer & <span class="text-primary-400">AI Enthusiast</span>
-        </p>
-
-        <!-- Tagline -->
-        <p class="text-slate-500 max-w-2xl mx-auto mb-10 text-sm sm:text-base leading-relaxed opacity-0" id="hero-desc">
-          Mahasiswa Informatika Telkom University yang membangun solusi teknologi inovatif di bidang
-          <span class="text-slate-300">Web Development</span>,
-          <span class="text-slate-300">Machine Learning</span>, dan
-          <span class="text-slate-300">Generative AI</span>.
-        </p>
-
-        <!-- CTA Buttons -->
-        <div class="flex flex-col sm:flex-row items-center justify-center gap-4 opacity-0" id="hero-cta">
-          <Button href="#projects" size="lg">
-            Lihat Proyek Saya
-            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
-          </Button>
-          <Button href="#contact" variant="outline" size="lg">
-            Hubungi Saya
-            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="20" height="16" x="2" y="4" rx="2"/><path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"/></svg>
-          </Button>
-        </div>
-
-        <!-- Lanyard Mobile -->
-        <div class="flex justify-center mt-10 lg:hidden" id="hero-lanyard-mobile" style="opacity: 0;">
-          <div
-            id="lanyard-container-mobile"
-            class="relative pointer-events-auto cursor-grab active:cursor-grabbing scale-[0.7] sm:scale-75"
-          >
-            <div class="w-48 mx-auto">
-              <svg class="w-full" viewBox="0 0 192 140" fill="none" xmlns="http://www.w3.org/2000/svg">
-                <defs>
-                  <filter id="glow-m" x="-50%" y="-50%" width="200%" height="200%">
-                    <feGaussianBlur stdDeviation="3" result="coloredBlur"/>
-                    <feMerge><feMergeNode in="coloredBlur"/><feMergeNode in="SourceGraphic"/></feMerge>
-                  </filter>
-                  <linearGradient id="rope-gradient-m" x1="0%" y1="0%" x2="0%" y2="100%">
-                    <stop offset="0%" stop-color="#10b981" />
-                    <stop offset="50%" stop-color="#14b8a6" />
-                    <stop offset="100%" stop-color="#06b6d4" />
-                  </linearGradient>
-                </defs>
-                <circle cx="16" cy="8" r="5.5" fill="#0f172a" stroke="#14b8a6" stroke-width="2.5" filter="url(#glow-m)" />
-                <circle cx="176" cy="8" r="5.5" fill="#0f172a" stroke="#14b8a6" stroke-width="2.5" filter="url(#glow-m)" />
-                <path d="M16 8 Q56 88 96 132" stroke="url(#rope-gradient-m)" stroke-width="4.5" stroke-linecap="round" fill="none" filter="url(#glow-m)" />
-                <path d="M176 8 Q136 88 96 132" stroke="url(#rope-gradient-m)" stroke-width="4.5" stroke-linecap="round" fill="none" filter="url(#glow-m)" />
-                <circle cx="96" cy="132" r="9" fill="#1e293b" stroke="#64748b" stroke-width="2" />
-                <circle cx="96" cy="132" r="4" fill="#475569" />
-              </svg>
-              <div class="relative -mt-3">
-                <div class="w-full rounded-2xl overflow-hidden bg-gradient-to-b from-slate-800 to-dark-800 border-2 border-emerald-500/30 shadow-[0_20px_60px_-15px_rgba(16,185,129,0.25)] backdrop-blur-sm relative">
-                  <div class="h-3 bg-gradient-to-r from-emerald-500 via-teal-500 to-cyan-500"></div>
-                  <div class="relative h-44 bg-gradient-to-br from-slate-800 to-slate-900 overflow-hidden px-4 pt-4">
-                    <div class="absolute inset-0 flex items-center justify-center">
-                      <div class="relative">
-                        <div class="absolute inset-0 rounded-full bg-emerald-500/20 blur-xl scale-110"></div>
-                        <img src={`${import.meta.env.BASE_URL}/rian.jpg`} alt="Rian Pramudya Amanda" class="relative w-28 h-28 rounded-full object-cover border-4 border-dark-800 shadow-2xl" />
-                      </div>
-                    </div>
-                    <div class="absolute inset-0 bg-gradient-to-t from-dark-800/90 via-transparent to-transparent"></div>
-                  </div>
-                  <div class="p-4 text-center relative">
-                    <p class="text-white font-bold text-base tracking-tight">Rian Pramudya</p>
-                    <p class="text-emerald-400 text-sm font-medium mt-1">Full Stack Developer</p>
-                    <div class="mt-3 flex justify-center gap-2 items-center px-3 py-1.5 rounded-full bg-emerald-500/10 border border-emerald-500/20 w-fit mx-auto">
-                      <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
-                      <span class="text-xs text-emerald-300 font-medium">Available for hire</span>
-                    </div>
-                  </div>
-                  <div class="absolute -top-2 left-1/2 -translate-x-1/2 w-7 h-7 rounded-full bg-dark-900 border-2 border-slate-600 flex items-center justify-center z-20">
-                    <div class="w-2.5 h-2.5 rounded-full bg-slate-500"></div>
-                  </div>
-                </div>
-                <div class="absolute -bottom-6 left-1/2 -translate-x-1/2 w-36 h-6 bg-emerald-500/10 rounded-full blur-2xl"></div>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <!-- Stats -->
-        <div class="grid grid-cols-3 gap-6 sm:gap-10 max-w-lg mx-auto mt-16 opacity-0" id="hero-stats">
-          <div class="text-center group">
-            <div class="text-2xl sm:text-3xl md:text-4xl font-bold text-white font-display group-hover:text-primary-400 transition-colors duration-300">5+</div>
-            <div class="text-xs sm:text-sm text-slate-500 mt-1">Proyek Selesai</div>
-          </div>
-          <div class="text-center group">
-            <div class="text-2xl sm:text-3xl md:text-4xl font-bold text-white font-display group-hover:text-primary-400 transition-colors duration-300">3+</div>
-            <div class="text-xs sm:text-sm text-slate-500 mt-1">Tahun Pengalaman</div>
-          </div>
-          <div class="text-center group">
-            <div class="text-2xl sm:text-3xl md:text-4xl font-bold text-white font-display group-hover:text-primary-400 transition-colors duration-300">25+</div>
-            <div class="text-xs sm:text-sm text-slate-500 mt-1">Skill Teknologi</div>
-          </div>
-        </div>
-
+      <div class="role-row">
+        <span class="role-pre" data-i18n="hero.rolePrefix">{ts("hero.rolePrefix")}</span>
+        <span class="role-txt" id="roleEl"></span>
       </div>
 
-      <!-- RIGHT: Lanyard Desktop -->
-      <div class="lg:col-span-1 hidden lg:flex items-center justify-center">
-        <div id="lanyard-container" class="relative pointer-events-auto cursor-grab active:cursor-grabbing scale-75 xl:scale-90">
-          <div class="w-56 mx-auto">
-            <svg class="w-full" viewBox="0 0 224 160" fill="none" xmlns="http://www.w3.org/2000/svg">
-              <defs>
-                <filter id="glow" x="-50%" y="-50%" width="200%" height="200%">
-                  <feGaussianBlur stdDeviation="3.5" result="coloredBlur"/>
-                  <feMerge><feMergeNode in="coloredBlur"/><feMergeNode in="SourceGraphic"/></feMerge>
-                </filter>
-                <linearGradient id="rope-gradient" x1="0%" y1="0%" x2="0%" y2="100%">
-                  <stop offset="0%" stop-color="#10b981" />
-                  <stop offset="50%" stop-color="#14b8a6" />
-                  <stop offset="100%" stop-color="#06b6d4" />
-                </linearGradient>
-              </defs>
-              <circle cx="20" cy="8" r="6" fill="#0f172a" stroke="#14b8a6" stroke-width="2.5" filter="url(#glow)" />
-              <circle cx="204" cy="8" r="6" fill="#0f172a" stroke="#14b8a6" stroke-width="2.5" filter="url(#glow)" />
-              <path d="M20 8 Q66 100 112 152" stroke="url(#rope-gradient)" stroke-width="5" stroke-linecap="round" fill="none" filter="url(#glow)" />
-              <path d="M204 8 Q158 100 112 152" stroke="url(#rope-gradient)" stroke-width="5" stroke-linecap="round" fill="none" filter="url(#glow)" />
-              <circle cx="112" cy="152" r="10" fill="#1e293b" stroke="#64748b" stroke-width="2" />
-              <circle cx="112" cy="152" r="4.5" fill="#475569" />
-            </svg>
-            <div class="relative -mt-3">
-              <div class="w-full rounded-2xl overflow-hidden bg-gradient-to-b from-slate-800 to-dark-800 border-2 border-emerald-500/30 shadow-[0_20px_60px_-15px_rgba(16,185,129,0.25)] backdrop-blur-sm relative">
-                <div class="h-3 bg-gradient-to-r from-emerald-500 via-teal-500 to-cyan-500"></div>
-                <div class="relative h-52 bg-gradient-to-br from-slate-800 to-slate-900 overflow-hidden px-4 pt-4">
-                  <div class="absolute inset-0 flex items-center justify-center">
-                    <div class="relative">
-                      <div class="absolute inset-0 rounded-full bg-emerald-500/20 blur-xl scale-110"></div>
-                      <img src={`${import.meta.env.BASE_URL}/rian.jpg`} alt="Rian Pramudya Amanda" class="relative w-32 h-32 sm:w-36 sm:h-36 rounded-full object-cover border-4 border-dark-800 shadow-2xl" />
-                    </div>
-                  </div>
-                  <div class="absolute inset-0 bg-gradient-to-t from-dark-800/90 via-transparent to-transparent"></div>
-                </div>
-                <div class="p-4 text-center relative">
-                  <p class="text-white font-bold text-lg tracking-tight">Rian Pramudya</p>
-                  <p class="text-emerald-400 text-sm font-medium mt-1">Full Stack Developer</p>
-                  <div class="mt-3 flex justify-center gap-2 items-center px-3 py-1.5 rounded-full bg-emerald-500/10 border border-emerald-500/20 w-fit mx-auto">
-                    <span class="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse"></span>
-                    <span class="text-xs text-emerald-300 font-medium">Available for hire</span>
-                  </div>
-                </div>
-                <div class="absolute -top-2 left-1/2 -translate-x-1/2 w-8 h-8 rounded-full bg-dark-900 border-2 border-slate-600 flex items-center justify-center z-20">
-                  <div class="w-3 h-3 rounded-full bg-slate-500"></div>
-                </div>
-              </div>
-              <div class="absolute -bottom-6 left-1/2 -translate-x-1/2 w-44 h-6 bg-emerald-500/10 rounded-full blur-2xl"></div>
-            </div>
-          </div>
-        </div>
+      <p class="hero-desc" data-i18n="hero.desc">
+        {ts("hero.desc")}
+      </p>
+
+      <div class="ctas">
+        <a href="#projects" class="btn-p" data-i18n="hero.ctaPrimary">{ts("hero.ctaPrimary")}</a>
+        <a href="#contact" class="btn-s" data-i18n="hero.ctaSecondary">{ts("hero.ctaSecondary")}</a>
       </div>
 
+      <div class="stats">
+        <div>
+          <div class="stat-n">5<em>+</em></div>
+          <div class="stat-l" data-i18n="hero.stats.projects">{ts("hero.stats.projects")}</div>
+        </div>
+        <div>
+          <div class="stat-n">3<em>+</em></div>
+          <div class="stat-l" data-i18n="hero.stats.experience">{ts("hero.stats.experience")}</div>
+        </div>
+        <div>
+          <div class="stat-n">25<em>+</em></div>
+          <div class="stat-l" data-i18n="hero.stats.stack">{ts("hero.stats.stack")}</div>
+        </div>
+      </div>
     </div>
+
+    <!-- ── SIDE STACK: ID Card foto + Terminal window ── -->
+    <div class="side-stack">
+      <div class="id-card" aria-hidden="false">
+        <div class="id-bar">
+          <span class="id-bar-label">ACCESS_CARD</span>
+          <span class="id-bar-status"><span class="id-dot"></span>VERIFIED</span>
+        </div>
+        <div class="id-frame">
+          <span class="corner tl"></span>
+          <span class="corner tr"></span>
+          <span class="corner bl"></span>
+          <span class="corner br"></span>
+          <img src={PHOTO_SRC} alt={PHOTO_ALT} loading="eager" />
+          <div class="id-glass"></div>
+        </div>
+        <div class="id-meta">
+          <span class="lbl">operator_id</span>
+          <span class="val">RPA&middot;0042</span>
+        </div>
+      </div>
+
+      <div class="term-window" aria-hidden="true">
+        <div class="term-bar">
+          <span class="term-dot r"></span><span class="term-dot y"></span><span class="term-dot g"></span>
+          <span class="term-path">rian@portfolio:~</span>
+        </div>
+        <div class="term-body" id="termBody"></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="uptime-tag">
+    <span class="dot-sm"></span>
+    <span data-i18n="hero.uptime">{ts("hero.uptime")}</span> 
+    <span id="uptime">00:00:00</span>
+  </div>
+
+  <div class="scroll-hint">
+    <div class="s-line"></div>
+    <span class="s-txt" data-i18n="hero.scroll">{ts("hero.scroll")}</span>
   </div>
 </section>
 
 <style>
-  @keyframes lanyard-drop {
-    0%   { transform: translateY(-60px) scale(0.9); opacity: 0; }
-    60%  { transform: translateY(5px) scale(1.02); opacity: 1; }
-    80%  { transform: translateY(-3px) scale(0.98); }
-    100% { transform: translateY(0%) scale(1); }
+  /* Base Hero Section */
+  .cyber-hero {
+    min-height: 100vh; display: flex; flex-direction: column;
+    justify-content: center; padding: 9rem 2.5rem 4rem;
+    position: relative; overflow: hidden;
   }
-  @keyframes lanyard-swing {
-    0%, 100% { transform: rotate(-1.5deg); }
-    50%       { transform: rotate(1.5deg); }
-  }
-  @keyframes lanyard-swing-hover {
-    0%, 100% { transform: rotate(-5deg); }
-    25%      { transform: rotate(5deg); }
-    50%      { transform: rotate(-3deg); }
-    75%      { transform: rotate(3deg); }
-  }
-
-  #lanyard-container {
-    animation: lanyard-drop 1.5s cubic-bezier(0.34,1.56,0.64,1) forwards,
-               lanyard-swing 5s ease-in-out infinite 1.5s;
-    transform-origin: top center;
-  }
-  #lanyard-container.is-swinging {
-    animation: lanyard-drop 1.5s cubic-bezier(0.34,1.56,0.64,1) forwards,
-               lanyard-swing-hover 2s ease-in-out infinite;
-  }
-  #lanyard-container.is-clicked {
-    animation: lanyard-drop 1.5s cubic-bezier(0.34,1.56,0.64,1) forwards,
-               lanyard-swing-hover 3s ease-in-out infinite;
+  
+  /* Grid Background Overlay */
+  .cyber-hero::before {
+    content: ''; position: absolute; inset: 0;
+    background-image:
+      linear-gradient(var(--grid-line) 1px, transparent 1px),
+      linear-gradient(90deg, var(--grid-line) 1px, transparent 1px);
+    background-size: 64px 64px;
+    mask-image: radial-gradient(ellipse 70% 70% at 55% 40%, #000 30%, transparent 100%);
+    -webkit-mask-image: radial-gradient(ellipse 70% 70% at 55% 40%, #000 30%, transparent 100%);
+    pointer-events: none;
   }
 
-  #lanyard-container-mobile { transform-origin: top center; }
-  #lanyard-container-mobile.is-idle     { animation: lanyard-swing 5s ease-in-out infinite; }
-  #lanyard-container-mobile.is-swinging { animation: lanyard-swing-hover 2s ease-in-out infinite; }
-  #lanyard-container-mobile.is-clicked  { animation: lanyard-swing-hover 3s ease-in-out infinite; }
+  /* Orbs */
+  .orb1 {
+    position: absolute; width: 700px; height: 700px;
+    background: radial-gradient(circle, var(--orb-v) 0%, transparent 65%);
+    top: -180px; right: -180px; pointer-events: none;
+  }
+  .orb2 {
+    position: absolute; width: 500px; height: 500px;
+    background: radial-gradient(circle, var(--orb-c) 0%, transparent 65%);
+    bottom: 0; left: -120px; pointer-events: none;
+  }
+
+  /* Inner Layout */
+  .hero-inner {
+    max-width: 1200px; margin: 0 auto; width: 100%; position: relative; z-index: 1;
+    display: grid; grid-template-columns: 1.25fr .9fr; gap: 3.5rem; align-items: start;
+  }
+
+  /* Tag & Title */
+  .sys-tag {
+    font-family: 'JetBrains Mono', monospace; font-size: .68rem;
+    color: var(--v); letter-spacing: .18em; text-transform: uppercase;
+    margin-bottom: 2rem; display: flex; align-items: center; gap: .7rem;
+  }
+  .sys-tag::before { content: ''; display: block; width: 22px; height: 1px; background: var(--v); }
+
+  /* ── H1 Title: pola solid + hollow/stroke + gradient ──
+     font-family disamakan (tanpa fallback) & weight dinaikkan ke font-black
+     biar konsisten dengan footer/skills/projects/about */
+  h1.title {
+    font-family: 'Syne'; font-weight: 900;
+    font-size: clamp(3.2rem, 7.5vw, 7rem);
+    line-height: .9; letter-spacing: -.03em; margin-bottom: 2.25rem;
+  }
+  h1.title .solid { color: var(--t1); }
+  h1.title .ghost {
+    color: transparent;
+    -webkit-text-stroke: 1.5px var(--border-2);
+  }
+  h1.title .grad {
+    background: linear-gradient(135deg, var(--v) 0%, var(--c) 100%);
+    -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  /* Typewriter Role */
+  .role-row {
+    display: flex; align-items: center; gap: .9rem;
+    margin-bottom: 2.25rem; min-height: 2rem;
+  }
+  .role-pre {
+    font-family: 'JetBrains Mono', monospace; font-size: .8rem; color: var(--t3);
+  }
+  .role-txt {
+    font-family: 'Plus Jakarta Sans', sans-serif; font-size: 1rem; font-weight: 500;
+    color: var(--c); border-right: 2px solid var(--c); padding-right: 4px;
+    animation: blink .9s infinite;
+  }
+  @keyframes blink { 0%, 100% { border-color: var(--c); } 50% { border-color: transparent; } }
+
+  .hero-desc {
+    font-size: .95rem; line-height: 1.85; color: var(--t2); 
+    max-width: 540px; margin-bottom: 2.75rem; font-weight: 300;
+  }
+
+  /* CTA Buttons */
+  .ctas { display: flex; gap: .9rem; flex-wrap: wrap; margin-bottom: 4.5rem; }
+  .btn-p {
+    display: inline-flex; align-items: center; gap: .6rem;
+    padding: .8rem 1.6rem; background: var(--v); color: var(--bg);
+    font-family: 'JetBrains Mono', monospace; font-size: .74rem; font-weight: 500;
+    letter-spacing: .05em; text-decoration: none; border-radius: 4px;
+    transition: transform .2s, box-shadow .2s;
+  }
+  .btn-p:hover { transform: translateY(-2px); box-shadow: 0 8px 30px var(--shadow-v); }
+  
+  .btn-s {
+    display: inline-flex; align-items: center; gap: .6rem;
+    padding: .8rem 1.6rem; background: transparent; color: var(--t1);
+    font-family: 'JetBrains Mono', monospace; font-size: .74rem;
+    letter-spacing: .05em; text-decoration: none; border-radius: 4px;
+    border: 1px solid var(--border-2); transition: all .2s;
+  }
+  .btn-s:hover { border-color: var(--v); color: var(--v); }
+
+  /* Stats */
+  .stats {
+    display: flex; gap: 3.5rem; padding-top: 2.75rem; border-top: 1px solid var(--border);
+  }
+  .stat-n {
+    font-family: 'Syne'; font-size: 2.6rem; font-weight: 700;
+    color: var(--t1); line-height: 1; margin-bottom: .2rem;
+  }
+  .stat-n em { font-style: normal; color: var(--v); }
+  .stat-l {
+    font-family: 'JetBrains Mono', monospace; font-size: .6rem;
+    text-transform: uppercase; letter-spacing: .14em; color: var(--t3);
+  }
+
+  /* ── Side Stack wrapper (ID Card + Terminal) ── */
+  .side-stack {
+    display: flex; flex-direction: column; gap: 1.25rem;
+  }
+
+  /* ── ID Card (foto profil) ── */
+  @keyframes floatIn { 
+    from { opacity: 0; transform: translateY(20px) scale(.97); } 
+    to { opacity: 1; transform: none; } 
+  }
+  .id-card {
+    background: var(--bg-2); border: 1px solid var(--border); border-radius: 10px;
+    overflow: hidden; box-shadow: 0 30px 60px -25px rgba(0,0,0,.45);
+    font-family: 'JetBrains Mono', monospace;
+    animation: floatIn .8s ease .1s both;
+  }
+  .id-bar {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: .65rem .9rem; background: var(--bg-3); border-bottom: 1px solid var(--border);
+  }
+  .id-bar-label { font-size: .62rem; letter-spacing: .14em; color: var(--t3); text-transform: uppercase; }
+  .id-bar-status {
+    display: flex; align-items: center; gap: .4rem;
+    font-size: .6rem; letter-spacing: .12em; color: var(--c); text-transform: uppercase;
+  }
+  .id-dot { width: 5px; height: 5px; border-radius: 50%; background: var(--g); animation: pulse-g 2s infinite; }
+
+  .id-frame {
+    position: relative; aspect-ratio: 16 / 9; overflow: hidden; background: var(--bg-3);
+  }
+  .id-frame img {
+    width: 100%; height: 100%; object-fit: cover; display: block;
+    filter: grayscale(.2) contrast(1.08) saturate(.85) brightness(.82);
+  }
+
+  /* Kaca/filter gelap di atas foto agar tidak terlalu terang */
+  .id-glass {
+    position: absolute; inset: 0; z-index: 1; pointer-events: none;
+    background: linear-gradient(165deg, rgba(6,10,9,.62) 0%, rgba(6,10,9,.28) 45%, rgba(6,10,9,.6) 100%);
+    mix-blend-mode: multiply;
+  }
+  .id-glass::before {
+    content: ''; position: absolute; inset: 0;
+    background: linear-gradient(135deg, var(--v) 0%, transparent 55%);
+    opacity: .14; mix-blend-mode: overlay;
+  }
+  .id-glass::after {
+    content: ''; position: absolute; inset: 0;
+    box-shadow: inset 0 1px 0 rgba(255,255,255,.07), inset 0 0 40px rgba(0,0,0,.35);
+  }
+
+  .id-frame > .corner { z-index: 2; }
+  .id-frame::after {
+    content: ''; position: absolute; left: 0; right: 0; height: 2px; top: 0; z-index: 3;
+    background: linear-gradient(90deg, transparent, var(--c), transparent);
+    opacity: .75; animation: idscan 3.4s linear infinite;
+  }
+  @keyframes idscan { 0% { top: 0; } 100% { top: 100%; } }
+
+  .corner { position: absolute; width: 16px; height: 16px; z-index: 2; border: 2px solid var(--v); }
+  .corner.tl { top: 8px; left: 8px; border-right: none; border-bottom: none; }
+  .corner.tr { top: 8px; right: 8px; border-left: none; border-bottom: none; }
+  .corner.bl { bottom: 8px; left: 8px; border-right: none; border-top: none; }
+  .corner.br { bottom: 8px; right: 8px; border-left: none; border-top: none; }
+
+  .id-meta {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: .7rem .9rem; border-top: 1px dashed var(--border-2);
+    font-size: .62rem; letter-spacing: .1em; text-transform: uppercase;
+  }
+  .id-meta .lbl { color: var(--t3); }
+  .id-meta .val { color: var(--v); font-weight: 600; }
+
+  /* Terminal Window */
+  .term-window {
+    background: var(--bg-2); border: 1px solid var(--border); border-radius: 10px;
+    overflow: hidden; box-shadow: 0 30px 60px -25px rgba(0,0,0,.45);
+    font-family: 'JetBrains Mono', monospace; font-size: .78rem;
+    animation: floatIn .8s ease .25s both;
+  }
+  .term-bar {
+    display: flex; align-items: center; gap: .5rem; padding: .65rem .9rem;
+    background: var(--bg-3); border-bottom: 1px solid var(--border);
+  }
+  .term-dot { width: 9px; height: 9px; border-radius: 50%; }
+  .term-dot.r { background: #fb7185; } 
+  .term-dot.y { background: #fbbf24; } 
+  .term-dot.g { background: #4ade80; }
+  .term-path { margin-left: .5rem; color: var(--t3); font-size: .66rem; }
+  
+  .term-body { padding: 1.5rem; min-height: 180px; color: var(--t2); line-height: 2; }
+  
+  /* Global rules for terminal generated JS content */
+  :global(.t-row) { display: flex; }
+  :global(.t-prompt) { color: var(--c); }
+  :global(.t-row:last-of-type .t-prompt::after) {
+    content: ''; display: inline-block; width: 6px; height: 1em;
+    background: var(--c); margin-left: 4px; vertical-align: -2px;
+    animation: blink .9s infinite;
+  }
+  :global(.t-out) { color: var(--t1); padding-left: 1.1rem; margin-bottom: .55rem; }
+
+  /* Utilities */
+  .uptime-tag {
+    position: absolute; bottom: 2.6rem; left: 2.5rem;
+    font-family: 'JetBrains Mono', monospace; font-size: .6rem;
+    color: var(--t3); letter-spacing: .08em; display: flex; align-items: center; gap: .55rem;
+  }
+  .uptime-tag .dot-sm { width: 5px; height: 5px; border-radius: 50%; background: var(--g); animation: pulse-g 2s infinite; }
+  
+  .scroll-hint {
+    position: absolute; bottom: 2.5rem; right: 2.5rem;
+    display: flex; flex-direction: column; align-items: center; gap: .5rem;
+  }
+  .s-line {
+    width: 1px; height: 48px; background: linear-gradient(to bottom, var(--v), transparent);
+    animation: sline 1.6s ease-in-out infinite;
+  }
+  @keyframes sline {
+    0%   { transform: scaleY(0); transform-origin: top; }
+    49%  { transform: scaleY(1); transform-origin: top; }
+    51%  { transform: scaleY(1); transform-origin: bottom; }
+    100% { transform: scaleY(0); transform-origin: bottom; }
+  }
+  .s-txt {
+    font-family: 'JetBrains Mono', monospace; font-size: .55rem;
+    letter-spacing: .22em; text-transform: uppercase; color: var(--t3); writing-mode: vertical-rl;
+  }
+
+  /* Responsive Constraints */
+  @media(max-width: 980px) {
+    .hero-inner { grid-template-columns: 1fr; }
+    .side-stack { max-width: 580px; margin: 0 auto; width: 100%; }
+    .stats { justify-content: center; text-align: center; }
+  }
+  @media(max-width: 768px) {
+    .cyber-hero { padding: 8rem 1.2rem 4rem; }
+    .stats { gap: 2rem; flex-wrap: wrap; }
+    .uptime-tag { left: 1.2rem; bottom: 1.4rem; }
+    .scroll-hint { right: 1.2rem; bottom: 1.4rem; }
+    .term-window { font-size: .72rem; }
+    h1.title { text-align: center; }
+    .role-row, .sys-tag { justify-content: center; }
+    .hero-desc { text-align: center; margin-left: auto; margin-right: auto; }
+    .id-frame { aspect-ratio: 4 / 3; }
+  }
 </style>
 
-<script>
-  /* ═══════════════════════════════════════════════
-     CONSTELLATION FIELD BACKGROUND
-     3 layer bintang + nebula + koneksi + meteor
-  ═══════════════════════════════════════════════ */
-  (function () {
-    const canvas = document.getElementById('hero-canvas') as HTMLCanvasElement;
-    if (!canvas) return;
+<script define:vars={{ roles, termLines }}>
+  const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
-    const ctx = canvas.getContext('2d')!;
-    const dpr = Math.min(window.devicePixelRatio || 1, 2);
-
-    let W = 0, H = 0;
-    let mouseX = -9999, mouseY = -9999;
-    let animId: number;
-
-    interface Star {
-      x: number; y: number;
-      vx: number; vy: number;
-      r: number; baseAlpha: number;
-      layer: number;
-      twinkle: number; twinkleSpeed: number;
-    }
-    interface Meteor {
-      x: number; y: number;
-      vx: number; vy: number;
-      life: number; len: number;
-    }
-
-    let stars: Star[] = [];
-    let meteors: Meteor[] = [];
-
-    function resize() {
-      const rect = canvas.parentElement!.getBoundingClientRect();
-      W = rect.width;
-      H = rect.height;
-      canvas.width  = W * dpr;
-      canvas.height = H * dpr;
-      canvas.style.width  = W + 'px';
-      canvas.style.height = H + 'px';
-      ctx.scale(dpr, dpr);
-      buildStars();
-    }
-
-    function buildStars() {
-      stars = [];
-      const config = [
-        { count: 120, speedMult: 0.06, rBase: 0.7,  alpha: 0.3  },
-        { count: 70,  speedMult: 0.14, rBase: 1.1,  alpha: 0.55 },
-        { count: 35,  speedMult: 0.28, rBase: 1.7,  alpha: 0.85 },
-      ];
-      config.forEach((c, layer) => {
-        for (let i = 0; i < c.count; i++) {
-          const angle = Math.random() * Math.PI * 2;
-          const speed = c.speedMult * (0.5 + Math.random());
-          stars.push({
-            x: Math.random() * W,
-            y: Math.random() * H,
-            vx: Math.cos(angle) * speed,
-            vy: Math.sin(angle) * speed,
-            r: c.rBase * (0.6 + Math.random() * 0.8),
-            baseAlpha: c.alpha,
-            layer,
-            twinkle: Math.random() * Math.PI * 2,
-            twinkleSpeed: 0.015 + Math.random() * 0.035,
-          });
+  /* ─── ROLE TYPEWRITER ─── */
+  const roleEl = document.getElementById('roleEl');
+  if (roleEl) {
+    if (reduceMotion) {
+      roleEl.textContent = roles[0] || "Developer";
+    } else {
+      let ri = 0, ci = 0, deleting = false;
+      (function tick() {
+        if (!roles || roles.length === 0) return;
+        const word = roles[ri];
+        if (!deleting) {
+          ci++; 
+          roleEl.textContent = word.slice(0, ci);
+          if (ci === word.length) { deleting = true; setTimeout(tick, 1800); return; }
+        } else {
+          ci--; 
+          roleEl.textContent = word.slice(0, ci);
+          if (ci === 0) { deleting = false; ri = (ri + 1) % roles.length; }
         }
-      });
+        setTimeout(tick, deleting ? 35 : 55);
+      })();
     }
+  }
 
-    function spawnMeteor() {
-      if (meteors.length >= 4) return;
-      meteors.push({
-        x: Math.random() * W * 0.7,
-        y: Math.random() * H * 0.35,
-        vx: 3.5 + Math.random() * 3,
-        vy: 1.8 + Math.random() * 2,
-        life: 1,
-        len: 55 + Math.random() * 70,
-      });
-    }
-
-    const meteorInterval = setInterval(spawnMeteor, 2400);
-
-    // Nebula blob configs — warna disesuaikan tema emerald/cyan/indigo
-    const nebulaConfigs = [
-      { xFrac: 0.18, yFrac: 0.28, r: 220, color: '16,185,129'  },
-      { xFrac: 0.78, yFrac: 0.60, r: 180, color: '6,182,212'   },
-      { xFrac: 0.50, yFrac: 0.75, r: 160, color: '99,102,241'  },
-      { xFrac: 0.85, yFrac: 0.20, r: 130, color: '167,139,250' },
-    ];
-
-    function drawFrame() {
-      ctx.clearRect(0, 0, W, H);
-
-      // ── Nebula clouds ──────────────────────────────────────────
-      nebulaConfigs.forEach(n => {
-        const nx = n.xFrac * W;
-        const ny = n.yFrac * H;
-        const grad = ctx.createRadialGradient(nx, ny, 0, nx, ny, n.r);
-        grad.addColorStop(0, `rgba(${n.color},0.10)`);
-        grad.addColorStop(1, `rgba(${n.color},0)`);
-        ctx.fillStyle = grad;
-        ctx.beginPath();
-        ctx.arc(nx, ny, n.r, 0, Math.PI * 2);
-        ctx.fill();
-      });
-
-      // Mouse nebula — ikut kursor
-      if (mouseX > 0) {
-        const mg = ctx.createRadialGradient(mouseX, mouseY, 0, mouseX, mouseY, 110);
-        mg.addColorStop(0, 'rgba(129,140,248,0.10)');
-        mg.addColorStop(1, 'rgba(129,140,248,0)');
-        ctx.fillStyle = mg;
-        ctx.beginPath();
-        ctx.arc(mouseX, mouseY, 110, 0, Math.PI * 2);
-        ctx.fill();
-      }
-
-      // ── Stars ──────────────────────────────────────────────────
-      stars.forEach(s => {
-        s.twinkle += s.twinkleSpeed;
-
-        // Parallax mouse: layer lebih tinggi → lebih responsif
-        const parallaxStrength = (s.layer + 1) * 0.00012;
-        s.x += s.vx + (mouseX > 0 ? (mouseX - W / 2) * parallaxStrength : 0);
-        s.y += s.vy + (mouseY > 0 ? (mouseY - H / 2) * parallaxStrength : 0);
-
-        // Wrap around edges
-        if (s.x < -5) s.x = W + 5;
-        if (s.x > W + 5) s.x = -5;
-        if (s.y < -5) s.y = H + 5;
-        if (s.y > H + 5) s.y = -5;
-
-        const twinkle = 0.65 + Math.sin(s.twinkle) * 0.35;
-        const alpha   = s.baseAlpha * twinkle;
-        const radius  = s.r * (0.9 + Math.sin(s.twinkle * 0.7) * 0.1);
-
-        ctx.beginPath();
-        ctx.arc(s.x, s.y, radius, 0, Math.PI * 2);
-        ctx.fillStyle = `rgba(200,220,255,${alpha})`;
-        ctx.fill();
-
-        // Halo untuk bintang layer 2 (paling dekat)
-        if (s.layer === 2 && s.baseAlpha > 0.8 && Math.random() < 0.004) {
-          ctx.beginPath();
-          ctx.arc(s.x, s.y, radius * 3.5, 0, Math.PI * 2);
-          ctx.fillStyle = 'rgba(180,210,255,0.05)';
-          ctx.fill();
-        }
-      });
-
-      // ── Constellation lines (layer 1 only) ────────────────────
-      const l1 = stars.filter(s => s.layer === 1);
-      for (let i = 0; i < l1.length; i++) {
-        for (let j = i + 1; j < l1.length; j++) {
-          const d = Math.hypot(l1[i].x - l1[j].x, l1[i].y - l1[j].y);
-          if (d < 80) {
-            ctx.strokeStyle = `rgba(99,102,241,${(1 - d / 80) * 0.15})`;
-            ctx.lineWidth = 0.5;
-            ctx.beginPath();
-            ctx.moveTo(l1[i].x, l1[i].y);
-            ctx.lineTo(l1[j].x, l1[j].y);
-            ctx.stroke();
-          }
-        }
-      }
-
-      // ── Meteors ────────────────────────────────────────────────
-      for (let i = meteors.length - 1; i >= 0; i--) {
-        const m = meteors[i];
-        m.x    += m.vx;
-        m.y    += m.vy;
-        m.life -= 0.018;
-        if (m.life <= 0 || m.x > W + 50 || m.y > H + 50) {
-          meteors.splice(i, 1);
-          continue;
-        }
-        const tailLen = m.len * m.life;
-        const tx = m.x - (m.vx / Math.hypot(m.vx, m.vy)) * tailLen;
-        const ty = m.y - (m.vy / Math.hypot(m.vx, m.vy)) * tailLen;
-        const tail = ctx.createLinearGradient(tx, ty, m.x, m.y);
-        tail.addColorStop(0, 'rgba(200,220,255,0)');
-        tail.addColorStop(0.6, `rgba(200,220,255,${m.life * 0.4})`);
-        tail.addColorStop(1,   `rgba(220,240,255,${m.life * 0.9})`);
-        ctx.strokeStyle = tail;
-        ctx.lineWidth   = 1.5 * m.life;
-        ctx.lineCap     = 'round';
-        ctx.beginPath();
-        ctx.moveTo(tx, ty);
-        ctx.lineTo(m.x, m.y);
-        ctx.stroke();
-      }
-
-      animId = requestAnimationFrame(drawFrame);
-    }
-
-    // Mouse tracking pada section hero
-    const section = canvas.closest('section')!;
-    section.addEventListener('mousemove', (e: MouseEvent) => {
-      const r = section.getBoundingClientRect();
-      mouseX = e.clientX - r.left;
-      mouseY = e.clientY - r.top;
+  /* ─── TERMINAL TYPED LINES ─── */
+  const termBody = document.getElementById('termBody');
+  function typeInto(el, text, speed) {
+    return new Promise(resolve => {
+      let i = 0;
+      (function step() {
+        el.textContent = text.slice(0, i);
+        i++;
+        if (i <= text.length) setTimeout(step, speed);
+        else resolve();
+      })();
     });
-    section.addEventListener('mouseleave', () => {
-      mouseX = -9999;
-      mouseY = -9999;
-    });
-
-    window.addEventListener('resize', () => {
-      cancelAnimationFrame(animId);
-      ctx.setTransform(1, 0, 0, 1, 0, 0);
-      resize();
-      drawFrame();
-    });
-
-    resize();
-    drawFrame();
-  })();
-</script>
-
-<script>
-  /* Hero entrance animations */
-  const animateElements = [
-    { id: 'hero-badge',  delay: 200  },
-    { id: 'hero-line1',  delay: 400  },
-    { id: 'hero-line2',  delay: 600  },
-    { id: 'hero-role',   delay: 800  },
-    { id: 'hero-desc',   delay: 1000 },
-    { id: 'hero-cta',    delay: 1200 },
-    { id: 'hero-stats',  delay: 1600 },
-  ];
-  animateElements.forEach(({ id, delay }) => {
-    setTimeout(() => {
-      const el = document.getElementById(id);
-      if (el) {
-        el.classList.remove('opacity-0', 'translate-y-8');
-        el.classList.add('animate-fade-in-up');
+  }
+  
+  async function runTerminal() {
+    if (!termBody) return;
+    
+    if (reduceMotion) {
+      termBody.innerHTML = termLines.map(l =>
+        `<div class="t-row"><span class="t-prompt">${l.p}</span></div><div class="t-out">${l.o}</div>`
+      ).join('');
+      return;
+    }
+    
+    while (true) {
+      termBody.innerHTML = '';
+      for (const l of termLines) {
+        const rowP = document.createElement('div'); rowP.className = 't-row';
+        const prompt = document.createElement('span'); prompt.className = 't-prompt';
+        rowP.appendChild(prompt); 
+        termBody.appendChild(rowP);
+        
+        await typeInto(prompt, l.p, 28);
+        
+        const rowO = document.createElement('div'); rowO.className = 't-out';
+        termBody.appendChild(rowO);
+        
+        await typeInto(rowO, l.o, 16);
+        await new Promise(r => setTimeout(r, 450));
       }
-    }, delay);
-  });
-
-  /* Lanyard mobile fade-in */
-  setTimeout(() => {
-    const wrapper = document.getElementById('hero-lanyard-mobile');
-    if (wrapper) {
-      wrapper.style.transition = 'opacity 0.6s ease, transform 0.6s ease';
-      wrapper.style.transform  = 'translateY(-8px)';
-      requestAnimationFrame(() => requestAnimationFrame(() => {
-        wrapper.style.opacity   = '1';
-        wrapper.style.transform = 'translateY(0)';
-      }));
+      await new Promise(r => setTimeout(r, 3500));
     }
-    setTimeout(() => {
-      const c = document.getElementById('lanyard-container-mobile');
-      if (c) c.classList.add('is-idle');
-    }, 700);
-  }, 1400);
-</script>
+  }
+  runTerminal();
 
-<script>
-  /* Lanyard swing interaction */
-  (function () {
-    function attachSwing(id: string) {
-      const el = document.getElementById(id);
-      if (!el) return;
-      let t: ReturnType<typeof setTimeout>;
-      const isMobile = id === 'lanyard-container-mobile';
-
-      el.addEventListener('mouseenter', () => {
-        if (isMobile) el.classList.remove('is-idle');
-        el.classList.add('is-swinging');
-      });
-      el.addEventListener('mouseleave', () => {
-        clearTimeout(t);
-        t = setTimeout(() => {
-          el.classList.remove('is-swinging');
-          if (isMobile) el.classList.add('is-idle');
-        }, 2000);
-      });
-      el.addEventListener('click', e => {
-        e.stopPropagation();
-        el.classList.remove('is-swinging', 'is-idle');
-        void el.offsetWidth;
-        el.classList.add('is-clicked');
-        clearTimeout(t);
-        t = setTimeout(() => {
-          el.classList.remove('is-clicked');
-          if (isMobile) el.classList.add('is-idle');
-        }, 3000);
-      });
-    }
-    attachSwing('lanyard-container');
-    attachSwing('lanyard-container-mobile');
-  })();
+  /* ─── UPTIME READOUT ─── */
+  let uptimeSec = 0;
+  const uptimeEl = document.getElementById('uptime');
+  if (uptimeEl) {
+    setInterval(() => {
+      uptimeSec++;
+      const h = String(Math.floor(uptimeSec / 3600)).padStart(2, '0');
+      const m = String(Math.floor((uptimeSec % 3600) / 60)).padStart(2, '0');
+      const s = String(uptimeSec % 60).padStart(2, '0');
+      uptimeEl.textContent = `${h}:${m}:${s}`;
+    }, 1000);
+  }
 </script>

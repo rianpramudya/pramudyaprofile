@@ -1,37 +1,179 @@
 ---
 interface Props {
-  variant?: 'primary' | 'secondary' | 'outline' | 'ghost';
+  variant?: 'primary' | 'secondary' | 'outline' | 'ghost' | 'danger';
   size?: 'sm' | 'md' | 'lg';
   href?: string;
   target?: string;
+  rel?: string;
   class?: string;
-  type?: 'button' | 'submit';
+  type?: 'button' | 'submit' | 'reset';
+  disabled?: boolean;
+  /**
+   * notch: true  → clip-path bottom-right corner (matches hero/footer CTA style)
+   * notch: false → normal rounded corners
+   */
+  notch?: boolean;
 }
 
-const { variant = 'primary', size = 'md', href, target, class: className = '', type = 'button' } = Astro.props;
+const {
+  variant  = 'primary',
+  size     = 'md',
+  href,
+  target,
+  rel,
+  class: className = '',
+  type   = 'button',
+  disabled = false,
+  notch  = false,
+} = Astro.props;
 
-const variants = {
-  primary: 'bg-gradient-to-r from-primary-600 to-primary-500 text-white shadow-lg shadow-primary-500/25 hover:shadow-primary-500/40 hover:from-primary-500 hover:to-primary-400 border-transparent',
-  secondary: 'bg-gradient-to-r from-accent-600 to-accent-500 text-white shadow-lg shadow-accent-500/25 hover:shadow-accent-500/40 hover:from-accent-500 hover:to-accent-400 border-transparent',
-  outline: 'bg-transparent border-2 border-slate-600 text-slate-200 hover:border-primary-500 hover:text-primary-400 hover:bg-primary-500/5',
-  ghost: 'bg-transparent border-transparent text-slate-300 hover:text-white hover:bg-white/5',
-};
-
-const sizes = {
-  sm: 'text-xs px-4 py-2',
-  md: 'text-sm px-6 py-2.5',
-  lg: 'text-base px-8 py-3',
-};
-
-const baseClasses = `inline-flex items-center justify-center gap-2 rounded-xl font-semibold transition-all duration-300 ease-out hover:-translate-y-0.5 active:translate-y-0 ${variants[variant]} ${sizes[size]} ${className}`;
+const tag = href ? 'a' : 'button';
 ---
 
 {href ? (
-  <a href={href} target={target} class={baseClasses}>
+  <a
+    href={href}
+    target={target}
+    rel={rel ?? (target === '_blank' ? 'noopener noreferrer' : undefined)}
+    class:list={['btn', `btn-${variant}`, `btn-${size}`, notch && 'btn-notch', className]}
+    aria-disabled={disabled ? 'true' : undefined}
+  >
     <slot />
   </a>
 ) : (
-  <button type={type} class={baseClasses}>
+  <button
+    type={type}
+    disabled={disabled}
+    class:list={['btn', `btn-${variant}`, `btn-${size}`, notch && 'btn-notch', className]}
+  >
     <slot />
   </button>
 )}
+
+<style>
+  /* ── Base ── */
+  .btn {
+    display:         inline-flex;
+    align-items:     center;
+    justify-content: center;
+    gap:             0.5rem;
+    font-family:     'JetBrains Mono', monospace;
+    font-weight:     600;
+    letter-spacing:  0.06em;
+    text-transform:  uppercase;
+    text-decoration: none;
+    border:          1px solid transparent;
+    border-radius:   4px;
+    cursor:          pointer;
+    white-space:     nowrap;
+    position:        relative;
+    transition:
+      color         0.22s ease,
+      background    0.22s ease,
+      border-color  0.22s ease,
+      box-shadow    0.22s ease,
+      transform     0.22s ease;
+  }
+
+  .btn:hover  { transform: translateY(-2px); }
+  .btn:active { transform: translateY(0);    }
+
+  .btn:focus-visible {
+    outline:        2px solid var(--v);
+    outline-offset: 3px;
+  }
+
+  .btn:disabled,
+  .btn[aria-disabled="true"] {
+    opacity:        0.45;
+    pointer-events: none;
+    transform:      none;
+  }
+
+  /* ── Notch variant (clip-path corner — matches hero CTA) ── */
+  .btn-notch {
+    border-radius: 0;
+    clip-path: polygon(
+      0 0,
+      100% 0,
+      100% calc(100% - 10px),
+      calc(100% - 10px) 100%,
+      0 100%
+    );
+  }
+
+  /* ── Sizes ── */
+  .btn-sm  { font-size: 0.62rem; padding: 0.5rem 1rem;  }
+  .btn-md  { font-size: 0.72rem; padding: 0.75rem 1.5rem; }
+  .btn-lg  { font-size: 0.80rem; padding: 0.9rem 2rem;  }
+
+  /* ── Variants ── */
+
+  /* primary: solid emerald fill */
+  .btn-primary {
+    background:   var(--v);
+    color:        var(--bg);       /* always dark bg regardless of theme */
+    border-color: var(--v);
+  }
+  .btn-primary:hover {
+    background:   var(--c);
+    border-color: var(--c);
+    box-shadow:   0 8px 24px var(--shadow-v);
+    color:        var(--bg);
+  }
+
+  /* secondary: teal/cyan fill */
+  .btn-secondary {
+    background:   var(--c);
+    color:        var(--bg);
+    border-color: var(--c);
+  }
+  .btn-secondary:hover {
+    background:   var(--v);
+    border-color: var(--v);
+    box-shadow:   0 8px 24px var(--shadow-v);
+    color:        var(--bg);
+  }
+
+  /* outline: transparent with visible border, adapts to theme */
+  .btn-outline {
+    background:   transparent;
+    color:        var(--t1);
+    border-color: var(--border-2);
+  }
+  .btn-outline:hover {
+    border-color: var(--v);
+    color:        var(--v);
+    background:   var(--vd);
+  }
+
+  /* ghost: no background, no border */
+  .btn-ghost {
+    background:   transparent;
+    color:        var(--t2);
+    border-color: transparent;
+  }
+  .btn-ghost:hover {
+    color:      var(--t1);
+    background: var(--bg-3);
+  }
+
+  /* danger: amber/red tones */
+  .btn-danger {
+    background:   var(--od);
+    color:        var(--o);
+    border-color: rgba(251, 191, 36, 0.35);
+  }
+  .btn-danger:hover {
+    background:   rgba(251, 191, 36, 0.22);
+    border-color: var(--o);
+  }
+
+  /* ── Light mode: ensure primary text is always readable ── */
+  [data-theme="light"] .btn-primary,
+  [data-theme="light"] .btn-primary:hover,
+  [data-theme="light"] .btn-secondary,
+  [data-theme="light"] .btn-secondary:hover {
+    color: #ffffff;
+  }
+</style>

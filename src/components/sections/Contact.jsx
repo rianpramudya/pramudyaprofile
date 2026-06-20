@@ -1,5 +1,7 @@
 import { useState, useEffect, useRef } from "react";
 import { site } from "@/content/site";
+import { dictionary } from "@/i18n/dictionary";
+import { langStore } from "@/stores/langStore";
 
 const WEB3FORMS_KEY = "25fe095d-6c02-4f9b-9e95-e80c073b3d43";
 
@@ -8,55 +10,75 @@ const MAX_EMAIL_LENGTH = 254;
 const MAX_MESSAGE_LENGTH = 5000;
 
 export default function Contact() {
+  const [lang, setLang] = useState("id");
+  const [mounted, setMounted] = useState(false);
+
   const [formData, setFormData] = useState({
     name: "",
     email: "",
+    subject: "",
     message: "",
   });
-  const [fieldErrors, setFieldErrors] = useState({ name: "", message: "" }); // Real-time error per field
+  const [fieldErrors, setFieldErrors] = useState({ name: "", message: "" });
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitted, setSubmitted] = useState(false);
   const [error, setError] = useState(null);
+
+  const [copiedEmail, setCopiedEmail] = useState(false);
+  const [copiedPhone, setCopiedPhone] = useState(false);
+
   const sectionRef = useRef(null);
-  const [isVisible, setIsVisible] = useState(false);
   const isSubmittingRef = useRef(false);
 
+  // Sync bahasa: prioritaskan URL params, fallback ke store
   useEffect(() => {
-    const observer = new IntersectionObserver(
-      ([entry]) => {
-        if (entry.isIntersecting) {
-          setIsVisible(true);
-          observer.disconnect();
-        }
-      },
-      { threshold: 0.2 },
-    );
-    if (sectionRef.current) observer.observe(sectionRef.current);
-    return () => observer.disconnect();
+    const urlLang = new URLSearchParams(window.location.search).get("lang");
+    const initialLang =
+      urlLang === "en" || urlLang === "id" ? urlLang : langStore.get();
+
+    setLang(initialLang);
+    langStore.set(initialLang);
+    setMounted(true);
+
+    const unsubscribe = langStore.subscribe((newLang) => setLang(newLang));
+    return () => unsubscribe();
   }, []);
+
+  const dict = dictionary[lang] ?? dictionary.id;
+
+  function t(key, vars) {
+    let str = dict[key] ?? key;
+    if (vars) {
+      Object.entries(vars).forEach(([k, v]) => {
+        str = str.replace(`{${k}}`, v);
+      });
+    }
+    return str;
+  }
 
   const handleChange = (e) => {
     const { name, value } = e.target;
-
-    // Bug #3 Fix — Reset error global saat user mengedit
     setError(null);
 
-    // Real-time validasi per field
     setFieldErrors((prev) => {
       const next = { ...prev };
       if (name === "name") {
-        if (value.length > MAX_NAME_LENGTH) {
-          next.name = `Nama maksimal ${MAX_NAME_LENGTH} karakter (sekarang ${value.length}).`;
-        } else {
-          next.name = "";
-        }
+        next.name =
+          value.length > MAX_NAME_LENGTH
+            ? t("contact.error.longName", {
+                max: MAX_NAME_LENGTH,
+                count: value.length,
+              })
+            : "";
       }
       if (name === "message") {
-        if (value.length > MAX_MESSAGE_LENGTH) {
-          next.message = `Pesan maksimal ${MAX_MESSAGE_LENGTH} karakter (sekarang ${value.length}).`;
-        } else {
-          next.message = "";
-        }
+        next.message =
+          value.length > MAX_MESSAGE_LENGTH
+            ? t("contact.error.longMessage", {
+                max: MAX_MESSAGE_LENGTH,
+                count: value.length,
+              })
+            : "";
       }
       return next;
     });
@@ -64,24 +86,48 @@ export default function Contact() {
     setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
+  const handleCopyEmail = async (e) => {
+    e.preventDefault();
+    try {
+      await navigator.clipboard.writeText(site.email);
+      setCopiedEmail(true);
+      setTimeout(() => setCopiedEmail(false), 2000);
+      window.location.href = `mailto:${site.email}`;
+    } catch (err) {
+      console.error("Failed to copy email", err);
+    }
+  };
+
+  const handleCopyPhone = async (e) => {
+    e.preventDefault();
+    try {
+      await navigator.clipboard.writeText("0851-2111-1260");
+      setCopiedPhone(true);
+      setTimeout(() => setCopiedPhone(false), 2000);
+      window.open(
+        "https://wa.me/6285121111260",
+        "_blank",
+        "noopener,noreferrer",
+      );
+    } catch (err) {
+      console.error("Failed to copy phone", err);
+    }
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    // Bug #5 Fix — Race condition
     if (isSubmittingRef.current) return;
-
-    // Blok submit jika masih ada field error
     if (fieldErrors.name || fieldErrors.message) return;
 
     isSubmittingRef.current = true;
     setIsSubmitting(true);
     setError(null);
 
-    // Bug #1 Fix — Validasi whitespace-only
     if (!formData.name.trim()) {
       setFieldErrors((prev) => ({
         ...prev,
-        name: "Nama tidak boleh kosong atau hanya spasi.",
+        name: t("contact.error.emptyName"),
       }));
       setIsSubmitting(false);
       isSubmittingRef.current = false;
@@ -90,7 +136,7 @@ export default function Contact() {
     if (!formData.message.trim()) {
       setFieldErrors((prev) => ({
         ...prev,
-        message: "Pesan tidak boleh kosong atau hanya spasi.",
+        message: t("contact.error.emptyMessage"),
       }));
       setIsSubmitting(false);
       isSubmittingRef.current = false;
@@ -108,7 +154,11 @@ export default function Contact() {
           access_key: WEB3FORMS_KEY,
           name: formData.name.trim(),
           email: formData.email.trim(),
+          subject: formData.subject.trim()
+            ? `[PORTFOLIO] ${formData.subject.trim()}`
+            : "[PORTFOLIO] Pesan Baru",
           message: formData.message.trim(),
+          botcheck: "",
         }),
       });
 
@@ -116,345 +166,400 @@ export default function Contact() {
 
       if (response.ok) {
         setSubmitted(true);
-        setFormData({ name: "", email: "", message: "" });
+        setFormData({ name: "", email: "", subject: "", message: "" });
         setFieldErrors({ name: "", message: "" });
       } else {
-        const errMsg =
+        setError(
           result?.errors?.map((e) => e.message).join(", ") ||
-          "Terjadi kesalahan. Coba beberapa saat lagi.";
-        setError(errMsg);
+            t("contact.error.general"),
+        );
       }
     } catch (err) {
-      setError("Gagal terhubung. Periksa koneksi internet kamu.");
+      setError(t("contact.error.connection"));
     } finally {
       setIsSubmitting(false);
       isSubmittingRef.current = false;
     }
   };
 
-  const contactInfo = [
-    {
-      icon: (
-        <svg
-          xmlns="http://www.w3.org/2000/svg"
-          width="20"
-          height="20"
-          viewBox="0 0 24 24"
-          fill="none"
-          stroke="currentColor"
-          strokeWidth="2"
-          strokeLinecap="round"
-          strokeLinejoin="round"
-        >
-          <rect width="20" height="16" x="2" y="4" rx="2" />
-          <path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7" />
-        </svg>
-      ),
-      label: "Email",
-      value: site.email,
-      href: `mailto:${site.email}`,
-    },
-    {
-      icon: (
-        <svg
-          xmlns="http://www.w3.org/2000/svg"
-          width="20"
-          height="20"
-          viewBox="0 0 24 24"
-          fill="none"
-          stroke="currentColor"
-          strokeWidth="2"
-          strokeLinecap="round"
-          strokeLinejoin="round"
-        >
-          <path d="M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-2-2 2 2 0 0 0-2 2v7h-4v-7a6 6 0 0 1 6-6z" />
-          <rect width="4" height="12" x="2" y="9" />
-          <circle cx="4" cy="4" r="2" />
-        </svg>
-      ),
-      label: "LinkedIn",
-      value: "rianpramudyaamanda",
-      href: site.linkedin,
-    },
-    {
-      icon: (
-        <svg
-          xmlns="http://www.w3.org/2000/svg"
-          width="20"
-          height="20"
-          viewBox="0 0 24 24"
-          fill="none"
-          stroke="currentColor"
-          strokeWidth="2"
-          strokeLinecap="round"
-          strokeLinejoin="round"
-        >
-          <path d="M15 22v-4a4.8 4.8 0 0 0-1-3.5c3 0 6-2 6-5.5.08-1.25-.27-2.48-1-3.5.28-1.15.28-2.35 0-3.5 0 0-1 0-3 1.5-2.64-.5-5.36-.5-8 0C6 2 5 2 5 2c-.3 1.15-.3 2.35 0 3.5A5.403 5.403 0 0 0 4 9c0 3.5 3 5.5 6 5.5-.39.49-.68 1.05-.85 1.65-.17.6-.22 1.23-.15 1.85v4" />
-          <path d="M9 18c-4.51 2-5-2-7-2" />
-        </svg>
-      ),
-      label: "GitHub",
-      value: "rianpramudya",
-      href: site.github,
-    },
-  ];
+  const opacityClass = mounted ? "opacity-100" : "opacity-0";
+
+  const rawTitle = t("contact.title") || "MARI BERKOLABORASI";
+  const titleWords = rawTitle.split(" ");
+  const titleFirst = titleWords[0];
+  const titleRest = titleWords.slice(1).join(" ");
 
   return (
     <section
       id="contact"
       ref={sectionRef}
-      className="relative py-20 md:py-32 bg-[#04040f] overflow-hidden"
+      className={`relative py-28 md:py-32 bg-[var(--bg)] overflow-hidden transition-opacity duration-1000 ${opacityClass}`}
     >
-      <div className="absolute inset-0 pointer-events-none">
-        <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[800px] h-[400px] bg-emerald-500/5 rounded-full blur-[150px]"></div>
+      {/* ── AMBIENT BACKGROUND ── */}
+      <div className="absolute top-0 left-0 w-full h-full pointer-events-none overflow-hidden z-0">
+        <div className="absolute top-[-10%] right-[-10%] w-[600px] h-[600px] bg-[var(--orb-v)] rounded-full blur-[150px] opacity-10" />
+        <div className="absolute bottom-[-10%] left-[-10%] w-[500px] h-[500px] bg-[var(--orb-c)] rounded-full blur-[120px] opacity-[0.05]" />
       </div>
 
-      <div className="relative mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-        <div
-          className={`max-w-3xl mx-auto mb-16 text-center transition-all duration-700 ${isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-8"}`}
-        >
-          <span className="inline-flex items-center gap-2 text-emerald-400 font-semibold text-sm uppercase tracking-wider mb-4">
-            <span className="w-8 h-px bg-emerald-500"></span>
-            Kontak
-            <span className="w-8 h-px bg-emerald-500"></span>
-          </span>
-          <h2 className="text-3xl md:text-4xl lg:text-5xl font-bold text-white mb-4 font-display leading-tight">
-            Mari Berkolaborasi <span className="text-emerald-400">Bersama</span>
-          </h2>
-          <p className="text-slate-400 text-base md:text-lg leading-relaxed max-w-2xl mx-auto">
-            Punya ide proyek menarik atau ingin berdiskusi tentang teknologi?
-            Saya terbuka untuk kolaborasi, freelance, dan kesempatan berharga
-            lainnya.
-          </p>
-        </div>
+      {/* Container: max-w-[1200px] (konsisten dengan Hero/Projects) */}
+      <div className="relative z-10 mx-auto max-w-[1200px] px-6 lg:px-12">
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-16 lg:gap-12">
+          {/* ── LEFT COLUMN ── */}
+          <div className="lg:col-span-5 flex flex-col justify-between">
+            <div className="max-w-xl w-full">
+              <div className="inline-flex items-center gap-4 border-l-2 border-[var(--v)] pl-3 mb-8">
+                <span className="font-mono text-[0.65rem] tracking-[0.2em] text-[var(--t3)] uppercase">
+                  {t("contact.eyebrow")} / SECURE_CHANNEL
+                </span>
+                <span className="flex items-center gap-1.5 font-mono text-[0.55rem] text-[var(--v)] bg-[var(--v)]/10 px-2 py-0.5 uppercase tracking-widest">
+                  <span className="w-1.5 h-1.5 bg-[var(--v)] rounded-sm animate-pulse" />
+                  ONLINE
+                </span>
+              </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-5 gap-8 lg:gap-12 max-w-6xl mx-auto items-stretch">
-          {/* ── Kiri: Contact Info ── */}
-          <div
-            className={`lg:col-span-2 h-full transition-all duration-700 delay-200 ${isVisible ? "opacity-100 translate-x-0" : "opacity-0 -translate-x-8"}`}
-          >
-            <div className="h-full flex flex-col rounded-2xl border border-slate-700/50 bg-dark-800/60 backdrop-blur-sm p-6 md:p-8">
-              <h3 className="text-xl font-bold text-white mb-6">
-                Informasi Kontak
-              </h3>
-              <div className="flex-1 flex flex-col justify-between">
-                <div className="space-y-4">
-                  {contactInfo.map((item, i) => (
-                    <a
-                      key={item.label}
-                      href={item.href}
-                      target={
-                        item.href.startsWith("http") ? "_blank" : undefined
-                      }
-                      rel="noopener noreferrer"
-                      className="flex items-center gap-4 p-4 rounded-xl bg-dark-700/30 border border-slate-700/30 hover:border-emerald-500/30 hover:bg-emerald-500/5 transition-all duration-300 group"
-                      style={{ transitionDelay: `${i * 100}ms` }}
+              {/* Brutalism Hero Title: translateX(8px) konsisten */}
+              <h2 className="font-['Syne','Inter','Helvetica_Neue',sans-serif] font-black uppercase leading-[0.85] tracking-tight mb-8 group cursor-default w-full">
+                <span className="block text-[clamp(2.5rem,6.5vw,4.5rem)] text-[var(--t1)] transition-colors duration-500 group-hover:text-[var(--v)] break-words hyphens-auto">
+                  {titleFirst}
+                </span>
+                {titleRest && (
+                  <span className="block text-[clamp(2.5rem,6.5vw,4.5rem)] text-transparent [-webkit-text-stroke:1.5px_var(--t1)] opacity-70 transition-all duration-500 group-hover:[-webkit-text-stroke:1.5px_var(--v)] group-hover:opacity-100 group-hover:translate-x-2 break-words hyphens-auto">
+                    {titleRest}
+                  </span>
+                )}
+              </h2>
+
+              <p className="text-[var(--t2)] text-sm md:text-[0.9rem] leading-relaxed font-light mb-10 max-w-sm">
+                {t("contact.desc")}
+              </p>
+
+              <div className="flex flex-col gap-2 font-mono text-[0.6rem] text-[var(--t3)] uppercase tracking-widest border-t border-[var(--border)] pt-6 mb-12">
+                <div className="flex justify-between items-center max-w-sm">
+                  <span>SYSTEM_UPTIME</span>
+                  <span className="text-[var(--t2)]">99.9%</span>
+                </div>
+                <div className="flex justify-between items-center max-w-sm">
+                  <span>GEO_LOC</span>
+                  <span className="text-[var(--t2)]">
+                    06°54'S 107°36'E (BDO)
+                  </span>
+                </div>
+                <div className="flex justify-between items-center max-w-sm">
+                  <span>ENCRYPTION</span>
+                  <span className="text-[var(--v)]">AES-256</span>
+                </div>
+              </div>
+            </div>
+
+            <div>
+              <div className="flex flex-col gap-6 mb-10">
+                <a
+                  href={`mailto:${site.email}`}
+                  onClick={handleCopyEmail}
+                  className="group relative flex flex-col text-left focus:outline-none w-fit"
+                >
+                  <span className="font-mono text-[0.6rem] text-[var(--t3)] tracking-widest uppercase mb-2 group-hover:text-[var(--c)] transition-colors flex items-center gap-2">
+                    <svg
+                      width="12"
+                      height="12"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      strokeWidth="2"
                     >
-                      <div className="w-12 h-12 rounded-xl bg-emerald-500/10 flex items-center justify-center text-emerald-400 group-hover:bg-emerald-500 group-hover:text-white transition-all duration-300 flex-shrink-0">
-                        {item.icon}
-                      </div>
-                      <div>
-                        <p className="text-xs text-slate-500 font-medium">
-                          {item.label}
-                        </p>
-                        <p className="text-white text-sm font-medium group-hover:text-emerald-400 transition-colors duration-300">
-                          {item.value}
-                        </p>
-                      </div>
-                    </a>
-                  ))}
-                </div>
-                <div className="mt-6 p-4 rounded-xl bg-emerald-500/5 border border-emerald-500/20">
-                  <div className="flex items-center gap-3">
-                    <div className="relative flex-shrink-0">
-                      <span className="absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75 animate-ping"></span>
-                      <span className="relative inline-flex rounded-full h-3 w-3 bg-emerald-500"></span>
-                    </div>
-                    <div>
-                      <p className="text-emerald-400 text-sm font-semibold">
-                        Respons Cepat
-                      </p>
-                      <p className="text-slate-500 text-xs">
-                        Biasanya membalas dalam 1-2 hari
-                      </p>
-                    </div>
-                  </div>
-                </div>
+                      <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path>
+                      <polyline points="22,6 12,13 2,6"></polyline>
+                    </svg>
+                    <span className="group-hover:hidden">PRIMARY_CONTACT</span>
+                    <span className="hidden group-hover:inline">
+                      {copiedEmail ? "ADDRESS_COPIED!" : "LAUNCH_MAIL_CLIENT"}
+                    </span>
+                  </span>
+                  <span className="font-['Syne','Inter','Helvetica_Neue',sans-serif] text-xl sm:text-2xl font-bold text-[var(--t1)] group-hover:text-[var(--v)] transition-colors break-all relative inline-flex items-center gap-2">
+                    {site.email}
+                    <svg
+                      width="18"
+                      height="18"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      strokeWidth="2.5"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      className="opacity-0 group-hover:opacity-100 -translate-x-2 group-hover:translate-x-0 transition-all text-[var(--v)]"
+                    >
+                      <line x1="5" y1="12" x2="19" y2="12"></line>
+                      <polyline points="12 5 19 12 12 19"></polyline>
+                    </svg>
+                    <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-[var(--v)] transition-all duration-500 group-hover:w-full"></span>
+                  </span>
+                </a>
+
+                <a
+                  href="https://wa.me/6285121111260"
+                  onClick={handleCopyPhone}
+                  className="group relative flex flex-col text-left focus:outline-none w-fit"
+                >
+                  <span className="font-mono text-[0.6rem] text-[var(--t3)] tracking-widest uppercase mb-2 group-hover:text-[var(--c)] transition-colors flex items-center gap-2">
+                    <svg
+                      width="12"
+                      height="12"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      strokeWidth="2"
+                    >
+                      <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"></path>
+                    </svg>
+                    <span className="group-hover:hidden">DIRECT_LINE</span>
+                    <span className="hidden group-hover:inline">
+                      {copiedPhone ? "NUMBER_COPIED!" : "LAUNCH_WHATSAPP"}
+                    </span>
+                  </span>
+                  <span className="font-['Syne','Inter','Helvetica_Neue',sans-serif] text-xl sm:text-2xl font-bold text-[var(--t1)] group-hover:text-[var(--v)] transition-colors relative inline-flex items-center gap-2">
+                    +62 851-2111-1260
+                    <svg
+                      width="18"
+                      height="18"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      strokeWidth="2.5"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      className="opacity-0 group-hover:opacity-100 -translate-x-2 group-hover:translate-x-0 transition-all text-[var(--v)]"
+                    >
+                      <line x1="5" y1="12" x2="19" y2="12"></line>
+                      <polyline points="12 5 19 12 12 19"></polyline>
+                    </svg>
+                    <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-[var(--v)] transition-all duration-500 group-hover:w-full"></span>
+                  </span>
+                </a>
+              </div>
+
+              <div className="flex items-center gap-4">
+                <a
+                  href={site.github}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="flex items-center gap-2 border border-[var(--border-2)] text-[var(--t2)] hover:text-[var(--v)] hover:border-[var(--v)] px-4 py-2 font-mono text-[0.65rem] uppercase tracking-widest transition-all duration-300"
+                >
+                  GITHUB{" "}
+                  <svg
+                    width="10"
+                    height="10"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="2"
+                  >
+                    <path d="M7 17l9.2-9.2M17 17V7H7" />
+                  </svg>
+                </a>
+                <a
+                  href={site.linkedin}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="flex items-center gap-2 border border-[var(--border-2)] text-[var(--t2)] hover:text-[var(--c)] hover:border-[var(--c)] px-4 py-2 font-mono text-[0.65rem] uppercase tracking-widest transition-all duration-300"
+                >
+                  LINKEDIN{" "}
+                  <svg
+                    width="10"
+                    height="10"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="2"
+                  >
+                    <path d="M7 17l9.2-9.2M17 17V7H7" />
+                  </svg>
+                </a>
               </div>
             </div>
           </div>
 
-          {/* ── Kanan: Contact Form ── */}
-          <div
-            className={`lg:col-span-3 h-full transition-all duration-700 delay-300 ${isVisible ? "opacity-100 translate-x-0" : "opacity-0 translate-x-8"}`}
-          >
-            <div className="h-full flex flex-col rounded-2xl border border-slate-700/50 bg-dark-800/60 backdrop-blur-sm p-6 md:p-8">
-              <h3 className="text-xl font-bold text-white mb-6">Kirim Pesan</h3>
+          {/* ── RIGHT COLUMN: FORM ── */}
+          <div className="lg:col-span-7 flex flex-col justify-center mt-10 lg:mt-0 relative">
+            <div className="absolute -top-4 -left-4 w-4 h-4 border-t-2 border-l-2 border-[var(--border-2)] opacity-50"></div>
+            <div className="absolute -bottom-4 -right-4 w-4 h-4 border-b-2 border-r-2 border-[var(--border-2)] opacity-50"></div>
 
-              {submitted ? (
-                <div className="flex-1 flex flex-col items-center justify-center text-center">
-                  <div className="w-16 h-16 rounded-full bg-emerald-500/10 flex items-center justify-center mx-auto mb-4">
+            {submitted ? (
+              <div className="bg-[var(--bg-2)] border border-[var(--v)]/50 p-8 md:p-12 relative overflow-hidden group shadow-[0_0_30px_rgba(167,139,250,0.1)] [clip-path:polygon(0_0,100%_0,100%_calc(100%-20px),calc(100%-20px)_100%,0_100%)]">
+                <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-transparent via-[var(--v)] to-transparent opacity-50"></div>
+
+                <div className="font-mono relative z-10">
+                  <div className="text-[var(--v)] mb-6 text-[0.65rem] tracking-widest uppercase flex items-center gap-2">
+                    <span className="w-2 h-2 bg-[var(--v)] rounded-full animate-ping"></span>
+                    TRANSMISSION_SUCCESSFUL
+                  </div>
+                  <h3 className="text-2xl text-[var(--t1)] font-bold mb-4 font-['Syne','Inter','Helvetica_Neue',sans-serif] uppercase tracking-tight">
+                    {t("contact.successTitle")}
+                  </h3>
+                  <p className="text-[var(--t2)] text-sm leading-relaxed mb-10 max-w-sm">
+                    {t("contact.successDesc")}
+                  </p>
+
+                  <button
+                    onClick={() => setSubmitted(false)}
+                    className="inline-flex items-center gap-3 border border-[var(--v)] text-[var(--v)] hover:bg-[var(--v)] hover:text-[var(--bg)] px-6 py-3.5 text-[0.65rem] font-bold tracking-widest uppercase transition-all duration-300"
+                  >
                     <svg
-                      xmlns="http://www.w3.org/2000/svg"
-                      width="32"
-                      height="32"
+                      width="14"
+                      height="14"
                       viewBox="0 0 24 24"
                       fill="none"
                       stroke="currentColor"
                       strokeWidth="2"
                       strokeLinecap="round"
                       strokeLinejoin="round"
-                      className="text-emerald-400"
                     >
-                      <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14" />
-                      <polyline points="22 4 12 14.01 9 11.01" />
+                      <path d="M3 12h18" />
+                      <path d="M3 12l6-6" />
+                      <path d="M3 12l6 6" />
                     </svg>
-                  </div>
-                  <h4 className="text-xl font-bold text-white mb-2">
-                    Pesan Terkirim!
-                  </h4>
-                  <p className="text-slate-400 mb-6">
-                    Terima kasih telah menghubungi saya. Saya akan membalas
-                    secepat mungkin.
-                  </p>
-                  <button
-                    onClick={() => setSubmitted(false)}
-                    className="inline-flex items-center gap-2 rounded-xl bg-emerald-500/10 border border-emerald-500/30 px-6 py-2.5 text-sm font-semibold text-emerald-400 hover:bg-emerald-500/20 transition-all duration-300"
-                  >
-                    Kirim Pesan Lain
+                    {t("contact.sendAnother")}
                   </button>
                 </div>
-              ) : (
-                <form
-                  onSubmit={handleSubmit}
-                  className="flex-1 flex flex-col gap-5"
-                >
-                  {/* Bug #4 Fix — Honeypot */}
-                  <input
-                    type="checkbox"
-                    name="botcheck"
-                    className="hidden"
-                    style={{ display: "none" }}
-                    readOnly
-                  />
+              </div>
+            ) : (
+              <form
+                onSubmit={handleSubmit}
+                className="flex flex-col gap-10 md:gap-12 w-full max-w-2xl ml-auto"
+              >
+                <input
+                  type="checkbox"
+                  name="botcheck"
+                  className="hidden"
+                  style={{ display: "none" }}
+                  readOnly
+                />
 
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
-                    {/* Field Nama */}
-                    <div>
-                      <label
-                        htmlFor="name"
-                        className="block text-sm font-medium text-slate-300 mb-2"
-                      >
-                        Nama Lengkap
-                      </label>
-                      <input
-                        type="text"
-                        id="name"
-                        name="name"
-                        value={formData.name}
-                        onChange={handleChange}
-                        required
-                        autoComplete="name"
-                        className={`w-full px-4 py-3 rounded-xl bg-dark-700/50 border text-white placeholder-slate-500 focus:outline-none focus:ring-2 transition-all duration-300 ${
-                          fieldErrors.name
-                            ? "border-red-500/60 focus:border-red-500/60 focus:ring-red-500/20"
-                            : "border-slate-600/50 focus:border-emerald-500/50 focus:ring-emerald-500/20"
-                        }`}
-                        placeholder="Nama kamu"
-                      />
-                      {/* Real-time error nama */}
-                      {fieldErrors.name && (
-                        <p className="text-red-400 text-xs mt-1.5">
-                          {fieldErrors.name}
-                        </p>
-                      )}
-                    </div>
-
-                    {/* Field Email */}
-                    <div>
-                      <label
-                        htmlFor="email"
-                        className="block text-sm font-medium text-slate-300 mb-2"
-                      >
-                        Email
-                      </label>
-                      <input
-                        type="email"
-                        id="email"
-                        name="email"
-                        value={formData.email}
-                        onChange={handleChange}
-                        required
-                        maxLength={MAX_EMAIL_LENGTH}
-                        autoComplete="email"
-                        className="w-full px-4 py-3 rounded-xl bg-dark-700/50 border border-slate-600/50 text-white placeholder-slate-500 focus:outline-none focus:border-emerald-500/50 focus:ring-2 focus:ring-emerald-500/20 transition-all duration-300"
-                        placeholder="email@example.com"
-                      />
-                    </div>
+                <div className="relative group">
+                  <div className="flex justify-between items-end mb-2">
+                    <label
+                      htmlFor="name"
+                      className="font-mono text-[0.6rem] text-[var(--t3)] uppercase tracking-[0.15em] transition-colors group-focus-within:text-[var(--v)]"
+                    >
+                      {t("contact.nameLabel")}
+                    </label>
+                    <span className="font-mono text-[0.6rem] text-[var(--v)] opacity-0 group-focus-within:opacity-100 transition-opacity animate-pulse">
+                      _INPUT_ACTIVE
+                    </span>
                   </div>
+                  <input
+                    type="text"
+                    id="name"
+                    name="name"
+                    value={formData.name}
+                    onChange={handleChange}
+                    required
+                    autoComplete="name"
+                    className="w-full bg-transparent border-0 border-b-2 border-[var(--border)] text-[var(--t1)] text-base py-2 focus:outline-none focus:ring-0 focus:border-[var(--v)] transition-all placeholder:text-[var(--t3)]/30 rounded-none shadow-none"
+                    placeholder="// ENTER_NAME..."
+                  />
+                  {fieldErrors.name && (
+                    <p className="text-[#fb7185] font-mono text-[0.6rem] mt-2 absolute -bottom-5">
+                      {fieldErrors.name}
+                    </p>
+                  )}
+                </div>
 
-                  {/* Field Pesan */}
-                  <div className="flex-1 flex flex-col">
+                <div className="relative group">
+                  <div className="flex justify-between items-end mb-2">
+                    <label
+                      htmlFor="email"
+                      className="font-mono text-[0.6rem] text-[var(--t3)] uppercase tracking-[0.15em] transition-colors group-focus-within:text-[var(--c)]"
+                    >
+                      {t("contact.emailLabel")}
+                    </label>
+                    <span className="font-mono text-[0.6rem] text-[var(--c)] opacity-0 group-focus-within:opacity-100 transition-opacity animate-pulse">
+                      _INPUT_ACTIVE
+                    </span>
+                  </div>
+                  <input
+                    type="email"
+                    id="email"
+                    name="email"
+                    value={formData.email}
+                    onChange={handleChange}
+                    required
+                    maxLength={MAX_EMAIL_LENGTH}
+                    autoComplete="email"
+                    className="w-full bg-transparent border-0 border-b-2 border-[var(--border)] text-[var(--t1)] text-base py-2 focus:outline-none focus:ring-0 focus:border-[var(--c)] transition-all placeholder:text-[var(--t3)]/30 rounded-none shadow-none"
+                    placeholder="// YOU@DOMAIN.COM"
+                  />
+                </div>
+
+                <div className="relative group">
+                  <div className="flex justify-between items-end mb-2">
+                    <label
+                      htmlFor="subject"
+                      className="font-mono text-[0.6rem] text-[var(--t3)] uppercase tracking-[0.15em] transition-colors group-focus-within:text-[var(--v)]"
+                    >
+                      SUBJECT
+                    </label>
+                  </div>
+                  <input
+                    type="text"
+                    id="subject"
+                    name="subject"
+                    value={formData.subject}
+                    onChange={handleChange}
+                    className="w-full bg-transparent border-0 border-b-2 border-[var(--border)] text-[var(--t1)] text-base py-2 focus:outline-none focus:ring-0 focus:border-[var(--v)] transition-all placeholder:text-[var(--t3)]/30 rounded-none shadow-none"
+                    placeholder="// OPTIONAL_IDENTIFIER"
+                  />
+                </div>
+
+                <div className="relative group">
+                  <div className="flex justify-between items-end mb-2">
                     <label
                       htmlFor="message"
-                      className="block text-sm font-medium text-slate-300 mb-2"
+                      className="font-mono text-[0.6rem] text-[var(--t3)] uppercase tracking-[0.15em] transition-colors group-focus-within:text-[var(--v)]"
                     >
-                      Pesan
+                      {t("contact.messageLabel")}
                     </label>
-                    <textarea
-                      id="message"
-                      name="message"
-                      value={formData.message}
-                      onChange={handleChange}
-                      required
-                      className={`flex-1 w-full px-4 py-3 rounded-xl bg-dark-700/50 border text-white placeholder-slate-500 focus:outline-none focus:ring-2 transition-all duration-300 resize-none min-h-[120px] ${
-                        fieldErrors.message
-                          ? "border-red-500/60 focus:border-red-500/60 focus:ring-red-500/20"
-                          : "border-slate-600/50 focus:border-emerald-500/50 focus:ring-emerald-500/20"
-                      }`}
-                      placeholder="Ceritakan tentang proyek atau ide kamu..."
-                    />
-                    <div className="flex justify-between items-center mt-1">
-                      {/* Real-time error pesan */}
-                      {fieldErrors.message ? (
-                        <p className="text-red-400 text-xs">
-                          {fieldErrors.message}
-                        </p>
-                      ) : (
-                        <span />
-                      )}
-                      {/* Karakter counter */}
-                      <p
-                        className={`text-xs ml-auto ${formData.message.length > MAX_MESSAGE_LENGTH ? "text-red-400" : "text-slate-600"}`}
-                      >
-                        {formData.message.length}/{MAX_MESSAGE_LENGTH}
-                      </p>
-                    </div>
+                    <span
+                      className={`font-mono text-[0.6rem] ${formData.message.length > MAX_MESSAGE_LENGTH ? "text-[#fb7185]" : "text-[var(--t3)]/50"}`}
+                    >
+                      [{formData.message.length}/{MAX_MESSAGE_LENGTH}]
+                    </span>
                   </div>
-
-                  {/* Error global (koneksi / API) */}
-                  {error && (
-                    <div className="flex items-start gap-3 p-4 rounded-xl bg-red-500/10 border border-red-500/30">
-                      <svg
-                        xmlns="http://www.w3.org/2000/svg"
-                        width="18"
-                        height="18"
-                        viewBox="0 0 24 24"
-                        fill="none"
-                        stroke="currentColor"
-                        strokeWidth="2"
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        className="text-red-400 flex-shrink-0 mt-0.5"
-                      >
-                        <circle cx="12" cy="12" r="10" />
-                        <line x1="12" x2="12" y1="8" y2="12" />
-                        <line x1="12" x2="12.01" y1="16" y2="16" />
-                      </svg>
-                      <p className="text-red-400 text-sm">{error}</p>
-                    </div>
+                  <textarea
+                    id="message"
+                    name="message"
+                    value={formData.message}
+                    onChange={handleChange}
+                    required
+                    className="w-full bg-transparent border-0 border-b-2 border-[var(--border)] text-[var(--t1)] text-base py-2 min-h-[100px] resize-y focus:outline-none focus:ring-0 focus:border-[var(--v)] transition-all placeholder:text-[var(--t3)]/30 rounded-none shadow-none"
+                    placeholder="// TRANSMIT_YOUR_THOUGHTS_HERE..."
+                  />
+                  {fieldErrors.message && (
+                    <p className="text-[#fb7185] font-mono text-[0.6rem] mt-2 absolute -bottom-5">
+                      {fieldErrors.message}
+                    </p>
                   )}
+                </div>
 
+                {error && (
+                  <div className="flex items-start gap-3 p-3 bg-[#fb7185]/10 border-l-2 border-[#fb7185] text-[#fb7185] font-mono text-[0.65rem] uppercase tracking-widest">
+                    <svg
+                      width="14"
+                      height="14"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      strokeWidth="2"
+                      className="flex-shrink-0 mt-0.5"
+                    >
+                      <circle cx="12" cy="12" r="10" />
+                      <line x1="12" x2="12" y1="8" y2="12" />
+                      <line x1="12" x2="12.01" y1="16" y2="16" />
+                    </svg>
+                    <span>{error}</span>
+                  </div>
+                )}
+
+                <div className="mt-4 flex justify-end">
                   <button
                     type="submit"
                     disabled={
@@ -462,55 +567,38 @@ export default function Contact() {
                       !!fieldErrors.name ||
                       !!fieldErrors.message
                     }
-                    className="w-full inline-flex items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-emerald-600 to-emerald-500 px-6 py-3.5 text-base font-semibold text-white shadow-lg shadow-emerald-500/25 hover:shadow-emerald-500/40 hover:from-emerald-500 hover:to-emerald-400 transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed hover:-translate-y-0.5"
+                    className="relative group overflow-hidden flex items-center justify-center gap-3 bg-[var(--v)] text-[var(--bg)] font-bold font-mono text-xs tracking-[0.2em] uppercase px-10 py-5 transition-all duration-300 hover:shadow-[0_0_25px_var(--shadow-v)] disabled:opacity-50 disabled:cursor-not-allowed [clip-path:polygon(0_0,100%_0,100%_calc(100%-12px),calc(100%-12px)_100%,0_100%)]"
                   >
                     {isSubmitting ? (
                       <>
-                        <svg
-                          className="animate-spin h-5 w-5"
-                          xmlns="http://www.w3.org/2000/svg"
-                          fill="none"
-                          viewBox="0 0 24 24"
-                        >
-                          <circle
-                            className="opacity-25"
-                            cx="12"
-                            cy="12"
-                            r="10"
-                            stroke="currentColor"
-                            strokeWidth="4"
-                          ></circle>
-                          <path
-                            className="opacity-75"
-                            fill="currentColor"
-                            d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
-                          ></path>
-                        </svg>
-                        Mengirim...
+                        <span className="relative z-10 w-3.5 h-3.5 border-2 border-[var(--bg)] border-t-transparent rounded-full animate-spin"></span>
+                        <span className="relative z-10">UPLOADING...</span>
                       </>
                     ) : (
                       <>
-                        Kirim Pesan
+                        <span className="relative z-10">
+                          {t("contact.send").replace(/^→\s*/, "")}
+                        </span>
                         <svg
-                          xmlns="http://www.w3.org/2000/svg"
-                          width="20"
-                          height="20"
+                          width="14"
+                          height="14"
                           viewBox="0 0 24 24"
                           fill="none"
                           stroke="currentColor"
-                          strokeWidth="2"
+                          strokeWidth="2.5"
                           strokeLinecap="round"
                           strokeLinejoin="round"
+                          className="relative z-10 group-hover:translate-x-1 group-hover:-translate-y-1 transition-transform"
                         >
-                          <path d="m22 2-7 20-4-9-9-4Z" />
-                          <path d="M22 2 11 13" />
+                          <path d="M7 17l9.2-9.2M17 17V7H7" />
                         </svg>
                       </>
                     )}
+                    <div className="absolute inset-0 bg-white/20 translate-y-[100%] group-hover:translate-y-0 transition-transform duration-300 ease-in-out pointer-events-none"></div>
                   </button>
-                </form>
-              )}
-            </div>
+                </div>
+              </form>
+            )}
           </div>
         </div>
       </div>

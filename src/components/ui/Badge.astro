@@ -1,31 +1,131 @@
 ---
 interface Props {
-  variant?: 'primary' | 'accent' | 'outline' | 'ghost';
+  variant?: 'primary' | 'accent' | 'warning' | 'success' | 'outline' | 'ghost';
   size?: 'sm' | 'md' | 'lg';
+  dot?: boolean;
   class?: string;
 }
 
-const { variant = 'primary', size = 'md', class: className = '' } = Astro.props;
-
-const variants = {
-  primary: 'bg-primary-500/10 text-primary-400 border-primary-500/20',
-  accent: 'bg-accent-500/10 text-accent-400 border-accent-500/20',
-  outline: 'bg-transparent text-slate-300 border-slate-600 hover:border-primary-500/50',
-  ghost: 'bg-transparent text-slate-400 border-transparent',
-};
-
-const sizes = {
-  sm: 'text-xs px-2 py-0.5',
-  md: 'text-sm px-3 py-1',
-  lg: 'text-base px-4 py-1.5',
-};
+const { variant = 'primary', size = 'md', dot = false, class: className = '' } = Astro.props;
 ---
 
-<span class:list={[
-  'inline-flex items-center gap-1.5 rounded-full border font-medium transition-all duration-300',
-  variants[variant],
-  sizes[size],
-  className,
-]}>
+<span
+  class:list={[
+    'badge-base',
+    `badge-${variant}`,
+    `badge-${size}`,
+    className,
+  ]}
+>
+  {dot && <span class="badge-dot"></span>}
   <slot />
 </span>
+
+<style>
+  /* ── Base ── */
+  .badge-base {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+    border-radius: 6px;
+    border: 1px solid transparent;
+    font-family: 'JetBrains Mono', monospace;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    line-height: 1;
+    transition: background 0.2s, color 0.2s, border-color 0.2s;
+    white-space: nowrap;
+  }
+
+  /* ── Sizes ── */
+  .badge-sm { font-size: 0.58rem; padding: 0.2rem 0.55rem; }
+  .badge-md { font-size: 0.65rem; padding: 0.28rem 0.7rem;  }
+  .badge-lg { font-size: 0.72rem; padding: 0.35rem 0.85rem; }
+
+  /* ── Variants ── */
+
+  /* primary → emerald accent (matches --v) */
+  .badge-primary {
+    background:    var(--vd);
+    color:         var(--v);
+    border-color:  var(--v-ring-rest);
+  }
+  .badge-primary:hover {
+    background:   rgba(16, 185, 129, 0.22);
+    border-color: var(--v);
+  }
+
+  /* accent → teal/cyan (matches --c) */
+  .badge-accent {
+    background:   var(--cd);
+    color:        var(--c);
+    border-color: rgba(52, 211, 153, 0.35);
+  }
+  .badge-accent:hover {
+    background:   rgba(52, 211, 153, 0.18);
+    border-color: var(--c);
+  }
+
+  /* warning → amber (matches --o) */
+  .badge-warning {
+    background:   var(--od);
+    color:        var(--o);
+    border-color: rgba(251, 191, 36, 0.35);
+  }
+
+  /* success → green (matches --g) */
+  .badge-success {
+    background:   rgba(74, 222, 128, 0.10);
+    color:        var(--g);
+    border-color: rgba(74, 222, 128, 0.30);
+  }
+
+  /* outline → muted border, secondary text */
+  .badge-outline {
+    background:   transparent;
+    color:        var(--t2);
+    border-color: var(--border-2);
+  }
+  .badge-outline:hover {
+    border-color: var(--v);
+    color:        var(--v);
+  }
+
+  /* ghost → no border, muted */
+  .badge-ghost {
+    background:   transparent;
+    color:        var(--t3);
+    border-color: transparent;
+  }
+
+  /* ── Optional status dot ── */
+  .badge-dot {
+    display:       inline-block;
+    width:         5px;
+    height:        5px;
+    border-radius: 50%;
+    background:    currentColor;
+    flex-shrink:   0;
+  }
+
+  /* ── Light mode overrides ──
+     The CSS variables already handle most of the work,
+     but we nudge opacity slightly so badges don't feel washed out. */
+  [data-theme="light"] .badge-primary {
+    background:   rgba(5, 150, 105, 0.10);
+    border-color: rgba(5, 150, 105, 0.30);
+  }
+  [data-theme="light"] .badge-accent {
+    background:   rgba(13, 148, 136, 0.09);
+    border-color: rgba(13, 148, 136, 0.28);
+  }
+  [data-theme="light"] .badge-warning {
+    background:   rgba(180, 83, 9, 0.09);
+    border-color: rgba(180, 83, 9, 0.28);
+  }
+  [data-theme="light"] .badge-success {
+    background:   rgba(21, 128, 61, 0.09);
+    border-color: rgba(21, 128, 61, 0.28);
+  }
+</style>

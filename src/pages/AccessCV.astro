@@ -1,43 +1,76 @@
 ---
-// src/pages/cv-private-access.astro
+// src/pages/AccessCV.astro
 import BaseLayout from "../layouts/BaseLayout.astro";
+import { dictionary } from "@/i18n/dictionary";
+import type { Lang } from "@/i18n/dictionary";
+
+// ── SSR: ambil bahasa dari URL, sama persis seperti Hero.astro ──
+function getLangFromUrl(url: URL): Lang {
+  const q = url.searchParams.get("lang");
+  if (q === "en" || q === "id") return q;
+  return "id";
+}
+
+const lang = getLangFromUrl(Astro.url);
+
+function ts(key: string): string {
+  const dict = dictionary[lang] as Record<string, any>;
+  const val = dict[key];
+  if (typeof val === "string") return val;
+  return key;
+}
 
 const cvPdfLink =
   "https://drive.google.com/file/d/1NKIyLDsm5LIfNeoHKonPazMyYf2gTr4n/preview";
 const cvDownloadLink =
   "https://drive.google.com/file/d/1NKIyLDsm5LIfNeoHKonPazMyYf2gTr4n/view?usp=sharing";
+
+// FIX: link "Kembali ke Beranda" wajib ikut bawa ?lang= biar bahasa tidak reset
+const homeHref = `${import.meta.env.BASE_URL}?lang=${lang}`;
+
+// Kirim string yang dibutuhkan JS ke client via data attributes
+// agar teks tetap bilingual meski diubah lewat JavaScript
+const clientStrings = {
+  error: ts("cvAccess.error"),
+  timerLabel: ts("cvAccess.timer"),
+};
 ---
 
 <BaseLayout
-  title="Akses Terkunci - Rian Pramudya Amanda"
-  description="Halaman akses privat Curriculum Vitae Rian Pramudya Amanda"
+  title={`${ts("cvAccess.title")} - Rian Pramudya Amanda`}
+  description={ts("cvAccess.desc")}
 >
   <meta slot="head" name="robots" content="noindex, nofollow" />
 
   <main
-    class="min-h-screen bg-[#04040f] flex flex-col items-center justify-center p-4 pt-28 pb-16 relative overflow-hidden"
+    class="min-h-screen bg-[var(--bg)] flex flex-col items-center justify-center p-4 pt-28 pb-16 relative overflow-hidden"
+    data-strings={JSON.stringify(clientStrings)}
   >
-    <!-- Background glow -->
+    <!-- Orb atmosphere -->
     <div
       class="absolute inset-0 pointer-events-none flex items-center justify-center"
+      aria-hidden="true"
     >
       <div
-        class="w-[600px] h-[600px] bg-emerald-500/5 rounded-full blur-[120px]"
+        class="w-[600px] h-[600px] bg-[var(--orb-v)] rounded-full blur-[120px]"
       >
       </div>
     </div>
 
-    <!-- Lock Screen -->
+    <!-- ══════════════════════════════════════
+         LOCK SCREEN
+    ══════════════════════════════════════ -->
     <div
       id="lock-screen"
-      class="relative z-10 max-w-md w-full bg-[#0a0a0a]/80 backdrop-blur-xl border border-white/10 rounded-3xl p-8 text-center shadow-[0_20px_60px_rgba(16,185,129,0.1)] transition-all duration-500"
+      class="relative z-10 max-w-md w-full bg-[var(--bg-2)]/90 backdrop-blur-md border border-[var(--border)] rounded-2xl p-8 text-center shadow-[0_30px_60px_-15px_rgba(0,0,0,0.5)] transition-all duration-500"
     >
+      <!-- Lock icon -->
       <div
-        class="w-20 h-20 bg-dark-800 rounded-full border border-slate-700/50 flex items-center justify-center mx-auto mb-6 shadow-inner relative overflow-hidden"
+        class="w-20 h-20 bg-[var(--bg-3)] rounded-full border border-[var(--border)] flex items-center justify-center mx-auto mb-6 shadow-inner relative overflow-hidden"
       >
         <div
           id="lock-glow"
-          class="absolute inset-0 bg-emerald-500/20 opacity-0 transition-opacity duration-300 rounded-full"
+          class="absolute inset-0 bg-[var(--v)]/20 opacity-0 transition-opacity duration-300 rounded-full"
         >
         </div>
         <svg
@@ -51,60 +84,76 @@ const cvDownloadLink =
           stroke-width="2"
           stroke-linecap="round"
           stroke-linejoin="round"
-          class="text-slate-400 transition-colors duration-300 relative z-10"
+          class="text-[var(--t3)] transition-colors duration-300 relative z-10"
+          aria-hidden="true"
         >
           <rect width="18" height="11" x="3" y="11" rx="2" ry="2"></rect>
           <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
         </svg>
       </div>
 
-      <h1 class="text-2xl font-bold text-white mb-2 font-display">
-        Akses Terkunci
+      <h1
+        class="text-2xl font-bold text-[var(--t1)] mb-2 font-['Syne'] uppercase"
+        data-i18n="cvAccess.title"
+      >
+        {ts("cvAccess.title")}
       </h1>
-      <p class="text-slate-400 text-sm mb-2">
-        Masukkan kode akses yang telah dikirimkan ke email Anda.
+      <p
+        class="text-[var(--t2)] text-sm mb-2 font-light"
+        data-i18n="cvAccess.desc"
+      >
+        {ts("cvAccess.desc")}
       </p>
 
-      <!-- Timer countdown kecil -->
-      <div class="flex items-center justify-center gap-2 mb-8">
-        <span class="relative flex h-1.5 w-1.5">
+      <!-- Live timer indicator -->
+      <div class="flex items-center justify-center gap-2 mb-8 mt-4">
+        <span class="relative flex h-1.5 w-1.5" aria-hidden="true">
           <span
-            class="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"
+            class="animate-ping absolute inline-flex h-full w-full rounded-full bg-[var(--g)] opacity-75"
           ></span>
           <span
-            class="relative inline-flex rounded-full h-1.5 w-1.5 bg-emerald-500"
+            class="relative inline-flex rounded-full h-1.5 w-1.5 bg-[var(--g)]"
           ></span>
         </span>
-        <span class="text-xs text-slate-500">
-          Kode aktif, berganti dalam <span
+        <span class="text-xs text-[var(--t3)]">
+          <span data-i18n="cvAccess.timer">{ts("cvAccess.timer")}</span>
+          {" "}
+          <span
             id="mini-countdown"
-            class="text-emerald-500 font-mono font-semibold">--:--:--</span
+            class="text-[var(--g)] font-mono tracking-widest font-semibold"
+            >--:--:--</span
           >
         </span>
       </div>
 
-      <form id="pin-form" class="flex flex-col gap-4">
+      <!-- PIN Form -->
+      <form id="pin-form" class="flex flex-col gap-4" novalidate>
         <div class="relative">
           <input
             type="password"
             id="pin-input"
-            placeholder="Masukkan PIN 6 digit"
-            class="w-full bg-dark-900 border border-slate-700/50 rounded-xl px-4 py-3.5 text-center text-white tracking-[0.5em] font-mono text-lg focus:outline-none focus:border-emerald-500/50 focus:ring-1 focus:ring-emerald-500/50 transition-all placeholder:tracking-normal"
+            placeholder={ts("cvAccess.placeholder")}
+            data-i18n-placeholder="cvAccess.placeholder"
+            class="w-full bg-[var(--bg-3)] border border-[var(--border)] rounded-xl px-4 py-3.5 text-center text-[var(--t1)] tracking-[0.5em] font-mono text-lg focus:outline-none focus:border-[var(--v)] focus:ring-1 focus:ring-[var(--v)]/20 transition-all placeholder:tracking-normal"
             maxlength="6"
             inputmode="numeric"
             autocomplete="off"
+            aria-label={ts("cvAccess.placeholder")}
           />
+          <!-- Error message — text di-update LIVE via window.i18n -->
           <p
             id="pin-error"
-            class="text-red-400 text-xs mt-2.5 opacity-0 transition-all duration-300"
+            class="text-[#fb7185] text-xs mt-2.5 opacity-0 transition-all duration-300"
+            role="alert"
+            aria-live="polite"
           >
-            ✕ Kode akses tidak valid atau sudah expired.
+            {ts("cvAccess.error")}
           </p>
         </div>
 
         <button
           type="submit"
-          class="w-full mt-2 flex items-center justify-center gap-2 px-6 py-3.5 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-bold transition-all duration-300 hover:shadow-lg hover:shadow-emerald-500/25"
+          class="w-full mt-2 flex items-center justify-center gap-2 px-6 py-3.5 rounded bg-[var(--v)] text-[var(--bg)] font-bold font-mono text-xs uppercase tracking-widest transition-all duration-300 hover:shadow-[0_8px_30px_var(--shadow-v)] hover:-translate-y-0.5 focus-visible:outline focus-visible:outline-2 focus-visible:outline-[var(--v)] focus-visible:outline-offset-2"
         >
           <svg
             xmlns="http://www.w3.org/2000/svg"
@@ -116,34 +165,43 @@ const cvDownloadLink =
             stroke-width="2.5"
             stroke-linecap="round"
             stroke-linejoin="round"
+            aria-hidden="true"
           >
-            <path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"></path><polyline
-              points="10 17 15 12 10 7"></polyline><line
-              x1="15"
-              x2="3"
-              y1="12"
-              y2="12"></line>
+            <path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"></path>
+            <polyline points="10 17 15 12 10 7"></polyline>
+            <line x1="15" x2="3" y1="12" y2="12"></line>
           </svg>
-          Buka Dokumen
+          <span data-i18n="cvAccess.button">{ts("cvAccess.button")}</span>
         </button>
 
-        <p class="text-xs text-slate-600 mt-1">
-          Belum punya kode? <a
-            href="mailto:pramudya.career@gmail.com?subject=Permintaan%20Akses%20CV&body=Halo%20Rian%2C%0A%0ASaya%20ingin%20meminta%20kode%20akses%20CV%20Anda.%0A%0ANama%3A%20%0APerusahaan%2FInstansi%3A%20"
-            class="text-emerald-600 hover:text-emerald-400 transition-colors underline underline-offset-2"
-            >Hubungi saya</a
-          > terlebih dahulu.
+        <p class="text-xs text-[var(--t3)] mt-2">
+          <span data-i18n="cvAccess.noCode1">{ts("cvAccess.noCode1")}</span>
+          {" "}
+          <a
+            href="mailto:pramudya.career@gmail.com"
+            class="text-[var(--v)] hover:text-[var(--t1)] transition-colors underline underline-offset-2"
+            data-i18n="cvAccess.noCode2"
+          >
+            {ts("cvAccess.noCode2")}
+          </a>
+          {" "}
+          <span data-i18n="cvAccess.noCode3">{ts("cvAccess.noCode3")}</span>
         </p>
       </form>
     </div>
 
-    <!-- CV Content (tersembunyi, muncul setelah PIN benar) -->
+    <!-- ══════════════════════════════════════
+         CV CONTENT (shown after unlock)
+    ══════════════════════════════════════ -->
     <div
       id="cv-content"
-      class="relative z-10 max-w-5xl w-full bg-[#0a0a0a]/80 backdrop-blur-xl border border-white/10 rounded-3xl p-4 sm:p-6 md:p-10 text-center shadow-[0_20px_60px_rgba(16,185,129,0.1)] hidden opacity-0 scale-95 transition-all duration-700"
+      class="relative z-10 max-w-5xl w-full bg-[var(--bg-2)]/95 backdrop-blur-md border border-[var(--border)] rounded-2xl p-4 sm:p-6 md:p-10 text-center shadow-[0_30px_60px_-15px_rgba(0,0,0,0.5)] hidden opacity-0 scale-95 transition-all duration-700"
+      aria-live="polite"
     >
+      <!-- Shield icon -->
       <div
-        class="w-16 h-16 md:w-20 md:h-20 bg-emerald-500/10 rounded-2xl border border-emerald-500/20 flex items-center justify-center mx-auto mb-6 md:mb-8 transform -rotate-6"
+        class="w-16 h-16 md:w-20 md:h-20 bg-[var(--vd)] rounded-2xl border border-[var(--v)]/20 flex items-center justify-center mx-auto mb-6 md:mb-8 transform -rotate-6"
+        aria-hidden="true"
       >
         <svg
           xmlns="http://www.w3.org/2000/svg"
@@ -155,29 +213,34 @@ const cvDownloadLink =
           stroke-width="1.5"
           stroke-linecap="round"
           stroke-linejoin="round"
-          class="text-emerald-400"
+          class="text-[var(--v)]"
         >
-          <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10"></path><path
-            d="m9 12 2 2 4-4"></path>
+          <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10"></path>
+          <path d="m9 12 2 2 4-4"></path>
         </svg>
       </div>
 
       <h1
-        class="text-2xl md:text-4xl font-bold text-white mb-4 tracking-tight font-display"
+        class="text-2xl md:text-4xl font-bold text-[var(--t1)] mb-4 tracking-tight font-['Syne'] uppercase"
       >
-        Akses CV <span class="text-emerald-400">Diberikan</span>
+        <span data-i18n="cvAccess.grantedTitle1"
+          >{ts("cvAccess.grantedTitle1")}</span
+        >
+        {" "}
+        <span class="text-[var(--v)]" data-i18n="cvAccess.grantedTitle2"
+          >{ts("cvAccess.grantedTitle2")}</span
+        >
       </h1>
       <p
-        class="text-slate-400 mb-8 md:mb-10 max-w-2xl mx-auto text-sm md:text-base leading-relaxed px-2"
+        class="text-[var(--t2)] mb-8 md:mb-10 max-w-2xl mx-auto text-sm md:text-base leading-relaxed px-2 font-light"
+        data-i18n="cvAccess.grantedDesc"
       >
-        Terima kasih atas ketertarikan Anda. Berikut adalah dokumen Curriculum
-        Vitae lengkap saya. Dokumen ini bersifat rahasia dan tidak untuk
-        disebarluaskan.
+        {ts("cvAccess.grantedDesc")}
       </p>
 
-      <!-- iframe PDF -->
+      <!-- PDF Viewer -->
       <div
-        class="w-full relative rounded-2xl overflow-hidden border border-slate-700/50 mb-8 md:mb-10 bg-[#1c1c1e] shadow-inner"
+        class="w-full relative rounded-xl overflow-hidden border border-[var(--border)] mb-8 md:mb-10 bg-[var(--bg-3)] shadow-inner"
         style="height: 75vh; min-height: 500px; max-height: 900px;"
       >
         <iframe
@@ -187,12 +250,13 @@ const cvDownloadLink =
           title="CV Rian Pramudya Amanda"></iframe>
       </div>
 
+      <!-- Action buttons -->
       <div class="flex flex-col sm:flex-row justify-center items-center gap-4">
         <a
           href={cvDownloadLink}
           target="_blank"
           rel="noopener noreferrer"
-          class="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-8 py-3.5 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-bold transition-all duration-300"
+          class="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-8 py-3.5 rounded bg-[var(--v)] text-[var(--bg)] font-mono text-xs font-bold uppercase tracking-widest transition-all duration-300 hover:shadow-[0_8px_30px_var(--shadow-v)] hover:-translate-y-0.5"
         >
           <svg
             xmlns="http://www.w3.org/2000/svg"
@@ -204,21 +268,22 @@ const cvDownloadLink =
             stroke-width="2.5"
             stroke-linecap="round"
             stroke-linejoin="round"
+            aria-hidden="true"
           >
-            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline
-              points="7 10 12 15 17 10"></polyline><line
-              x1="12"
-              x2="12"
-              y1="15"
-              y2="3"></line>
+            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+            <polyline points="7 10 12 15 17 10"></polyline>
+            <line x1="12" x2="12" y1="15" y2="3"></line>
           </svg>
-          Unduh File Asli (PDF)
+          <span data-i18n="cvAccess.downloadBtn"
+            >{ts("cvAccess.downloadBtn")}</span
+          >
         </a>
+
         <a
-          href={import.meta.env.BASE_URL}
-          class="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-8 py-3.5 rounded-xl border border-white/10 text-slate-300 hover:text-white hover:bg-white/5 transition-all duration-300"
+          href={homeHref}
+          class="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-8 py-3.5 rounded border border-[var(--border-2)] bg-transparent text-[var(--t1)] hover:border-[var(--v)] hover:text-[var(--v)] hover:bg-[var(--vd)] font-mono text-xs font-bold uppercase tracking-widest transition-all duration-300"
         >
-          Kembali ke Beranda
+          <span data-i18n="cvAccess.homeBtn">{ts("cvAccess.homeBtn")}</span>
         </a>
       </div>
     </div>
@@ -226,6 +291,7 @@ const cvDownloadLink =
 </BaseLayout>
 
 <style>
+  /* PDF iframe responsive scaling */
   .pdf-iframe {
     width: 100%;
     height: 100%;
@@ -249,6 +315,7 @@ const cvDownloadLink =
     }
   }
 
+  /* Shake animation for wrong PIN */
   @keyframes shake {
     0%,
     100% {
@@ -273,42 +340,97 @@ const cvDownloadLink =
   }
 </style>
 
-<script>
-  // ============================================================
-  // SECRET KEY — HARUS SAMA dengan yang ada di cek-pin-lokal.html
-  // ============================================================
-  const SECRET_KEY = "PRAMUDYA2026RIFKYCV"; // ← Ganti ini, jangan share!
+<script is:inline>
+  // ═══════════════════════════════════════════════════════════
+  // KONFIGURASI — HARUS SAMA PERSIS dengan cekPin.astro
+  // ═══════════════════════════════════════════════════════════
+  const SECRET_KEY = "PRAMUDYA2026RIFKYCV";
   const WINDOW_HOURS = 3;
   const PIN_LENGTH = 6;
-  // ============================================================
 
-  async function generatePIN(timeSlot = 0) {
+  // ── String dari server (SSR fallback, dipakai HANYA kalau window.i18n belum siap) ──
+  const mainEl = document.querySelector("main[data-strings]");
+  const ssrStrings =
+    mainEl && mainEl.dataset.strings ? JSON.parse(mainEl.dataset.strings) : {};
+
+  // ── FIX UTAMA: ambil teks i18n LIVE (ikut bahasa aktif saat ini),
+  //    bukan dari string SSR yang dibekukan saat page load ──
+  function liveText(key, fallback) {
+    if (window.i18n && window.i18n.t) {
+      const val = window.i18n.t(key);
+      if (val && val !== key) return val;
+    }
+    return fallback;
+  }
+
+  // ── Elemen DOM ──
+  const errorMsg = document.getElementById("pin-error");
+  const miniCountdown = document.getElementById("mini-countdown");
+  const form = document.getElementById("pin-form");
+  const input = document.getElementById("pin-input");
+  const lockScreen = document.getElementById("lock-screen");
+  const cvContent = document.getElementById("cv-content");
+  const lockIcon = document.getElementById("lock-icon");
+  const lockGlow = document.getElementById("lock-glow");
+
+  // ═══════════════════════════════════════════════════════════
+  // PIN GENERATOR
+  // ═══════════════════════════════════════════════════════════
+  async function generatePIN(timeSlot) {
+    timeSlot = timeSlot || 0;
+
+    if (!window.crypto || !crypto.subtle) {
+      console.error("❌ Web Crypto API tidak tersedia. Pastikan HTTPS aktif.");
+      throw new Error("crypto.subtle tidak tersedia");
+    }
+
     const now = Math.floor(Date.now() / 1000);
     const windowSeconds = WINDOW_HOURS * 3600;
     const currentSlot = Math.floor(now / windowSeconds) + timeSlot;
-    const message = `${SECRET_KEY}:${currentSlot}`;
-
+    const message = SECRET_KEY + ":" + currentSlot;
     const encoder = new TextEncoder();
     const data = encoder.encode(message);
     const hashBuffer = await crypto.subtle.digest("SHA-256", data);
     const hashArray = Array.from(new Uint8Array(hashBuffer));
-
     const num =
       ((hashArray[0] << 24) |
         (hashArray[1] << 16) |
         (hashArray[2] << 8) |
         hashArray[3]) >>>
       0;
+    const pin = String(num % Math.pow(10, PIN_LENGTH)).padStart(
+      PIN_LENGTH,
+      "0",
+    );
 
-    return String(num % Math.pow(10, PIN_LENGTH)).padStart(PIN_LENGTH, "0");
+    console.log(
+      "🔑 generatePIN(" + timeSlot + ") =",
+      pin,
+      "| msg:",
+      message,
+      "| slot:",
+      currentSlot,
+    );
+    return pin;
   }
 
-  async function validatePIN(input) {
+  async function validatePIN(entered) {
     const current = await generatePIN(0);
-    const previous = await generatePIN(-1); // grace period: PIN lama masih bisa dipakai
-    return input === current || input === previous;
+    const previous = await generatePIN(-1);
+    console.log(
+      "🔍 Validasi:",
+      entered,
+      "vs Current:",
+      current,
+      "vs Previous:",
+      previous,
+    );
+    return entered === current || entered === previous;
   }
 
+  // ═══════════════════════════════════════════════════════════
+  // TIMER
+  // ═══════════════════════════════════════════════════════════
   function getSecondsUntilExpiry() {
     const now = Math.floor(Date.now() / 1000);
     const ws = WINDOW_HOURS * 3600;
@@ -319,11 +441,15 @@ const cvDownloadLink =
     const h = Math.floor(s / 3600);
     const m = Math.floor((s % 3600) / 60);
     const sec = s % 60;
-    return `${String(h).padStart(2, "0")}:${String(m).padStart(2, "0")}:${String(sec).padStart(2, "0")}`;
+    return (
+      String(h).padStart(2, "0") +
+      ":" +
+      String(m).padStart(2, "0") +
+      ":" +
+      String(sec).padStart(2, "0")
+    );
   }
 
-  // Countdown timer kecil
-  const miniCountdown = document.getElementById("mini-countdown");
   function tickMini() {
     if (miniCountdown)
       miniCountdown.textContent = formatTime(getSecondsUntilExpiry());
@@ -331,50 +457,119 @@ const cvDownloadLink =
   tickMini();
   setInterval(tickMini, 1000);
 
-  // Form handling
-  const form = document.getElementById("pin-form") as HTMLFormElement;
-  const input = document.getElementById("pin-input") as HTMLInputElement;
-  const errorMsg = document.getElementById("pin-error") as HTMLParagraphElement;
-  const lockScreen = document.getElementById("lock-screen") as HTMLDivElement;
-  const cvContent = document.getElementById("cv-content") as HTMLDivElement;
-  const lockIcon = document.getElementById(
-    "lock-icon",
-  ) as unknown as SVGElement;
-  const lockGlow = document.getElementById("lock-glow") as HTMLDivElement;
-
-  form?.addEventListener("submit", async (e) => {
-    e.preventDefault();
-    const entered = input.value.trim();
-    const valid = await validatePIN(entered);
-
-    if (valid) {
-      // Animasi gembok terbuka
-      lockIcon.classList.replace("text-slate-400", "text-emerald-400");
-      lockGlow.classList.remove("opacity-0");
-      errorMsg.style.opacity = "0";
-      lockIcon.innerHTML = `<rect width="18" height="11" x="3" y="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 9.9-1"></path>`;
-
-      setTimeout(() => {
-        lockScreen.style.opacity = "0";
-        lockScreen.style.transform = "scale(0.95)";
-        setTimeout(() => {
-          lockScreen.style.display = "none";
-          cvContent.classList.remove("hidden");
-          void cvContent.offsetWidth; // trigger reflow
-          cvContent.classList.remove("opacity-0", "scale-95");
-        }, 400);
-      }, 600);
-    } else {
-      // PIN salah
-      errorMsg.style.opacity = "1";
-      form.classList.add("shake-animation");
-      setTimeout(() => form.classList.remove("shake-animation"), 500);
-      input.value = "";
-      input.focus();
+  // ═══════════════════════════════════════════════════════════
+  // UPDATE DYNAMIC TEXTS (placeholder, dll) — pakai liveText juga
+  // ═══════════════════════════════════════════════════════════
+  function updateDynamicTexts() {
+    const pinInput = document.getElementById("pin-input");
+    if (pinInput) {
+      pinInput.placeholder = liveText(
+        "cvAccess.placeholder",
+        pinInput.placeholder,
+      );
     }
-  });
+  }
 
-  input?.addEventListener("input", () => {
-    if (errorMsg.style.opacity === "1") errorMsg.style.opacity = "0";
-  });
+  updateDynamicTexts();
+
+  if (window.i18n && window.i18n.onLangChange) {
+    window.i18n.onLangChange(updateDynamicTexts);
+  }
+
+  // ═══════════════════════════════════════════════════════════
+  // FORM HANDLING
+  // ═══════════════════════════════════════════════════════════
+  if (form) {
+    form.addEventListener("submit", async function (e) {
+      e.preventDefault();
+      const entered = input ? input.value.trim() : "";
+
+      if (!entered || entered.length !== PIN_LENGTH) {
+        if (errorMsg) {
+          // FIX: ambil teks error LIVE, bukan dari ssrStrings yang dibekukan
+          errorMsg.textContent = liveText(
+            "cvAccess.error",
+            ssrStrings.error || "PIN tidak valid.",
+          );
+          errorMsg.style.opacity = "1";
+        }
+        form.classList.add("shake-animation");
+        setTimeout(function () {
+          form.classList.remove("shake-animation");
+        }, 500);
+        return;
+      }
+
+      try {
+        const valid = await validatePIN(entered);
+
+        if (valid) {
+          console.log("✅ PIN benar! Unlock...");
+
+          // Animasi unlock
+          if (lockIcon) {
+            lockIcon.classList.remove("text-[var(--t3)]");
+            lockIcon.classList.add("text-[var(--g)]");
+          }
+          if (lockGlow) lockGlow.classList.remove("opacity-0");
+          if (errorMsg) errorMsg.style.opacity = "0";
+
+          // Ganti icon ke gembok terbuka
+          if (lockIcon) {
+            lockIcon.innerHTML =
+              '<rect width="18" height="11" x="3" y="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 9.9-1"></path>';
+          }
+
+          setTimeout(function () {
+            if (lockScreen) {
+              lockScreen.style.opacity = "0";
+              lockScreen.style.transform = "scale(0.95)";
+            }
+            setTimeout(function () {
+              if (lockScreen) lockScreen.style.display = "none";
+              if (cvContent) {
+                cvContent.classList.remove("hidden");
+                void cvContent.offsetWidth; // force reflow
+                cvContent.classList.remove("opacity-0", "scale-95");
+              }
+            }, 400);
+          }, 600);
+        } else {
+          console.log("❌ PIN salah");
+
+          if (errorMsg) {
+            // FIX: ambil teks error LIVE
+            errorMsg.textContent = liveText(
+              "cvAccess.error",
+              ssrStrings.error || "PIN tidak valid. Silakan coba lagi.",
+            );
+            errorMsg.style.opacity = "1";
+          }
+          form.classList.add("shake-animation");
+          setTimeout(function () {
+            form.classList.remove("shake-animation");
+          }, 500);
+          if (input) {
+            input.value = "";
+            input.focus();
+          }
+        }
+      } catch (err) {
+        console.error("💥 Error validasi:", err);
+        if (errorMsg) {
+          errorMsg.textContent = "Terjadi kesalahan sistem. Refresh halaman.";
+          errorMsg.style.opacity = "1";
+        }
+      }
+    });
+  }
+
+  // Sembunyikan error saat mengetik
+  if (input) {
+    input.addEventListener("input", function () {
+      if (errorMsg && parseFloat(errorMsg.style.opacity || "0") > 0) {
+        errorMsg.style.opacity = "0";
+      }
+    });
+  }
 </script>

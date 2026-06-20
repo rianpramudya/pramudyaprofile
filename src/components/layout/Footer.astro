@@ -1,223 +1,473 @@
 ---
-import { site, socialLinks } from '@/content/site';
-const currentYear = new Date().getFullYear();
-const footerLinks = [
-  { name: 'Beranda', href: '#hero' },
-  { name: 'Tentang', href: '#about' },
-  { name: 'Skills', href: '#skills' },
-  { name: 'Proyek', href: '#projects' },
-  { name: 'Kontak', href: '#contact' },
-];
+import { site, socialLinks, navigation } from "@/content/site";
+import { dictionary } from "@/i18n/dictionary";
+import type { Lang } from "@/i18n/dictionary";
+
+function getLangFromUrl(url: URL): Lang {
+  const q = url.searchParams.get("lang");
+  if (q === "en" || q === "id") return q;
+  return "id";
+}
+
+const lang = getLangFromUrl(Astro.url);
+
+function ts(key: string): string {
+  const dict = dictionary[lang] as Record<string, string | string[]>;
+  const val = dict[key];
+  if (typeof val === "string") return val;
+  return key;
+}
 ---
 
-<footer class="relative bg-[#04040f] overflow-hidden border-t border-white/5">
-  <div class="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-emerald-500/30 to-transparent"></div>
-
-  <div class="relative border-b border-slate-800/60 overflow-hidden">
-    <div class="absolute inset-0 flex items-center justify-center pointer-events-none">
-      <div class="w-[600px] h-[300px] bg-emerald-500/10 rounded-full blur-[100px]"></div>
-      <div class="absolute w-[300px] h-[200px] bg-cyan-500/10 rounded-full blur-[80px] translate-y-10"></div>
+<footer
+  class="relative bg-[var(--bg)] overflow-hidden pt-28 pb-8 border-t border-[var(--border)] transition-colors duration-500 z-0"
+>
+  {/* ── AMBIENT & GRID BACKGROUND ── */}
+  <div class="absolute inset-0 pointer-events-none overflow-hidden z-0">
+    <div
+      class="absolute top-[20%] left-[-10%] w-[600px] h-[600px] bg-[var(--orb-v)] rounded-full blur-[150px] opacity-20"
+    >
     </div>
-    
-    <div class="absolute top-0 left-1/2 -translate-x-1/2 w-48 h-px bg-gradient-to-r from-transparent via-cyan-500/60 to-transparent"></div>
+    <div
+      class="absolute bottom-[-20%] right-[-10%] w-[500px] h-[500px] bg-[var(--orb-c)] rounded-full blur-[120px] opacity-[0.05]"
+    >
+    </div>
+    <div
+      class="absolute inset-0 opacity-[0.02]"
+      style="background-image: linear-gradient(var(--t1) 1px, transparent 1px), linear-gradient(90deg, var(--t1) 1px, transparent 1px); background-size: 48px 48px;"
+    >
+    </div>
+  </div>
 
-    <div class="relative mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-16 md:py-20 text-center">
-      <div class="inline-flex items-center gap-2 rounded-full bg-emerald-500/10 border border-emerald-500/25 px-4 py-1.5 mb-6 backdrop-blur-sm">
-        <span class="relative flex h-2 w-2">
-          <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
-          <span class="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
+  {/* Container: max-w-[1200px] (konsisten) */}
+  <div class="relative z-10 mx-auto max-w-[1200px] px-6 lg:px-12">
+    {/* ── SUPER POWER CTA SECTION ── */}
+    <div
+      class="flex flex-col items-center text-center max-w-4xl mx-auto mb-24 rv"
+    >
+      <div
+        class="inline-flex items-center gap-4 border-l-2 border-[var(--v)] pl-3 mb-8"
+      >
+        <span
+          class="font-mono text-[0.65rem] tracking-[0.2em] text-[var(--t3)] uppercase"
+          data-i18n="footer.status"
+        >
+          {ts("footer.status")}
         </span>
-        <span class="text-xs font-semibold text-emerald-300 tracking-widest uppercase">Tersedia untuk Proyek Baru</span>
+        <span
+          class="flex items-center gap-1.5 font-mono text-[0.55rem] text-[var(--v)] bg-[var(--v)]/10 px-2 py-0.5 uppercase tracking-widest"
+        >
+          <span class="w-1.5 h-1.5 bg-[var(--v)] rounded-sm animate-pulse"
+          ></span>
+          {ts("availability.available")}
+        </span>
       </div>
 
-      <h2 class="text-3xl md:text-4xl lg:text-5xl font-extrabold text-white tracking-tight leading-tight mb-4 font-display">
-        Mari Wujudkan <span class="bg-gradient-to-r from-emerald-400 via-teal-400 to-cyan-400 bg-clip-text text-transparent">Ide Anda</span>
+      {
+        /* Brutalism Hover Typography: translate-x-2 (8px) konsisten dengan Contact */
+      }
+      <h2
+        class="font-['Syne','Inter','Helvetica_Neue',sans-serif] font-black uppercase leading-[0.85] tracking-tight mb-8 group cursor-default w-full overflow-hidden"
+      >
+        <span
+          class="block text-[clamp(2.8rem,7vw,5.5rem)] text-[var(--t1)] transition-colors duration-500 group-hover:text-[var(--v)] break-words hyphens-auto"
+          data-i18n="footer.ctaLine1"
+        >
+          {ts("footer.ctaLine1")}
+        </span>
+        <span
+          class="block text-[clamp(2.8rem,7vw,5.5rem)] text-transparent [-webkit-text-stroke:1.5px_var(--t1)] opacity-70 transition-all duration-500 group-hover:[-webkit-text-stroke:1.5px_var(--v)] group-hover:opacity-100 group-hover:translate-x-2 break-words hyphens-auto"
+          data-i18n="footer.ctaHighlight"
+        >
+          {ts("footer.ctaHighlight")}
+        </span>
       </h2>
-      <p class="text-slate-400 text-sm md:text-base max-w-md mx-auto leading-relaxed mb-8">
-        Punya proyek menarik? Saya siap berkolaborasi untuk membangun solusi yang berdampak.
+
+      <p
+        class="text-[var(--t2)] text-sm md:text-base leading-relaxed font-light mb-10 max-w-lg mx-auto"
+        data-i18n="footer.ctaDesc"
+      >
+        {ts("footer.ctaDesc")}
       </p>
 
-      <div class="flex items-center justify-center gap-3 flex-wrap">
+      <div class="flex flex-wrap justify-center gap-4">
         <a
           href="#contact"
-          class="relative group inline-flex items-center gap-2 rounded-xl bg-gradient-to-r from-emerald-600 to-teal-500 px-6 py-3 text-sm font-semibold text-white overflow-hidden transition-all duration-300 hover:-translate-y-0.5 hover:shadow-lg hover:shadow-emerald-500/30"
+          class="relative group overflow-hidden flex items-center justify-center gap-3 bg-[var(--v)] text-[var(--bg)] font-bold font-mono text-xs tracking-[0.2em] uppercase px-10 py-5 transition-all duration-300 hover:shadow-[0_0_25px_var(--shadow-v)] [clip-path:polygon(0_0,100%_0,100%_calc(100%-12px),calc(100%-12px)_100%,0_100%)]"
         >
-          <span class="absolute inset-0 -translate-x-full group-hover:translate-x-full transition-transform duration-700 bg-gradient-to-r from-transparent via-white/20 to-transparent skew-x-12"></span>
-          <span class="relative">Mulai Diskusi</span>
-          <svg class="relative transition-transform duration-300 group-hover:translate-x-0.5" xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
+          <span class="relative z-10" data-i18n="footer.ctaButton"
+            >{ts("footer.ctaButton")}</span
+          >
+          <svg
+            width="14"
+            height="14"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2.5"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            class="relative z-10 group-hover:translate-x-1 group-hover:-translate-y-1 transition-transform"
+            ><path d="M7 17l9.2-9.2M17 17V7H7"></path></svg
+          >
+          <div
+            class="absolute inset-0 bg-white/20 translate-y-[100%] group-hover:translate-y-0 transition-transform duration-300 ease-in-out pointer-events-none"
+          >
+          </div>
         </a>
+
         <a
           href={site.github}
           target="_blank"
           rel="noopener noreferrer"
-          class="inline-flex items-center gap-2 rounded-xl border border-slate-700/60 bg-white/5 backdrop-blur-sm px-6 py-3 text-sm font-medium text-slate-300 hover:text-white hover:border-slate-500 hover:bg-white/10 transition-all duration-300 hover:-translate-y-0.5"
+          class="relative group overflow-hidden flex items-center justify-center gap-3 bg-[var(--bg)] border border-[var(--border-2)] text-[var(--t1)] hover:border-[var(--v)] hover:text-[var(--v)] hover:bg-[var(--vd)] font-bold font-mono text-xs tracking-[0.2em] uppercase px-10 py-5 transition-all duration-300 [clip-path:polygon(0_0,100%_0,100%_calc(100%-12px),calc(100%-12px)_100%,0_100%)]"
         >
-          <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 22v-4a4.8 4.8 0 0 0-1-3.5c3 0 6-2 6-5.5.08-1.25-.27-2.48-1-3.5.28-1.15.28-2.35 0-3.5 0 0-1 0-3 1.5-2.64-.5-5.36-.5-8 0C6 2 5 2 5 2c-.3 1.15-.3 2.35 0 3.5A5.403 5.403 0 0 0 4 9c0 3.5 3 5.5 6 5.5-.39.49-.68 1.05-.85 1.65-.17.6-.22 1.23-.15 1.85v4"/><path d="M9 18c-4.51 2-5-2-7-2"/></svg>
-          Lihat GitHub
+          <span class="relative z-10" data-i18n="footer.viewGithub"
+            >{ts("footer.viewGithub")}</span
+          >
+          <svg
+            width="14"
+            height="14"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2.5"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            class="relative z-10 group-hover:translate-x-1 group-hover:-translate-y-1 transition-transform"
+            ><path
+              d="M15 22v-4a4.8 4.8 0 0 0-1-3.5c3 0 6-2 6-5.5.08-1.25-.27-2.48-1-3.5.28-1.15.28-2.35 0-3.5 0 0-1 0-3 1.5-2.64-.5-5.36-.5-8 0C6 2 5 2 5 2c-.3 1.15-.3 2.35 0 3.5A5.403 5.403 0 0 0 4 9c0 3.5 3 5.5 6 5.5-.39.49-.68 1.05-.85 1.65-.17.6-.22 1.23-.15 1.85v4"
+            ></path><path d="M9 18c-4.51 2-5-2-7-2"></path></svg
+          >
         </a>
       </div>
     </div>
-  </div>
 
-  <div class="relative mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 pt-12 md:pt-16 z-10">
-    <div class="grid grid-cols-1 md:grid-cols-3 gap-10 md:gap-8">
+    {/* ── FOOTER GRID DIRECTORY ── */}
+    <div
+      class="grid grid-cols-1 md:grid-cols-12 gap-12 pt-16 border-t border-[var(--border-2)] relative rv"
+    >
+      <div
+        class="absolute top-0 left-0 w-4 h-4 border-t border-l border-[var(--t3)] opacity-30 -translate-x-px -translate-y-px"
+      >
+      </div>
+      <div
+        class="absolute top-0 right-0 w-4 h-4 border-t border-r border-[var(--t3)] opacity-30 translate-x-px -translate-y-px"
+      >
+      </div>
 
-      <div class="space-y-4">
-        <a href="#hero" class="flex items-center gap-3 group">
-          <div class="relative w-10 h-10 flex-shrink-0 flex items-center justify-center">
-            
-            <div class="absolute inset-0 bg-emerald-500/20 rounded-full blur-md opacity-60 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none"></div>
-            
-            <svg
-              viewBox="0 0 100 100"
-              xmlns="http://www.w3.org/2000/svg"
-              class="relative w-9 h-9 transform transition-transform duration-500 group-hover:scale-105"
-              aria-hidden="true"
-            >
-              <defs>
-                <linearGradient id="footer-pr-g6x" x1="0%" y1="0%" x2="100%" y2="100%">
-                  <stop offset="0%" stop-color="#3b82f6"></stop>
-                  <stop offset="100%" stop-color="#2dd4bf"></stop>
-                </linearGradient>
-                <linearGradient id="footer-pr-g6x-fill" x1="0%" y1="0%" x2="100%" y2="100%">
-                  <stop offset="0%" stop-color="#3b82f6" stop-opacity="0.12"></stop>
-                  <stop offset="100%" stop-color="#2dd4bf" stop-opacity="0.12"></stop>
-                </linearGradient>
-              </defs>
-
-              <path d="M 50 3 L 97 50 L 50 97 L 3 50 Z" fill="none" stroke="url(#footer-pr-g6x)" stroke-width="2" opacity="0.4"></path>
-              <path d="M 50 16 L 84 50 L 50 84 L 16 50 Z" fill="url(#footer-pr-g6x-fill)" stroke="url(#footer-pr-g6x)" stroke-width="1.5" opacity="0.55"></path>
-              <path d="M 33 32 L 33 68 M 33 32 L 55 32 Q 69 32 69 43 Q 69 54 55 54 L 33 54 M 47 54 L 67 72" fill="none" stroke="url(#footer-pr-g6x)" stroke-width="7" stroke-linecap="round" stroke-linejoin="round"></path>
-              
-              <circle cx="50" cy="3" r="3" fill="#2dd4bf"></circle>
-              <circle cx="97" cy="50" r="3" fill="#3b82f6"></circle>
-              <circle cx="50" cy="97" r="3" fill="#2dd4bf"></circle>
-              <circle cx="3" cy="50" r="3" fill="#60a5fa"></circle>
-
-              <g stroke="#2dd4bf" stroke-width="1.2" opacity="0.5" fill="none">
-                <path d="M 50 3 L 50 16"></path>
-                <path d="M 97 50 L 84 50"></path>
-                <path d="M 50 97 L 50 84"></path>
-                <path d="M 3 50 L 16 50"></path>
-              </g>
-
-              <circle cx="50" cy="16" r="2" fill="#60a5fa" opacity="0.8"></circle>
-              <circle cx="84" cy="50" r="2" fill="#60a5fa" opacity="0.8"></circle>
-              <circle cx="50" cy="84" r="2" fill="#60a5fa" opacity="0.8"></circle>
-              <circle cx="16" cy="50" r="2" fill="#60a5fa" opacity="0.8"></circle>
-
-              <g stroke="#3b82f6" stroke-width="1.5" opacity="0.35" fill="none" stroke-linecap="round">
-                <path d="M 73 26 L 78 22"></path>
-                <path d="M 73 74 L 78 78"></path>
-                <path d="M 27 74 L 22 78"></path>
-                <path d="M 27 26 L 22 22"></path>
-              </g>
-            </svg>
-          </div>
-          
-          <span class="text-white font-bold text-lg font-display tracking-tight">
-            Pramudya<span class="text-emerald-400 font-black">.site</span>
-          </span>
+      <div class="md:col-span-12 lg:col-span-5 flex flex-col">
+        <a
+          href="#hero"
+          class="group flex items-center gap-3 font-mono text-sm tracking-widest text-[var(--t1)] uppercase mb-6 w-fit focus:outline-none"
+        >
+          <svg
+            viewBox="0 0 100 100"
+            xmlns="http://www.w3.org/2000/svg"
+            class="w-8 h-8 transition-transform duration-500 group-hover:scale-110 group-hover:rotate-3"
+          >
+            <defs>
+              <linearGradient
+                id="footer-logo-grad"
+                x1="0%"
+                y1="0%"
+                x2="100%"
+                y2="100%"
+              >
+                <stop offset="0%" stop-color="var(--c)"></stop>
+                <stop offset="100%" stop-color="var(--v)"></stop>
+              </linearGradient>
+            </defs>
+            <path
+              d="M 50 3 L 97 50 L 50 97 L 3 50 Z"
+              fill="none"
+              stroke="url(#footer-logo-grad)"
+              stroke-width="2"
+              opacity="0.4"></path>
+            <path
+              d="M 50 16 L 84 50 L 50 84 L 16 50 Z"
+              fill="none"
+              stroke="url(#footer-logo-grad)"
+              stroke-width="1.5"
+              opacity="0.55"></path>
+            <path
+              d="M 33 32 L 33 68 M 33 32 L 55 32 Q 69 32 69 43 Q 69 54 55 54 L 33 54 M 47 54 L 67 72"
+              fill="none"
+              stroke="url(#footer-logo-grad)"
+              stroke-width="7"
+              stroke-linecap="round"
+              stroke-linejoin="round"></path>
+          </svg>
+          <span class="group-hover:text-[var(--v)] transition-colors"
+            >// <em class="not-italic text-[var(--v)]">PRAMUDYA</em>.DEV</span
+          >
         </a>
 
-        <p class="text-slate-500 text-sm leading-relaxed max-w-xs">
-          {site.description}
+        <p
+          class="text-[0.8rem] text-[var(--t3)] leading-relaxed font-mono max-w-sm mb-8"
+          data-i18n="footer.brandDesc"
+        >
+          {ts("footer.brandDesc")}
         </p>
 
-        <div class="flex items-center gap-2.5 pt-1">
-          {socialLinks.map(link => (
-            <a
-              href={link.href}
-              target={link.href.startsWith('http') ? '_blank' : undefined}
-              rel="noopener noreferrer"
-              class="w-9 h-9 rounded-lg bg-white/5 border border-white/10 flex items-center justify-center text-slate-400 hover:text-white hover:border-emerald-500/40 hover:bg-emerald-500/20 hover:shadow-[0_0_15px_rgba(16,185,129,0.3)] transition-all duration-300 hover:-translate-y-1"
-              aria-label={link.name}
-            >
-              {link.icon === 'github' && (
-                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 22v-4a4.8 4.8 0 0 0-1-3.5c3 0 6-2 6-5.5.08-1.25-.27-2.48-1-3.5.28-1.15.28-2.35 0-3.5 0 0-1 0-3 1.5-2.64-.5-5.36-.5-8 0C6 2 5 2 5 2c-.3 1.15-.3 2.35 0 3.5A5.403 5.403 0 0 0 4 9c0 3.5 3 5.5 6 5.5-.39.49-.68 1.05-.85 1.65-.17.6-.22 1.23-.15 1.85v4"/><path d="M9 18c-4.51 2-5-2-7-2"/></svg>
-              )}
-              {link.icon === 'linkedin' && (
-                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-2-2 2 2 0 0 0-2 2v7h-4v-7a6 6 0 0 1 6-6z"/><rect width="4" height="12" x="2" y="9"/><circle cx="4" cy="4" r="2"/></svg>
-              )}
-              {link.icon === 'mail' && (
-                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="20" height="16" x="2" y="4" rx="2"/><path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"/></svg>
-              )}
-            </a>
-          ))}
+        <div class="flex gap-3">
+          {
+            socialLinks.map((link) => (
+              <a
+                href={link.href}
+                target={link.href.startsWith("http") ? "_blank" : undefined}
+                rel="noopener noreferrer"
+                class="flex items-center justify-center w-10 h-10 bg-[var(--bg-3)] border border-[var(--border-2)] text-[var(--t3)] hover:text-[var(--v)] hover:border-[var(--v)] hover:bg-[var(--vd)] transition-all duration-300 hover:-translate-y-1 rounded-sm"
+                aria-label={link.name}
+              >
+                {link.icon === "github" && (
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    width="16"
+                    height="16"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="2"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                  >
+                    <path d="M15 22v-4a4.8 4.8 0 0 0-1-3.5c3 0 6-2 6-5.5.08-1.25-.27-2.48-1-3.5.28-1.15.28-2.35 0-3.5 0 0-1 0-3 1.5-2.64-.5-5.36-.5-8 0C6 2 5 2 5 2c-.3 1.15-.3 2.35 0 3.5A5.403 5.403 0 0 0 4 9c0 3.5 3 5.5 6 5.5-.39.49-.68 1.05-.85 1.65-.17.6-.22 1.23-.15 1.85v4" />
+                    <path d="M9 18c-4.51 2-5-2-7-2" />
+                  </svg>
+                )}
+                {link.icon === "linkedin" && (
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    width="16"
+                    height="16"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="2"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                  >
+                    <path d="M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-2-2 2 2 0 0 0-2 2v7h-4v-7a6 6 0 0 1 6-6z" />
+                    <rect width="4" height="12" x="2" y="9" />
+                    <circle cx="4" cy="4" r="2" />
+                  </svg>
+                )}
+                {link.icon === "mail" && (
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    width="16"
+                    height="16"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="2"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                  >
+                    <rect width="20" height="16" x="2" y="4" rx="2" />
+                    <path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7" />
+                  </svg>
+                )}
+              </a>
+            ))
+          }
         </div>
       </div>
 
-      <div>
-        <p class="text-xs font-semibold text-slate-300 tracking-widest uppercase mb-4">Navigasi</p>
-        <ul class="space-y-2.5">
-          {footerLinks.map(link => (
-            <li>
-              <a
-                href={link.href}
-                class="group inline-flex items-center gap-2.5 text-sm text-slate-500 hover:text-emerald-400 transition-colors duration-300 font-medium"
-              >
-                <span class="w-1.5 h-1.5 rounded-full bg-slate-700 group-hover:bg-emerald-500 group-hover:shadow-[0_0_8px_rgba(16,185,129,0.8)] transition-all duration-300 flex-shrink-0"></span>
-                {link.name}
-              </a>
-            </li>
-          ))}
+      <div class="md:col-span-6 lg:col-span-3">
+        <h4
+          class="font-mono text-[0.6rem] text-[var(--t3)] uppercase tracking-[0.2em] mb-6 flex items-center gap-2"
+          data-i18n="footer.navigation"
+        >
+          <span class="w-3 h-px bg-[var(--t3)]"></span>
+          {ts("footer.navigation")}
+        </h4>
+        <ul
+          class="flex flex-col gap-4 font-mono text-xs uppercase tracking-widest"
+        >
+          {
+            navigation.map((item) => (
+              <li>
+                <a
+                  href={item.href}
+                  class="group inline-flex items-center text-[var(--t2)] hover:text-[var(--v)] transition-colors"
+                  data-i18n={item.key}
+                >
+                  <span class="opacity-0 -ml-4 mr-2 group-hover:opacity-100 group-hover:ml-0 transition-all text-[var(--v)] font-bold">
+                    {">"}
+                  </span>
+                  {ts(item.key)}
+                </a>
+              </li>
+            ))
+          }
         </ul>
       </div>
 
-      <div>
-        <p class="text-xs font-semibold text-slate-300 tracking-widest uppercase mb-4">Kontak</p>
-        <ul class="space-y-3">
+      <div class="md:col-span-6 lg:col-span-4">
+        <h4
+          class="font-mono text-[0.6rem] text-[var(--t3)] uppercase tracking-[0.2em] mb-6 flex items-center gap-2"
+          data-i18n="contact.eyebrow"
+        >
+          <span class="w-3 h-px bg-[var(--t3)]"></span>
+          {ts("contact.eyebrow")}
+        </h4>
+        <ul class="flex flex-col gap-5 font-mono text-xs tracking-wider">
           <li>
             <a
               href={`mailto:${site.email}`}
-              class="group flex items-center gap-3 text-sm text-slate-500 hover:text-emerald-400 transition-colors duration-300 font-medium"
+              class="group flex items-center gap-4 text-[var(--t2)] hover:text-[var(--c)] transition-colors"
             >
-              <span class="w-8 h-8 rounded-lg bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center flex-shrink-0 group-hover:bg-emerald-500/20 group-hover:border-emerald-500/40 group-hover:shadow-[0_0_12px_rgba(16,185,129,0.2)] transition-all duration-300">
-                <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-emerald-400"><rect width="20" height="16" x="2" y="4" rx="2"/><path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"/></svg>
-              </span>
-              {site.email}
+              <div
+                class="w-10 h-10 flex items-center justify-center bg-[var(--bg-3)] border border-[var(--border-2)] group-hover:border-[var(--c)] group-hover:bg-[var(--cd)] transition-all rounded-sm flex-shrink-0"
+              >
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  width="16"
+                  height="16"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="2"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  ><rect width="20" height="16" x="2" y="4" rx="2"></rect><path
+                    d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"></path></svg
+                >
+              </div>
+              <span class="break-all">{site.email}</span>
             </a>
           </li>
           <li>
             <a
-              href={site.linkedin}
+              href="https://wa.me/6285121111260"
               target="_blank"
               rel="noopener noreferrer"
-              class="group flex items-center gap-3 text-sm text-slate-500 hover:text-cyan-400 transition-colors duration-300 font-medium"
+              class="group flex items-center gap-4 text-[var(--t2)] hover:text-[var(--v)] transition-colors"
             >
-              <span class="w-8 h-8 rounded-lg bg-cyan-500/10 border border-cyan-500/20 flex items-center justify-center flex-shrink-0 group-hover:bg-cyan-500/20 group-hover:border-cyan-500/40 group-hover:shadow-[0_0_12px_rgba(6,182,212,0.2)] transition-all duration-300">
-                <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-cyan-400"><path d="M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-2-2 2 2 0 0 0-2 2v7h-4v-7a6 6 0 0 1 6-6z"/><rect width="4" height="12" x="2" y="9"/><circle cx="4" cy="4" r="2"/></svg>
-              </span>
-              LinkedIn
-            </a>
-          </li>
-          <li>
-            <a
-              href={site.github}
-              target="_blank"
-              rel="noopener noreferrer"
-              class="group flex items-center gap-3 text-sm text-slate-500 hover:text-slate-300 transition-colors duration-300 font-medium"
-            >
-              <span class="w-8 h-8 rounded-lg bg-white/5 border border-white/10 flex items-center justify-center flex-shrink-0 group-hover:bg-white/10 group-hover:border-white/20 transition-all duration-300">
-                <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-slate-300"><path d="M15 22v-4a4.8 4.8 0 0 0-1-3.5c3 0 6-2 6-5.5.08-1.25-.27-2.48-1-3.5.28-1.15.28-2.35 0-3.5 0 0-1 0-3 1.5-2.64-.5-5.36-.5-8 0C6 2 5 2 5 2c-.3 1.15-.3 2.35 0 3.5A5.403 5.403 0 0 0 4 9c0 3.5 3 5.5 6 5.5-.39.49-.68 1.05-.85 1.65-.17.6-.22 1.23-.15 1.85v4"/><path d="M9 18c-4.51 2-5-2-7-2"/></svg>
-              </span>
-              GitHub
+              <div
+                class="w-10 h-10 flex items-center justify-center bg-[var(--bg-3)] border border-[var(--border-2)] group-hover:border-[var(--v)] group-hover:bg-[var(--vd)] transition-all rounded-sm flex-shrink-0"
+              >
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  width="16"
+                  height="16"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="2"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  ><path
+                    d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"
+                  ></path></svg
+                >
+              </div>
+              +62 851-2111-1260
             </a>
           </li>
         </ul>
       </div>
     </div>
 
-    <div class="mt-12 pb-8 pt-6 border-t border-slate-800/60 flex flex-col sm:flex-row items-center justify-between gap-4">
-      <p class="text-slate-500 text-xs">
-        &copy; {currentYear} Pramudya.site. All rights reserved.
-      </p>
-      <div class="flex items-center gap-2 flex-wrap justify-center sm:justify-end">
-        <span class="text-slate-600 text-xs">Dibangun dengan</span>
-        <span class="text-xs px-2.5 py-1 rounded-full bg-orange-500/10 border border-orange-500/20 text-orange-400 font-medium">Astro</span>
-        <span class="text-xs px-2.5 py-1 rounded-full bg-cyan-500/10 border border-cyan-500/20 text-cyan-400 font-medium">React</span>
-        <span class="text-xs px-2.5 py-1 rounded-full bg-sky-500/10 border border-sky-500/20 text-sky-400 font-medium">Tailwind CSS</span>
+    {/* ── TERMINAL BOTTOM BAR ── */}
+    <div
+      class="mt-16 pt-6 border-t border-[var(--border-2)] flex flex-col md:flex-row justify-between items-center gap-4 rv"
+    >
+      <div
+        class="flex items-center flex-wrap justify-center gap-3 font-mono text-[0.6rem] text-[var(--t3)] uppercase tracking-widest"
+      >
+        <span data-i18n="footer.rights">{ts("footer.rights")}</span>
+        <span
+          class="hidden sm:inline-block w-1.5 h-1.5 bg-[var(--v)] rounded-full"
+        ></span>
+        <span class="flex items-center gap-1.5 text-[var(--t1)]">
+          <span data-i18n="footer.timeLabel">{ts("footer.timeLabel")}</span>
+          <span id="localClock" class="text-[var(--v)] font-bold"
+            >--:--:-- WIB</span
+          >
+        </span>
+      </div>
+
+      <div
+        class="flex items-center gap-2 font-mono text-[0.55rem] uppercase tracking-widest text-[var(--t3)]"
+      >
+        <span class="mr-1 hidden sm:inline" data-i18n="footer.builtWith"
+          >{ts("footer.builtWith")}</span
+        >
+        <span
+          class="px-2 py-1 border border-[var(--border-2)] bg-[var(--bg-3)] rounded-sm"
+          >ASTRO</span
+        >
+        <span
+          class="px-2 py-1 border border-[var(--border-2)] bg-[var(--bg-3)] rounded-sm"
+          >REACT</span
+        >
+        <span
+          class="px-2 py-1 border border-[var(--border-2)] bg-[var(--bg-3)] rounded-sm"
+          >TAILWIND</span
+        >
       </div>
     </div>
   </div>
 </footer>
+
+<script>
+  function updateClock() {
+    const clockEl = document.getElementById("localClock");
+    if (!clockEl) return;
+
+    const opts = {
+      timeZone: "Asia/Jakarta",
+      hour: "2-digit",
+      minute: "2-digit",
+      second: "2-digit",
+      hour12: false,
+    };
+
+    const timeString = new Date().toLocaleTimeString("en-GB", opts);
+    clockEl.textContent = `${timeString} WIB`;
+  }
+
+  updateClock();
+  setInterval(updateClock, 1000);
+
+  const rvObserver = new IntersectionObserver(
+    (entries) => {
+      entries.forEach((entry) => {
+        if (entry.isIntersecting) {
+          entry.target.classList.add("in");
+          rvObserver.unobserve(entry.target);
+        }
+      });
+    },
+    { threshold: 0.1, rootMargin: "0px 0px -50px 0px" },
+  );
+
+  document.querySelectorAll(".rv").forEach((el) => {
+    rvObserver.observe(el);
+  });
+</script>
+
+<style>
+  /* RV duration: 0.7s (konsisten dengan About/Projects/Skills) */
+  .rv {
+    opacity: 0;
+    transform: translateY(24px);
+    transition:
+      opacity 0.7s cubic-bezier(0.4, 0, 0.2, 1),
+      transform 0.7s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+  .rv.in {
+    opacity: 1;
+    transform: none;
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .rv {
+      transition: none;
+      opacity: 1;
+      transform: none;
+    }
+  }
+</style>

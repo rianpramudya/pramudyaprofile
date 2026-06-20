@@ -1,250 +1,904 @@
 ---
-import SectionTitle from '@/components/ui/SectionTitle.astro';
-import Card from '@/components/ui/Card.astro';
-import Badge from '@/components/ui/Badge.astro';
-import ProjectModal from '@/components/ui/ProjectModal.astro';
-import { projects } from '@/content/projects';
-import { site } from '@/content/site';
+import { dictionary } from "@/i18n/dictionary";
+import type { Lang } from "@/i18n/dictionary";
+import ProjectModal from "@/components/ui/ProjectModal.astro";
+import { projects } from "@/content/projects";
+import { site } from "@/content/site";
 
-const featuredProjects = projects.filter((p) => p.featured);
-const otherProjects = projects.filter((p) => !p.featured);
+function getLangFromUrl(url: URL): Lang {
+  const q = url.searchParams.get("lang");
+  if (q === "en" || q === "id") return q;
+  return "id";
+}
 
-const githubIconPath = "M15 22v-4a4.8 4.8 0 0 0-1-3.5c3 0 6-2 6-5.5.08-1.25-.27-2.48-1-3.5.28-1.15.28-2.35 0-3.5 0 0-1 0-3 1.5-2.64-.5-5.36-.5-8 0C6 2 5 2 5 2c-.3 1.15-.3 2.35 0 3.5A5.403 5.403 0 0 0 4 9c0 3.5 3 5.5 6 5.5-.39.49-.68 1.05-.85 1.65-.17.6-.22 1.23-.15 1.85v4";
-const githubIconPath2 = "M9 18c-4.51 2-5-2-7-2";
+const lang = getLangFromUrl(Astro.url);
+
+function ts(key: string): string {
+  const dict = dictionary[lang] as Record<string, any>;
+  const val = dict[key];
+  if (typeof val === "string") return val;
+  return key;
+}
+
+function splitHeading(text: string): [string, string] {
+  const words = text.trim().split(/\s+/).filter(Boolean);
+  if (words.length <= 1) return ["", text];
+  const last = words[words.length - 1];
+  const rest = words.slice(0, -1).join(" ");
+  return [rest, last];
+}
+
+const [sectionTitleLine1, sectionTitleLine2] = splitHeading(
+  ts("projects.title"),
+);
+
+const slugMap: Record<string, number> = {
+  "website-pemerintahan-subang": 1,
+  "astra-logistic-tracking": 2,
+  "dompet-rantau": 3,
+  "portfolio-cms": 4,
+  "amazon-recommendation": 5,
+  "acnescan-yolo": 6,
+};
+
+function tp(index: number, field: string, fallback: string): string {
+  const key = `project${index}.${field}`;
+  const dict = dictionary[lang] as Record<string, any>;
+  const val = dict[key];
+  if (typeof val === "string") return val;
+  return fallback;
+}
+
+function tpHighlights(index: number, fallback: string[]): string[] {
+  const out: string[] = [];
+  const dict = dictionary[lang] as Record<string, any>;
+  for (let i = 1; i <= 5; i++) {
+    const key = `project${index}.highlight${i}`;
+    const val = dict[key];
+    if (typeof val === "string") out.push(val);
+  }
+  return out.length > 0 ? out : fallback;
+}
+
+const baseUrl = import.meta.env.BASE_URL;
+function resolveImg(path?: string | null): string | null {
+  if (!path) return null;
+  return `${baseUrl}/${path.replace(/^\//, "")}`;
+}
+
+const catColors: Record<string, string> = {
+  "Full-Stack Web": "var(--c)",
+  "Machine Learning": "var(--v)",
+  "Computer Vision": "var(--g)",
+};
+
+function getStatus(p: any): string {
+  return p.demoUrl ? "LIVE BUILD" : "CASE FILE";
+}
+
+const sortedProjects = [...projects].sort((a, b) => {
+  const idxA = slugMap[a.slug] || 99;
+  const idxB = slugMap[b.slug] || 99;
+  return idxA - idxB;
+});
 ---
 
-<section id="projects" class="relative py-20 md:py-32 bg-[#04040f]">
-  <!-- Background -->
-  <div class="absolute inset-0 pointer-events-none">
-    <div class="absolute top-1/3 left-0 w-96 h-96 bg-cyan-500/5 rounded-full blur-[120px]"></div>
-    <div class="absolute bottom-1/3 right-0 w-80 h-80 bg-emerald-500/5 rounded-full blur-[100px]"></div>
-  </div>
+<section id="projects" class="projects-section">
+  {/* ── AMBIENT BACKGROUND ── */}
+  <div class="orb1"></div>
+  <div class="orb2"></div>
+  <div class="grid-bg"></div>
 
-  <div class="relative mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-    <SectionTitle
-      label="Portofolio"
-      title="Proyek Unggulan Saya"
-      subtitle="Kumpulan proyek terbaik yang mencakup pengembangan web full-stack, machine learning, dan computer vision. Setiap proyek adalah hasil dedikasi penuh untuk solusi yang inovatif."
-    />
-
-    <!-- ── Featured Projects Grid ── -->
-    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-10">
-      {featuredProjects.map((project, i) => (
-        <div
-          class="h-full"
-          data-aos="fade-up"
-          data-aos-delay={i * 150}
-          data-project-slug={project.slug}
-          role="button"
-          tabindex="0"
-          aria-label={`Buka detail proyek ${project.title}`}
-        >
-          <Card class="h-full group cursor-pointer overflow-hidden flex flex-col" glow={true}>
-            <!-- Project Image -->
-            {(project.images?.[0] || project.image) && (
-              <div class="relative h-52 overflow-hidden flex-shrink-0 bg-dark-800">
-                <img
-                  src={`${import.meta.env.BASE_URL}/${(project.images?.[0] || project.image)?.replace(/^\//, '')}`}
-                  alt={`Screenshot proyek ${project.title}`}
-                  class="w-full h-full object-cover object-top group-hover:scale-105 transition-transform duration-700"
-                  loading="lazy"
-                />
-                <div class="absolute inset-0 bg-gradient-to-t from-[#04040f]/70 via-[#04040f]/10 to-transparent pointer-events-none"></div>
-                {project.featured && (
-                  <div class="absolute top-3 left-3">
-                    <Badge variant="accent" size="sm">
-                      <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon></svg>
-                      Featured
-                    </Badge>
-                  </div>
-                )}
-              </div>
-            )}
-
-            <!-- Content -->
-            <div class="relative p-6 md:p-8 flex-1 flex flex-col">
-              <div class="flex items-start justify-between mb-4">
-                <div class="flex items-center gap-3">
-                  <div class="w-12 h-12 rounded-xl bg-gradient-to-br from-emerald-500/20 to-cyan-500/20 border border-emerald-500/20 flex items-center justify-center transition-all duration-500 flex-shrink-0">
-                    <i class={project.icon || 'devicon-github-original'} style="font-size: 24px;"></i>
-                  </div>
-                  <div>
-                    <span class="text-xs text-slate-500 font-medium">{project.category}</span>
-                    <div class="flex items-center gap-1.5 text-xs text-slate-600 mt-0.5">
-                      <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="18" height="18" x="3" y="4" rx="2" ry="2"></rect><line x1="16" x2="16" y1="2" y2="6"></line><line x1="8" x2="8" y1="2" y2="6"></line><line x1="3" x2="21" y1="10" y2="10"></line></svg>
-                      {project.year}
-                    </div>
-                  </div>
-                </div>
-                {project.featured && !(project.images?.[0] || project.image) && (
-                  <Badge variant="accent" size="sm">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon></svg>
-                    Featured
-                  </Badge>
-                )}
-              </div>
-
-              <h3 class="text-xl md:text-2xl font-bold text-white mb-3 group-hover:text-emerald-400 transition-colors duration-300 font-display leading-tight">
-                {project.title}
-              </h3>
-              <p class="text-slate-400 text-sm leading-relaxed mb-6 flex-grow">
-                {project.description}
-              </p>
-
-              <ul class="space-y-2 mb-6">
-                {project.highlights?.slice(0, 3).map((highlight) => (
-                  <li class="flex items-start gap-2 text-sm text-slate-300">
-                    <svg class="w-4 h-4 text-emerald-500 mt-0.5 flex-shrink-0" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>
-                    <span>{highlight}</span>
-                  </li>
-                ))}
-              </ul>
-
-              <div class="mt-auto pt-4 border-t border-slate-700/50">
-                <div class="flex flex-wrap gap-2 mb-3">
-                  {project.techStack?.map((tech) => (
-                    <Badge variant="ghost" size="sm">{tech}</Badge>
-                  ))}
-                </div>
-
-                {project.githubUrl && (
-                    <a
-                      href={project.githubUrl}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                    class="inline-flex items-center gap-2 text-xs text-slate-400 hover:text-emerald-400 font-medium transition-colors duration-300"
-                    onclick="event.stopPropagation()"
-                  >
-                    <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                      <path d={githubIconPath}></path>
-                      <path d={githubIconPath2}></path>
-                    </svg>
-                    Lihat di GitHub
-                    <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 7h10v10"></path><path d="M7 17 17 7"></path></svg>
-                  </a>
-                )}
-              </div>
-
-              <div class="absolute top-6 right-6 w-10 h-10 rounded-full bg-emerald-500/10 flex items-center justify-center opacity-0 group-hover:opacity-100 translate-x-4 group-hover:translate-x-0 transition-all duration-500 pointer-events-none">
-                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-emerald-400"><path d="M7 7h10v10"></path><path d="M7 17 17 7"></path></svg>
-              </div>
-            </div>
-          </Card>
-        </div>
-      ))}
+  <div class="wrap">
+    <div class="section-header">
+      <div class="eyebrow" data-i18n="projects.eyebrow">
+        {ts("projects.eyebrow")}
+      </div>
+      <h2 class="sec-h rv" data-i18n="projects.title">
+        {
+          sectionTitleLine1 && (
+            <span class="sec-h-line1">{sectionTitleLine1}</span>
+          )
+        }
+        <span class="sec-h-line2">{sectionTitleLine2}</span>
+      </h2>
+      <p class="sec-sub" data-i18n="projects.subtitle">
+        {ts("projects.subtitle")}
+      </p>
     </div>
 
-    <!-- ── Other Projects ── -->
-    {otherProjects.length > 0 && (
-      <div data-aos="fade-up" data-aos-delay="400">
-        <h3 class="text-xl font-bold text-white mb-6 font-display">Proyek Lainnya</h3>
-        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-          {otherProjects.map((project) => (
-            <div
+    <div class="case-grid">
+      {
+        sortedProjects.map((project, i) => {
+          const dictIdx = slugMap[project.slug] || i + 1;
+          const isFeatured = dictIdx === 1 || dictIdx === 2;
+          const img = resolveImg(project.images?.[0] || project.image);
+          const catColor = catColors[project.category] || "var(--v)";
+          const indexNum = String(dictIdx).padStart(2, "0");
+          const status = getStatus(project);
+          const title = tp(dictIdx, "title", project.title);
+          const desc = tp(dictIdx, "desc", project.description);
+          const highlights = tpHighlights(dictIdx, project.highlights || []);
+          const techList = (project.techStack || []).map((t) =>
+            String(t).toUpperCase(),
+          );
+
+          return (
+            <article
+              class={`case-card rv ${isFeatured ? "featured-case" : "standard-case"}`}
+              style={`transition-delay: ${100 + i * 100}ms`}
               data-project-slug={project.slug}
-              role="button"
               tabindex="0"
-              aria-label={`Buka detail proyek ${project.title}`}
+              role="button"
+              aria-label={ts("projects.ariaLabel").replace("{title}", title)}
             >
-              <Card class="group cursor-pointer overflow-hidden flex flex-col h-full">
-                {(project.images?.[0] || project.image) && (
-                  <div class="relative h-36 overflow-hidden flex-shrink-0 bg-dark-800">
-                    <img
-                      src={`${import.meta.env.BASE_URL}/${(project.images?.[0] || project.image)?.replace(/^\//, '')}`}
-                      alt={`Screenshot proyek ${project.title}`}
-                      class="w-full h-full object-cover object-top group-hover:scale-105 transition-transform duration-700"
-                      loading="lazy"
+              <div class="case-frame">
+                <div class="case-topbar">
+                  <span
+                    class="case-index"
+                    style={`color: ${isFeatured ? "var(--v)" : "var(--g)"}`}
+                  >
+                    INDEX {indexNum}
+                  </span>
+                  <span
+                    class="case-status"
+                    style={`color: ${status === "LIVE BUILD" ? "var(--o)" : "var(--t3)"}`}
+                  >
+                    <span
+                      class="status-dot"
+                      style={`background: ${status === "LIVE BUILD" ? "var(--o)" : "var(--t3)"}`}
                     />
-                    <div class="absolute inset-0 bg-gradient-to-t from-dark-800/70 via-dark-800/10 to-transparent pointer-events-none"></div>
-                  </div>
-                )}
-
-                <div class="p-5 flex-1 flex flex-col">
-                  <div class="flex items-center gap-3 mb-3">
-                    <div class="w-10 h-10 rounded-lg bg-emerald-500/10 flex items-center justify-center transition-all duration-300 flex-shrink-0">
-                      <i class={project.icon || 'devicon-github-original'} style="font-size: 20px;"></i>
-                    </div>
-                    <div class="min-w-0">
-                      <h4 class="text-white font-semibold text-sm group-hover:text-emerald-400 transition-colors duration-300 truncate">{project.title}</h4>
-                      <span class="text-xs text-slate-500">{project.year}</span>
-                    </div>
-                  </div>
-
-                  <p class="text-slate-400 text-xs leading-relaxed mb-3 line-clamp-2 flex-grow">{project.description}</p>
-
-                  <div class="flex flex-wrap gap-1.5 mb-3">
-                    {project.techStack?.slice(0, 4).map((tech) => (
-                      <Badge variant="ghost" size="sm" class="text-xs">{tech}</Badge>
-                    ))}
-                  </div>
-
-                  {project.githubUrl && (
-                    <a
-                      href={project.githubUrl}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      class="inline-flex items-center gap-1.5 text-xs text-slate-500 hover:text-emerald-400 font-medium transition-colors duration-300 mt-auto"
-                      onclick="event.stopPropagation()"
-                    >
-                      <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                        <path d={githubIconPath}></path>
-                        <path d={githubIconPath2}></path>
-                      </svg>
-                      GitHub
-                      <svg xmlns="http://www.w3.org/2000/svg" width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 7h10v10"></path><path d="M7 17 17 7"></path></svg>
-                    </a>
-                  )}
+                    {status}
+                  </span>
                 </div>
-              </Card>
-            </div>
-          ))}
-        </div>
-      </div>
-    )}
 
-    <!-- ── CTA ── -->
-    <div class="text-center mt-16" data-aos="fade-up">
-      <p class="text-slate-400 mb-4">Tertarik untuk melihat lebih banyak?</p>
+                <div class="case-wrapper">
+                  {img && (
+                    <div class="case-visual">
+                      <img
+                        src={img}
+                        alt={ts("projects.imageAlt").replace("{title}", title)}
+                        loading="lazy"
+                      />
+                      <div class="case-vignette" />
+                    </div>
+                  )}
+
+                  <div class="case-body">
+                    <div class="case-meta">
+                      <span class="case-year">// {project.year}</span>
+                      {project.category && (
+                        <span
+                          class="case-category-pill"
+                          style={`color: ${catColor}; border-color: ${catColor};`}
+                        >
+                          {project.category}
+                        </span>
+                      )}
+                    </div>
+
+                    <h3
+                      class="case-title"
+                      data-i18n={`project${dictIdx}.title`}
+                    >
+                      {title}
+                    </h3>
+                    <p class="case-desc" data-i18n={`project${dictIdx}.desc`}>
+                      {desc}
+                    </p>
+
+                    {highlights.length > 0 && (
+                      <ul class="case-highlights">
+                        {highlights
+                          .slice(0, isFeatured ? 4 : 2)
+                          .map((h, hi) => (
+                            <li
+                              data-i18n={`project${dictIdx}.highlight${hi + 1}`}
+                            >
+                              {h}
+                            </li>
+                          ))}
+                      </ul>
+                    )}
+
+                    {techList.length > 0 && (
+                      <div class="case-tech">
+                        {techList.map((t) => (
+                          <span class="tech-pill">{t}</span>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                </div>
+
+                <div class="case-footer">
+                  <div class="case-links">
+                    {project.demoUrl && (
+                      <a
+                        href={project.demoUrl}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        class="case-link link-demo"
+                        onclick="event.stopPropagation()"
+                      >
+                        <svg
+                          width="14"
+                          height="14"
+                          viewBox="0 0 24 24"
+                          fill="none"
+                          stroke="currentColor"
+                          stroke-width="2"
+                          stroke-linecap="round"
+                          stroke-linejoin="round"
+                        >
+                          <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6" />
+                          <polyline points="15 3 21 3 21 9" />
+                          <line x1="10" y1="14" x2="21" y2="3" />
+                        </svg>
+                        <span>DEMO</span>
+                      </a>
+                    )}
+                    {project.githubUrl && (
+                      <a
+                        href={project.githubUrl}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        class="case-link link-code"
+                        onclick="event.stopPropagation()"
+                      >
+                        <svg
+                          width="14"
+                          height="14"
+                          viewBox="0 0 24 24"
+                          fill="none"
+                          stroke="currentColor"
+                          stroke-width="2"
+                          stroke-linecap="round"
+                          stroke-linejoin="round"
+                        >
+                          <path d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37 0 0 0-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44 0 0 0 20 4.77 5.07 5.07 0 0 0 19.91 1S18.73.65 16 2.48a13.38 13.38 0 0 0-7 0C6 27.65 5.09 1 5.09 1A5.07 5.07 0 0 0 5 4.77a5.44 5.44 0 0 0-1.5 3.78c0 5.42 3.3 6.61 6.44 7A3.37 3.37 0 0 0 9 18.13V22" />
+                          <path d="M9 18c-4.51 2-5-2-7-2" />
+                        </svg>
+                        <span>CODE</span>
+                      </a>
+                    )}
+                  </div>
+                </div>
+              </div>
+            </article>
+          );
+        })
+      }
+    </div>
+
+    <div class="projects-cta rv">
+      <p data-i18n="projects.viewMore">{ts("projects.viewMore")}</p>
       <a
         href={site.github}
         target="_blank"
         rel="noopener noreferrer"
-        class="inline-flex items-center gap-2 text-emerald-400 hover:text-emerald-300 font-semibold transition-colors duration-300"
+        class="cta-link"
       >
-        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-          <path d={githubIconPath}></path>
-          <path d={githubIconPath2}></path>
+        <svg
+          width="20"
+          height="20"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+        >
+          <path
+            d="M15 22v-4a4.8 4.8 0 0 0-1-3.5c3 0 6-2 6-5.5.08-1.25-.27-2.48-1-3.5.28-1.15.28-2.35 0-3.5 0 0-1 0-3 1.5-2.64-.5-5.36-.5-8 0C6 2 5 2 5 2c-.3 1.15-.3 2.35 0 3.5A5.403 5.403 0 0 0 4 9c0 3.5 3 5.5 6 5.5-.39.49-.68 1.05-.85 1.65-.17.6-.22 1.23-.15 1.85v4"
+          ></path>
+          <path d="M9 18c-4.51 2-5-2-7-2"></path>
         </svg>
-        Lihat di GitHub
-        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 7h10v10"></path><path d="M7 17 17 7"></path></svg>
+        <span data-i18n="footer.viewGithub">{ts("footer.viewGithub")}</span>
+        <svg
+          width="16"
+          height="16"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+        >
+          <path d="M7 7h10v10"></path>
+          <path d="M7 17 17 7"></path>
+        </svg>
       </a>
     </div>
   </div>
 
-  <!-- Modal Instance -->
   <ProjectModal />
 </section>
 
-<script define:vars={{ projects, baseUrl: import.meta.env.BASE_URL }}>
-  window.__PROJECTS_DATA__ = projects;
-  window.__BASE_URL__ = baseUrl;
+<div
+  id="projects-data-export"
+  data-projects={JSON.stringify(projects)}
+  data-baseurl={baseUrl}
+  style="display:none;"
+>
+</div>
 
-  document.querySelectorAll('[data-project-slug]').forEach((el) => {
-    const slug = el.getAttribute('data-project-slug');
+<style>
+  .projects-section {
+    background: var(--bg);
+    padding: 7rem 2.5rem;
+    position: relative;
+    overflow: hidden;
+  }
+
+  /* ── AMBIENT BACKGROUND ── */
+  .orb1 {
+    position: absolute;
+    width: 600px;
+    height: 600px;
+    background: radial-gradient(circle, var(--orb-v) 0%, transparent 65%);
+    top: -10%;
+    right: -10%;
+    pointer-events: none;
+    opacity: 0.08;
+  }
+
+  .orb2 {
+    position: absolute;
+    width: 500px;
+    height: 500px;
+    background: radial-gradient(circle, var(--orb-c) 0%, transparent 65%);
+    bottom: 0;
+    left: -10%;
+    pointer-events: none;
+    opacity: 0.05;
+  }
+
+  .grid-bg {
+    position: absolute;
+    inset: 0;
+    background-image:
+      linear-gradient(var(--grid-line) 1px, transparent 1px),
+      linear-gradient(90deg, var(--grid-line) 1px, transparent 1px);
+    background-size: 64px 64px;
+    mask-image: radial-gradient(
+      ellipse 70% 70% at 50% 40%,
+      #000 30%,
+      transparent 100%
+    );
+    -webkit-mask-image: radial-gradient(
+      ellipse 70% 70% at 50% 40%,
+      #000 30%,
+      transparent 100%
+    );
+    pointer-events: none;
+    opacity: 0.5;
+  }
+
+  .wrap {
+    max-width: 1200px;
+    margin: 0 auto;
+    position: relative;
+    z-index: 1;
+  }
+
+  .section-header {
+    margin-bottom: 4.5rem;
+    text-align: left;
+  }
+
+  .eyebrow {
+    font-family: "JetBrains Mono", monospace;
+    font-size: 0.65rem;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--v);
+    margin-bottom: 1.2rem;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.6rem;
+    border-left: 2px solid var(--v);
+    padding-left: 0.75rem;
+  }
+
+  .sec-h {
+    font-family: "Syne", "Inter", "Helvetica Neue", sans-serif;
+    font-weight: 900;
+    font-size: clamp(2.6rem, 6vw, 5rem);
+    line-height: 0.85;
+    letter-spacing: -0.03em;
+    margin: 0 0 1.2rem 0;
+    text-transform: uppercase;
+    cursor: default;
+  }
+
+  .sec-h-line1 {
+    display: block;
+    color: var(--t1);
+    transition: color 0.5s ease;
+  }
+
+  .sec-h-line2 {
+    display: block;
+    color: transparent;
+    -webkit-text-stroke: 1.5px var(--t1);
+    opacity: 0.7;
+    transition:
+      -webkit-text-stroke-color 0.5s ease,
+      opacity 0.5s ease,
+      transform 0.5s ease;
+  }
+
+  .sec-h:hover .sec-h-line1 {
+    color: var(--v);
+  }
+
+  .sec-h:hover .sec-h-line2 {
+    -webkit-text-stroke-color: var(--v);
+    opacity: 1;
+    transform: translateX(8px);
+  }
+
+  .sec-sub {
+    color: var(--t2);
+    font-size: 0.95rem;
+    line-height: 1.8;
+    max-width: 560px;
+    margin: 0;
+    font-weight: 300;
+  }
+
+  .case-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 1.5rem;
+    margin-bottom: 5rem;
+  }
+
+  .case-card {
+    cursor: pointer;
+    transition: transform 0.35s ease;
+  }
+
+  .case-card:hover {
+    transform: translateY(-5px);
+  }
+
+  .featured-case {
+    grid-column: 1 / -1;
+  }
+
+  /* ── Notch diperkecil ke 12px (konsisten dengan Contact/Skills) ── */
+  .case-frame {
+    background: var(--bg-2);
+    border: 1px solid var(--border);
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    transition:
+      border-color 0.3s,
+      box-shadow 0.3s;
+    clip-path: polygon(
+      0 0,
+      100% 0,
+      100% calc(100% - 12px),
+      calc(100% - 12px) 100%,
+      0 100%
+    );
+  }
+
+  .case-card:hover .case-frame {
+    border-color: var(--border-2);
+    box-shadow: 0 40px 80px -30px rgba(0, 0, 0, 0.55);
+  }
+
+  .case-topbar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0.85rem 1.2rem;
+    border-bottom: 1px solid var(--border);
+    background: rgba(255, 255, 255, 0.015);
+  }
+
+  .case-index {
+    font-family: "JetBrains Mono", monospace;
+    font-size: 0.65rem;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    font-weight: 600;
+  }
+
+  .case-status {
+    font-family: "JetBrains Mono", monospace;
+    font-size: 0.55rem;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+  }
+
+  .status-dot {
+    width: 6px;
+    height: 6px;
+    border-radius: 2px;
+  }
+
+  .case-wrapper {
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+  }
+
+  @media (min-width: 1024px) {
+    .featured-case .case-wrapper {
+      flex-direction: row;
+      align-items: stretch;
+    }
+
+    .featured-case .case-visual {
+      flex: 1.3;
+      border-bottom: none;
+      border-right: 1px solid var(--border);
+      min-height: 380px;
+    }
+
+    .featured-case .case-body {
+      flex: 1;
+      justify-content: center;
+      padding: 3rem 2.5rem;
+    }
+  }
+
+  .case-visual {
+    position: relative;
+    height: 240px;
+    overflow: hidden;
+    background: var(--bg-3);
+    border-bottom: 1px solid var(--border);
+  }
+
+  .case-visual img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    filter: grayscale(30%) brightness(0.75) contrast(1.05);
+    transition:
+      filter 0.6s ease,
+      transform 0.6s ease;
+  }
+
+  .case-card:hover .case-visual img {
+    filter: grayscale(0%) brightness(0.9) contrast(1.02);
+    transform: scale(1.03);
+  }
+
+  .case-vignette {
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(180deg, transparent 50%, var(--bg-2) 100%);
+    pointer-events: none;
+  }
+
+  @media (min-width: 1024px) {
+    .featured-case .case-vignette {
+      background: linear-gradient(90deg, transparent 50%, var(--bg-2) 100%);
+    }
+  }
+
+  .case-body {
+    padding: 1.5rem 1.5rem 1.2rem;
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+  }
+
+  .case-meta {
+    margin-bottom: 0.9rem;
+    font-family: "JetBrains Mono", monospace;
+    font-size: 0.6rem;
+    letter-spacing: 0.1em;
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+  }
+
+  .case-year {
+    color: var(--t3);
+  }
+
+  .case-category-pill {
+    font-family: "JetBrains Mono", monospace;
+    font-size: 0.55rem;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    padding: 0.2rem 0.5rem;
+    border: 1px solid currentColor;
+    border-radius: 2px;
+    opacity: 0.85;
+  }
+
+  .case-title {
+    font-family: "Syne", "Inter", "Helvetica Neue", sans-serif;
+    font-size: clamp(1.4rem, 2vw, 1.8rem);
+    font-weight: 800;
+    color: var(--t1);
+    line-height: 1.15;
+    margin: 0 0 0.8rem 0;
+    letter-spacing: -0.02em;
+    text-transform: uppercase;
+    transition: color 0.35s ease;
+  }
+
+  .featured-case .case-title {
+    font-size: clamp(1.8rem, 3vw, 2.4rem);
+    font-weight: 900;
+  }
+
+  .case-card:hover .case-title {
+    color: var(--v);
+  }
+
+  .case-desc {
+    font-size: 0.86rem;
+    line-height: 1.75;
+    color: var(--t2);
+    margin-bottom: 1.2rem;
+  }
+
+  .case-highlights {
+    list-style: none;
+    padding: 0;
+    margin: 0 0 1.5rem 0;
+    display: flex;
+    flex-direction: column;
+    gap: 0.4rem;
+  }
+
+  .case-highlights li {
+    position: relative;
+    padding-left: 1rem;
+    font-size: 0.8rem;
+    line-height: 1.6;
+    color: var(--t3);
+  }
+
+  .case-highlights li::before {
+    content: "›";
+    position: absolute;
+    left: 0;
+    color: var(--g);
+    font-weight: 700;
+  }
+
+  .case-tech {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.4rem;
+    margin-top: auto;
+  }
+
+  .tech-pill {
+    font-family: "JetBrains Mono", monospace;
+    font-size: 0.6rem;
+    letter-spacing: 0.08em;
+    color: var(--t3);
+    padding: 0.25rem 0.5rem;
+    border: 1px solid var(--border-2);
+    background: var(--bg-3);
+    border-radius: 2px;
+  }
+
+  .case-footer {
+    padding: 1rem 1.5rem;
+    border-top: 1px solid var(--border);
+    background: rgba(255, 255, 255, 0.01);
+  }
+
+  .case-links {
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+  }
+
+  .case-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    font-family: "JetBrains Mono", monospace;
+    font-size: 0.62rem;
+    letter-spacing: 0.12em;
+    color: var(--t2);
+    text-decoration: none;
+    text-transform: uppercase;
+    font-weight: 600;
+    padding: 0.4rem 0.7rem;
+    background: var(--bg-3);
+    border: 1px solid var(--border-2);
+    border-radius: 2px;
+    transition:
+      color 0.2s,
+      border-color 0.2s,
+      background 0.2s;
+  }
+
+  .case-link:hover {
+    background: var(--bg);
+  }
+  .link-demo:hover {
+    color: var(--o);
+    border-color: var(--o);
+  }
+  .link-code:hover {
+    color: var(--g);
+    border-color: var(--g);
+  }
+
+  .case-link svg {
+    transition: transform 0.2s;
+  }
+  .case-link:hover svg {
+    transform: translate(1px, -1px);
+  }
+
+  .projects-cta {
+    text-align: center;
+    padding-top: 2.5rem;
+    border-top: 1px solid var(--border);
+  }
+
+  .projects-cta p {
+    color: var(--t2);
+    font-size: 0.9rem;
+    margin-bottom: 1.2rem;
+  }
+
+  .cta-link {
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.6rem;
+    background: var(--bg);
+    border: 1px solid var(--border-2);
+    color: var(--t1);
+    font-family: "JetBrains Mono", monospace;
+    font-size: 0.7rem;
+    font-weight: 600;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    text-decoration: none;
+    padding: 0.85rem 1.6rem;
+    clip-path: polygon(
+      0 0,
+      100% 0,
+      100% calc(100% - 10px),
+      calc(100% - 10px) 100%,
+      0 100%
+    );
+    transition:
+      border-color 0.25s,
+      color 0.25s,
+      background 0.25s;
+  }
+
+  .cta-link:hover {
+    border-color: var(--v);
+    color: var(--v);
+    background: var(--vd);
+  }
+  .cta-link svg:last-child {
+    transition: transform 0.25s;
+  }
+  .cta-link:hover svg:last-child {
+    transform: translate(2px, -2px);
+  }
+
+  .rv {
+    opacity: 0;
+    transform: translateY(24px);
+    transition:
+      opacity 0.7s cubic-bezier(0.4, 0, 0.2, 1),
+      transform 0.7s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  .rv.in {
+    opacity: 1;
+    transform: none;
+  }
+
+  @media (max-width: 1024px) {
+    .case-grid {
+      grid-template-columns: 1fr;
+    }
+    .featured-case .case-wrapper {
+      flex-direction: column;
+    }
+    .featured-case .case-visual {
+      border-right: none;
+      border-bottom: 1px solid var(--border);
+      min-height: 240px;
+    }
+    .featured-case .case-body {
+      padding: 1.5rem 1.5rem 1.2rem;
+    }
+  }
+
+  @media (max-width: 768px) {
+    .projects-section {
+      padding: 5rem 1.2rem;
+    }
+    .section-header {
+      margin-bottom: 2.5rem;
+    }
+    .case-visual {
+      height: 200px;
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .case-card,
+    .rv {
+      transition: none;
+    }
+    .case-visual img {
+      transition: none;
+    }
+    .sec-h-line2 {
+      transition: none;
+    }
+  }
+</style>
+
+<script>
+  const dataEl = document.getElementById("projects-data-export");
+  if (dataEl) {
+    try {
+      window.__PROJECTS_DATA__ = JSON.parse(dataEl.dataset.projects || "[]");
+      window.__BASE_URL__ = dataEl.dataset.baseurl || "";
+    } catch (e) {
+      console.error("Failed to parse projects data:", e);
+    }
+  }
+
+  document.querySelectorAll("[data-project-slug]").forEach((el) => {
+    const slug = el.getAttribute("data-project-slug");
     if (!slug) return;
 
-    const handler = () => {
+    const openModal = (e) => {
+      const target = e.target;
+      if (target.closest && target.closest("a")) return;
+
+      e.preventDefault();
       if (window.openProjectModal) {
         window.openProjectModal(slug);
       }
     };
 
-    el.addEventListener('click', handler);
-    el.addEventListener('keydown', (e) => {
-      if (e.key === 'Enter' || e.key === ' ') {
+    el.addEventListener("click", openModal);
+    el.addEventListener("keydown", (e) => {
+      if (e.key === "Enter" || e.key === " ") {
         e.preventDefault();
-        handler();
+        openModal(e);
       }
     });
+  });
+
+  const rvObserver = new IntersectionObserver(
+    (entries) => {
+      entries.forEach((entry) => {
+        if (entry.isIntersecting) {
+          entry.target.classList.add("in");
+          rvObserver.unobserve(entry.target);
+        }
+      });
+    },
+    { threshold: 0.1, rootMargin: "0px 0px -50px 0px" },
+  );
+
+  document.querySelectorAll(".rv").forEach((el) => {
+    rvObserver.observe(el);
   });
 </script>
