@@ -261,14 +261,16 @@ const PHOTO_ALT = "Rian Pramudya Amanda";
     align-items: center;
     gap: 0.9rem;
     margin-bottom: 2.25rem;
-    min-height: 2rem;
+    min-height: unset;       
+    height: 2.5rem;       
+    overflow: hidden;       
   }
   .role-pre {
     font-family: "JetBrains Mono", monospace;
     font-size: 0.8rem;
     color: var(--t3);
   }
-  .role-txt {
+    .role-txt {
     font-family: "Plus Jakarta Sans", sans-serif;
     font-size: 1rem;
     font-weight: 500;
@@ -276,6 +278,11 @@ const PHOTO_ALT = "Rian Pramudya Amanda";
     border-right: 2px solid var(--c);
     padding-right: 4px;
     animation: blink 0.9s infinite;
+    display: block;         
+    white-space: nowrap;     
+    overflow: hidden;        
+    text-overflow: ellipsis;  
+    max-width: 100%;         
   }
   @keyframes blink {
     0%,
@@ -434,6 +441,7 @@ const PHOTO_ALT = "Rian Pramudya Amanda";
     display: flex;
     flex-direction: column;
     gap: 1.25rem;
+    flex-shrink: 0;
   }
 
   /* ── ID Card (foto profil) ── */
@@ -616,6 +624,8 @@ const PHOTO_ALT = "Rian Pramudya Amanda";
     font-family: "JetBrains Mono", monospace;
     font-size: 0.78rem;
     animation: floatIn 0.8s ease 0.25s both;
+    height: 320px; 
+    flex-shrink: 0;
   }
   .term-bar {
     display: flex;
@@ -647,9 +657,22 @@ const PHOTO_ALT = "Rian Pramudya Amanda";
 
   .term-body {
     padding: 1.5rem;
-    min-height: 180px;
+    min-height: unset; /* ← GANTI: hapus min-height: 180px */
+    height: calc(100% - 40px);
     color: var(--t2);
     line-height: 2;
+    overflow: hidden; 
+    position: relative; 
+  }
+  .term-body::after {
+    content: "";
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: 40px;
+    background: linear-gradient(to bottom, transparent, var(--bg-2));
+    pointer-events: none;
   }
 
   /* Global rules for terminal generated JS content */
