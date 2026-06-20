@@ -4,9 +4,9 @@ import type { Lang } from "@/i18n/dictionary";
 
 // Dapatkan bahasa dari URL untuk Server-Side Rendering (SSR)
 function getLangFromUrl(url: URL): Lang {
-  const q = url.searchParams.get('lang');
-  if (q === 'en' || q === 'id') return q;
-  return 'id';
+  const q = url.searchParams.get("lang");
+  if (q === "en" || q === "id") return q;
+  return "id";
 }
 
 const lang = getLangFromUrl(Astro.url);
@@ -15,7 +15,7 @@ const lang = getLangFromUrl(Astro.url);
 function ts(key: string): string {
   const dict = dictionary[lang] as Record<string, any>;
   const val = dict[key];
-  if (typeof val === 'string') return val;
+  if (typeof val === "string") return val;
   return key;
 }
 
@@ -33,7 +33,7 @@ const termLines = [
   { p: ts("terminal.whoami"), o: ts("terminal.whoamiOut") },
   { p: ts("terminal.status"), o: ts("terminal.statusOut") },
   { p: ts("terminal.stack"), o: ts("terminal.stackOut") },
-  { p: ts("terminal.focus"), o: ts("terminal.focusOut") }
+  { p: ts("terminal.focus"), o: ts("terminal.focusOut") },
 ];
 
 // GANTI path ini dengan foto Anda. Untuk Astro, taruh file di /public/images/
@@ -57,7 +57,9 @@ const PHOTO_ALT = "Rian Pramudya Amanda";
       </h1>
 
       <div class="role-row">
-        <span class="role-pre" data-i18n="hero.rolePrefix">{ts("hero.rolePrefix")}</span>
+        <span class="role-pre" data-i18n="hero.rolePrefix"
+          >{ts("hero.rolePrefix")}</span
+        >
         <span class="role-txt" id="roleEl"></span>
       </div>
 
@@ -66,22 +68,32 @@ const PHOTO_ALT = "Rian Pramudya Amanda";
       </p>
 
       <div class="ctas">
-        <a href="#projects" class="btn-p" data-i18n="hero.ctaPrimary">{ts("hero.ctaPrimary")}</a>
-        <a href="#contact" class="btn-s" data-i18n="hero.ctaSecondary">{ts("hero.ctaSecondary")}</a>
+        <a href="#projects" class="btn-p" data-i18n="hero.ctaPrimary"
+          >{ts("hero.ctaPrimary")}</a
+        >
+        <a href="#contact" class="btn-s" data-i18n="hero.ctaSecondary"
+          >{ts("hero.ctaSecondary")}</a
+        >
       </div>
 
       <div class="stats">
         <div>
           <div class="stat-n">5<em>+</em></div>
-          <div class="stat-l" data-i18n="hero.stats.projects">{ts("hero.stats.projects")}</div>
+          <div class="stat-l" data-i18n="hero.stats.projects">
+            {ts("hero.stats.projects")}
+          </div>
         </div>
         <div>
           <div class="stat-n">3<em>+</em></div>
-          <div class="stat-l" data-i18n="hero.stats.experience">{ts("hero.stats.experience")}</div>
+          <div class="stat-l" data-i18n="hero.stats.experience">
+            {ts("hero.stats.experience")}
+          </div>
         </div>
         <div>
           <div class="stat-n">25<em>+</em></div>
-          <div class="stat-l" data-i18n="hero.stats.stack">{ts("hero.stats.stack")}</div>
+          <div class="stat-l" data-i18n="hero.stats.stack">
+            {ts("hero.stats.stack")}
+          </div>
         </div>
       </div>
     </div>
@@ -91,7 +103,8 @@ const PHOTO_ALT = "Rian Pramudya Amanda";
       <div class="id-card" aria-hidden="false">
         <div class="id-bar">
           <span class="id-bar-label">ACCESS_CARD</span>
-          <span class="id-bar-status"><span class="id-dot"></span>VERIFIED</span>
+          <span class="id-bar-status"><span class="id-dot"></span>VERIFIED</span
+          >
         </div>
         <div class="id-frame">
           <span class="corner tl"></span>
@@ -109,7 +122,8 @@ const PHOTO_ALT = "Rian Pramudya Amanda";
 
       <div class="term-window" aria-hidden="true">
         <div class="term-bar">
-          <span class="term-dot r"></span><span class="term-dot y"></span><span class="term-dot g"></span>
+          <span class="term-dot r"></span><span class="term-dot y"></span><span
+            class="term-dot g"></span>
           <span class="term-path">rian@portfolio:~</span>
         </div>
         <div class="term-body" id="termBody"></div>
@@ -119,7 +133,7 @@ const PHOTO_ALT = "Rian Pramudya Amanda";
 
   <div class="uptime-tag">
     <span class="dot-sm"></span>
-    <span data-i18n="hero.uptime">{ts("hero.uptime")}</span> 
+    <span data-i18n="hero.uptime">{ts("hero.uptime")}</span>
     <span id="uptime">00:00:00</span>
   </div>
 
@@ -132,292 +146,685 @@ const PHOTO_ALT = "Rian Pramudya Amanda";
 <style>
   /* Base Hero Section */
   .cyber-hero {
-    min-height: 100vh; display: flex; flex-direction: column;
-    justify-content: center; padding: 9rem 2.5rem 4rem;
-    position: relative; overflow: hidden;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    padding: 9rem 2.5rem 4rem;
+    position: relative;
+    overflow: hidden;
   }
-  
+
   /* Grid Background Overlay */
   .cyber-hero::before {
-    content: ''; position: absolute; inset: 0;
+    content: "";
+    position: absolute;
+    inset: 0;
     background-image:
       linear-gradient(var(--grid-line) 1px, transparent 1px),
       linear-gradient(90deg, var(--grid-line) 1px, transparent 1px);
     background-size: 64px 64px;
-    mask-image: radial-gradient(ellipse 70% 70% at 55% 40%, #000 30%, transparent 100%);
-    -webkit-mask-image: radial-gradient(ellipse 70% 70% at 55% 40%, #000 30%, transparent 100%);
+    mask-image: radial-gradient(
+      ellipse 70% 70% at 55% 40%,
+      #000 30%,
+      transparent 100%
+    );
+    -webkit-mask-image: radial-gradient(
+      ellipse 70% 70% at 55% 40%,
+      #000 30%,
+      transparent 100%
+    );
     pointer-events: none;
   }
 
   /* Orbs */
   .orb1 {
-    position: absolute; width: 700px; height: 700px;
+    position: absolute;
+    width: 700px;
+    height: 700px;
     background: radial-gradient(circle, var(--orb-v) 0%, transparent 65%);
-    top: -180px; right: -180px; pointer-events: none;
+    top: -180px;
+    right: -180px;
+    pointer-events: none;
   }
   .orb2 {
-    position: absolute; width: 500px; height: 500px;
+    position: absolute;
+    width: 500px;
+    height: 500px;
     background: radial-gradient(circle, var(--orb-c) 0%, transparent 65%);
-    bottom: 0; left: -120px; pointer-events: none;
+    bottom: 0;
+    left: -120px;
+    pointer-events: none;
   }
 
   /* Inner Layout */
   .hero-inner {
-    max-width: 1200px; margin: 0 auto; width: 100%; position: relative; z-index: 1;
-    display: grid; grid-template-columns: 1.25fr .9fr; gap: 3.5rem; align-items: start;
+    max-width: 1200px;
+    margin: 0 auto;
+    width: 100%;
+    position: relative;
+    z-index: 1;
+    display: grid;
+    grid-template-columns: 1.25fr 0.9fr;
+    gap: 3.5rem;
+    align-items: start;
   }
 
   /* Tag & Title */
   .sys-tag {
-    font-family: 'JetBrains Mono', monospace; font-size: .68rem;
-    color: var(--v); letter-spacing: .18em; text-transform: uppercase;
-    margin-bottom: 2rem; display: flex; align-items: center; gap: .7rem;
+    font-family: "JetBrains Mono", monospace;
+    font-size: 0.68rem;
+    color: var(--v);
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    margin-bottom: 2rem;
+    display: flex;
+    align-items: center;
+    gap: 0.7rem;
   }
-  .sys-tag::before { content: ''; display: block; width: 22px; height: 1px; background: var(--v); }
+  .sys-tag::before {
+    content: "";
+    display: block;
+    width: 22px;
+    height: 1px;
+    background: var(--v);
+  }
 
   /* ── H1 Title: pola solid + hollow/stroke + gradient ──
      font-family disamakan (tanpa fallback) & weight dinaikkan ke font-black
      biar konsisten dengan footer/skills/projects/about */
   h1.title {
-    font-family: 'Syne'; font-weight: 900;
+    font-family: "Syne";
+    font-weight: 900;
     font-size: clamp(3.2rem, 7.5vw, 7rem);
-    line-height: .9; letter-spacing: -.03em; margin-bottom: 2.25rem;
+    line-height: 0.9;
+    letter-spacing: -0.03em;
+    margin-bottom: 2.25rem;
   }
-  h1.title .solid { color: var(--t1); }
+  h1.title .solid {
+    color: var(--t1);
+  }
   h1.title .ghost {
     color: transparent;
     -webkit-text-stroke: 1.5px var(--border-2);
   }
   h1.title .grad {
     background: linear-gradient(135deg, var(--v) 0%, var(--c) 100%);
-    -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
     background-clip: text;
   }
 
   /* Typewriter Role */
   .role-row {
-    display: flex; align-items: center; gap: .9rem;
-    margin-bottom: 2.25rem; min-height: 2rem;
+    display: flex;
+    align-items: center;
+    gap: 0.9rem;
+    margin-bottom: 2.25rem;
+    min-height: 2rem;
   }
   .role-pre {
-    font-family: 'JetBrains Mono', monospace; font-size: .8rem; color: var(--t3);
+    font-family: "JetBrains Mono", monospace;
+    font-size: 0.8rem;
+    color: var(--t3);
   }
   .role-txt {
-    font-family: 'Plus Jakarta Sans', sans-serif; font-size: 1rem; font-weight: 500;
-    color: var(--c); border-right: 2px solid var(--c); padding-right: 4px;
-    animation: blink .9s infinite;
+    font-family: "Plus Jakarta Sans", sans-serif;
+    font-size: 1rem;
+    font-weight: 500;
+    color: var(--c);
+    border-right: 2px solid var(--c);
+    padding-right: 4px;
+    animation: blink 0.9s infinite;
   }
-  @keyframes blink { 0%, 100% { border-color: var(--c); } 50% { border-color: transparent; } }
+  @keyframes blink {
+    0%,
+    100% {
+      border-color: var(--c);
+    }
+    50% {
+      border-color: transparent;
+    }
+  }
 
   .hero-desc {
-    font-size: .95rem; line-height: 1.85; color: var(--t2); 
-    max-width: 540px; margin-bottom: 2.75rem; font-weight: 300;
+    font-size: 0.95rem;
+    line-height: 1.85;
+    color: var(--t2);
+    max-width: 540px;
+    margin-bottom: 2.75rem;
+    font-weight: 300;
   }
 
-  /* CTA Buttons */
-  .ctas { display: flex; gap: .9rem; flex-wrap: wrap; margin-bottom: 4.5rem; }
+  /* CTA Buttons — selaraskan dengan Footer */
+  .ctas {
+    display: flex;
+    gap: 0.9rem;
+    flex-wrap: wrap;
+    margin-bottom: 4.5rem;
+  }
+
   .btn-p {
-    display: inline-flex; align-items: center; gap: .6rem;
-    padding: .8rem 1.6rem; background: var(--v); color: var(--bg);
-    font-family: 'JetBrains Mono', monospace; font-size: .74rem; font-weight: 500;
-    letter-spacing: .05em; text-decoration: none; border-radius: 4px;
-    transition: transform .2s, box-shadow .2s;
+    position: relative;
+    overflow: hidden;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.6rem;
+    padding: 0.8rem 1.6rem;
+    background: var(--v);
+    font-family: "JetBrains Mono", monospace;
+    font-size: 0.74rem;
+    font-weight: 500;
+    letter-spacing: 0.05em;
+    text-decoration: none;
+    transition:
+      transform 0.2s,
+      box-shadow 0.2s;
+    clip-path: polygon(
+      0 0,
+      100% 0,
+      100% calc(100% - 12px),
+      calc(100% - 12px) 100%,
+      0 100%
+    );
+    color: var(--t1) !important;
   }
-  .btn-p:hover { transform: translateY(-2px); box-shadow: 0 8px 30px var(--shadow-v); }
-  
+
+  .btn-p::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: rgba(255, 255, 255, 0.2);
+    transform: translateY(100%);
+    transition: transform 0.3s ease;
+  }
+
+  .btn-p:hover::after {
+    transform: translateY(0);
+  }
+
+  .btn-p:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 30px var(--shadow-v);
+  }
+
+  .btn-p span,
+  .btn-p svg {
+    position: relative;
+    z-index: 1;
+  }
+
   .btn-s {
-    display: inline-flex; align-items: center; gap: .6rem;
-    padding: .8rem 1.6rem; background: transparent; color: var(--t1);
-    font-family: 'JetBrains Mono', monospace; font-size: .74rem;
-    letter-spacing: .05em; text-decoration: none; border-radius: 4px;
-    border: 1px solid var(--border-2); transition: all .2s;
+    position: relative;
+    overflow: hidden;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.6rem;
+    padding: 0.8rem 1.6rem;
+    background: transparent;
+    color: var(--t1);
+    font-family: "JetBrains Mono", monospace;
+    font-size: 0.74rem;
+    letter-spacing: 0.05em;
+    text-decoration: none;
+    border: 1px solid var(--border-2);
+    transition: all 0.2s;
+    clip-path: polygon(
+      0 0,
+      100% 0,
+      100% calc(100% - 12px),
+      calc(100% - 12px) 100%,
+      0 100%
+    );
   }
-  .btn-s:hover { border-color: var(--v); color: var(--v); }
+
+  .btn-s::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: rgba(255, 255, 255, 0.05);
+    transform: translateY(100%);
+    transition: transform 0.3s ease;
+  }
+
+  .btn-s:hover::after {
+    transform: translateY(0);
+  }
+
+  .btn-s:hover {
+    border-color: var(--v);
+    color: var(--v);
+  }
+
+  .btn-s span,
+  .btn-s svg {
+    position: relative;
+    z-index: 1;
+  }
 
   /* Stats */
   .stats {
-    display: flex; gap: 3.5rem; padding-top: 2.75rem; border-top: 1px solid var(--border);
+    display: flex;
+    gap: 3.5rem;
+    padding-top: 2.75rem;
+    border-top: 1px solid var(--border);
   }
   .stat-n {
-    font-family: 'Syne'; font-size: 2.6rem; font-weight: 700;
-    color: var(--t1); line-height: 1; margin-bottom: .2rem;
+    font-family: "Syne";
+    font-size: 2.6rem;
+    font-weight: 700;
+    color: var(--t1);
+    line-height: 1;
+    margin-bottom: 0.2rem;
   }
-  .stat-n em { font-style: normal; color: var(--v); }
+  .stat-n em {
+    font-style: normal;
+    color: var(--v);
+  }
   .stat-l {
-    font-family: 'JetBrains Mono', monospace; font-size: .6rem;
-    text-transform: uppercase; letter-spacing: .14em; color: var(--t3);
+    font-family: "JetBrains Mono", monospace;
+    font-size: 0.6rem;
+    text-transform: uppercase;
+    letter-spacing: 0.14em;
+    color: var(--t3);
   }
 
   /* ── Side Stack wrapper (ID Card + Terminal) ── */
   .side-stack {
-    display: flex; flex-direction: column; gap: 1.25rem;
+    display: flex;
+    flex-direction: column;
+    gap: 1.25rem;
   }
 
   /* ── ID Card (foto profil) ── */
-  @keyframes floatIn { 
-    from { opacity: 0; transform: translateY(20px) scale(.97); } 
-    to { opacity: 1; transform: none; } 
+  @keyframes floatIn {
+    from {
+      opacity: 0;
+      transform: translateY(20px) scale(0.97);
+    }
+    to {
+      opacity: 1;
+      transform: none;
+    }
   }
   .id-card {
-    background: var(--bg-2); border: 1px solid var(--border); border-radius: 10px;
-    overflow: hidden; box-shadow: 0 30px 60px -25px rgba(0,0,0,.45);
-    font-family: 'JetBrains Mono', monospace;
-    animation: floatIn .8s ease .1s both;
+    background: var(--bg-2);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    overflow: hidden;
+    box-shadow: 0 30px 60px -25px rgba(0, 0, 0, 0.45);
+    font-family: "JetBrains Mono", monospace;
+    animation: floatIn 0.8s ease 0.1s both;
   }
   .id-bar {
-    display: flex; align-items: center; justify-content: space-between;
-    padding: .65rem .9rem; background: var(--bg-3); border-bottom: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0.65rem 0.9rem;
+    background: var(--bg-3);
+    border-bottom: 1px solid var(--border);
   }
-  .id-bar-label { font-size: .62rem; letter-spacing: .14em; color: var(--t3); text-transform: uppercase; }
+  .id-bar-label {
+    font-size: 0.62rem;
+    letter-spacing: 0.14em;
+    color: var(--t3);
+    text-transform: uppercase;
+  }
   .id-bar-status {
-    display: flex; align-items: center; gap: .4rem;
-    font-size: .6rem; letter-spacing: .12em; color: var(--c); text-transform: uppercase;
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+    font-size: 0.6rem;
+    letter-spacing: 0.12em;
+    color: var(--c);
+    text-transform: uppercase;
   }
-  .id-dot { width: 5px; height: 5px; border-radius: 50%; background: var(--g); animation: pulse-g 2s infinite; }
+  .id-dot {
+    width: 5px;
+    height: 5px;
+    border-radius: 50%;
+    background: var(--g);
+    animation: pulse-g 2s infinite;
+  }
 
   .id-frame {
-    position: relative; aspect-ratio: 16 / 9; overflow: hidden; background: var(--bg-3);
+    position: relative;
+    aspect-ratio: 16 / 9;
+    overflow: hidden;
+    background: var(--bg-3);
   }
   .id-frame img {
-    width: 100%; height: 100%; object-fit: cover; display: block;
-    filter: grayscale(.2) contrast(1.08) saturate(.85) brightness(.82);
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+    filter: grayscale(0.2) contrast(1.08) saturate(0.85) brightness(0.82);
   }
 
   /* Kaca/filter gelap di atas foto agar tidak terlalu terang */
   .id-glass {
-    position: absolute; inset: 0; z-index: 1; pointer-events: none;
-    background: linear-gradient(165deg, rgba(6,10,9,.62) 0%, rgba(6,10,9,.28) 45%, rgba(6,10,9,.6) 100%);
+    position: absolute;
+    inset: 0;
+    z-index: 1;
+    pointer-events: none;
+    background: linear-gradient(
+      165deg,
+      rgba(6, 10, 9, 0.62) 0%,
+      rgba(6, 10, 9, 0.28) 45%,
+      rgba(6, 10, 9, 0.6) 100%
+    );
     mix-blend-mode: multiply;
   }
   .id-glass::before {
-    content: ''; position: absolute; inset: 0;
+    content: "";
+    position: absolute;
+    inset: 0;
     background: linear-gradient(135deg, var(--v) 0%, transparent 55%);
-    opacity: .14; mix-blend-mode: overlay;
+    opacity: 0.14;
+    mix-blend-mode: overlay;
   }
   .id-glass::after {
-    content: ''; position: absolute; inset: 0;
-    box-shadow: inset 0 1px 0 rgba(255,255,255,.07), inset 0 0 40px rgba(0,0,0,.35);
+    content: "";
+    position: absolute;
+    inset: 0;
+    box-shadow:
+      inset 0 1px 0 rgba(255, 255, 255, 0.07),
+      inset 0 0 40px rgba(0, 0, 0, 0.35);
   }
 
-  .id-frame > .corner { z-index: 2; }
+  .id-frame > .corner {
+    z-index: 2;
+  }
   .id-frame::after {
-    content: ''; position: absolute; left: 0; right: 0; height: 2px; top: 0; z-index: 3;
+    content: "";
+    position: absolute;
+    left: 0;
+    right: 0;
+    height: 2px;
+    top: 0;
+    z-index: 3;
     background: linear-gradient(90deg, transparent, var(--c), transparent);
-    opacity: .75; animation: idscan 3.4s linear infinite;
+    opacity: 0.75;
+    animation: idscan 3.4s linear infinite;
   }
-  @keyframes idscan { 0% { top: 0; } 100% { top: 100%; } }
+  @keyframes idscan {
+    0% {
+      top: 0;
+    }
+    100% {
+      top: 100%;
+    }
+  }
 
-  .corner { position: absolute; width: 16px; height: 16px; z-index: 2; border: 2px solid var(--v); }
-  .corner.tl { top: 8px; left: 8px; border-right: none; border-bottom: none; }
-  .corner.tr { top: 8px; right: 8px; border-left: none; border-bottom: none; }
-  .corner.bl { bottom: 8px; left: 8px; border-right: none; border-top: none; }
-  .corner.br { bottom: 8px; right: 8px; border-left: none; border-top: none; }
+  .corner {
+    position: absolute;
+    width: 16px;
+    height: 16px;
+    z-index: 2;
+    border: 2px solid var(--v);
+  }
+  .corner.tl {
+    top: 8px;
+    left: 8px;
+    border-right: none;
+    border-bottom: none;
+  }
+  .corner.tr {
+    top: 8px;
+    right: 8px;
+    border-left: none;
+    border-bottom: none;
+  }
+  .corner.bl {
+    bottom: 8px;
+    left: 8px;
+    border-right: none;
+    border-top: none;
+  }
+  .corner.br {
+    bottom: 8px;
+    right: 8px;
+    border-left: none;
+    border-top: none;
+  }
 
   .id-meta {
-    display: flex; align-items: center; justify-content: space-between;
-    padding: .7rem .9rem; border-top: 1px dashed var(--border-2);
-    font-size: .62rem; letter-spacing: .1em; text-transform: uppercase;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0.7rem 0.9rem;
+    border-top: 1px dashed var(--border-2);
+    font-size: 0.62rem;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
   }
-  .id-meta .lbl { color: var(--t3); }
-  .id-meta .val { color: var(--v); font-weight: 600; }
+  .id-meta .lbl {
+    color: var(--t3);
+  }
+  .id-meta .val {
+    color: var(--v);
+    font-weight: 600;
+  }
 
   /* Terminal Window */
   .term-window {
-    background: var(--bg-2); border: 1px solid var(--border); border-radius: 10px;
-    overflow: hidden; box-shadow: 0 30px 60px -25px rgba(0,0,0,.45);
-    font-family: 'JetBrains Mono', monospace; font-size: .78rem;
-    animation: floatIn .8s ease .25s both;
+    background: var(--bg-2);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    overflow: hidden;
+    box-shadow: 0 30px 60px -25px rgba(0, 0, 0, 0.45);
+    font-family: "JetBrains Mono", monospace;
+    font-size: 0.78rem;
+    animation: floatIn 0.8s ease 0.25s both;
   }
   .term-bar {
-    display: flex; align-items: center; gap: .5rem; padding: .65rem .9rem;
-    background: var(--bg-3); border-bottom: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.65rem 0.9rem;
+    background: var(--bg-3);
+    border-bottom: 1px solid var(--border);
   }
-  .term-dot { width: 9px; height: 9px; border-radius: 50%; }
-  .term-dot.r { background: #fb7185; } 
-  .term-dot.y { background: #fbbf24; } 
-  .term-dot.g { background: #4ade80; }
-  .term-path { margin-left: .5rem; color: var(--t3); font-size: .66rem; }
-  
-  .term-body { padding: 1.5rem; min-height: 180px; color: var(--t2); line-height: 2; }
-  
+  .term-dot {
+    width: 9px;
+    height: 9px;
+    border-radius: 50%;
+  }
+  .term-dot.r {
+    background: #fb7185;
+  }
+  .term-dot.y {
+    background: #fbbf24;
+  }
+  .term-dot.g {
+    background: #4ade80;
+  }
+  .term-path {
+    margin-left: 0.5rem;
+    color: var(--t3);
+    font-size: 0.66rem;
+  }
+
+  .term-body {
+    padding: 1.5rem;
+    min-height: 180px;
+    color: var(--t2);
+    line-height: 2;
+  }
+
   /* Global rules for terminal generated JS content */
-  :global(.t-row) { display: flex; }
-  :global(.t-prompt) { color: var(--c); }
-  :global(.t-row:last-of-type .t-prompt::after) {
-    content: ''; display: inline-block; width: 6px; height: 1em;
-    background: var(--c); margin-left: 4px; vertical-align: -2px;
-    animation: blink .9s infinite;
+  :global(.t-row) {
+    display: flex;
   }
-  :global(.t-out) { color: var(--t1); padding-left: 1.1rem; margin-bottom: .55rem; }
+  :global(.t-prompt) {
+    color: var(--c);
+  }
+  :global(.t-row:last-of-type .t-prompt::after) {
+    content: "";
+    display: inline-block;
+    width: 6px;
+    height: 1em;
+    background: var(--c);
+    margin-left: 4px;
+    vertical-align: -2px;
+    animation: blink 0.9s infinite;
+  }
+  :global(.t-out) {
+    color: var(--t1);
+    padding-left: 1.1rem;
+    margin-bottom: 0.55rem;
+  }
 
   /* Utilities */
   .uptime-tag {
-    position: absolute; bottom: 2.6rem; left: 2.5rem;
-    font-family: 'JetBrains Mono', monospace; font-size: .6rem;
-    color: var(--t3); letter-spacing: .08em; display: flex; align-items: center; gap: .55rem;
+    position: absolute;
+    bottom: 2.6rem;
+    left: 2.5rem;
+    font-family: "JetBrains Mono", monospace;
+    font-size: 0.6rem;
+    color: var(--t3);
+    letter-spacing: 0.08em;
+    display: flex;
+    align-items: center;
+    gap: 0.55rem;
   }
-  .uptime-tag .dot-sm { width: 5px; height: 5px; border-radius: 50%; background: var(--g); animation: pulse-g 2s infinite; }
-  
+  .uptime-tag .dot-sm {
+    width: 5px;
+    height: 5px;
+    border-radius: 50%;
+    background: var(--g);
+    animation: pulse-g 2s infinite;
+  }
+
   .scroll-hint {
-    position: absolute; bottom: 2.5rem; right: 2.5rem;
-    display: flex; flex-direction: column; align-items: center; gap: .5rem;
+    position: absolute;
+    bottom: 2.5rem;
+    right: 2.5rem;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.5rem;
   }
   .s-line {
-    width: 1px; height: 48px; background: linear-gradient(to bottom, var(--v), transparent);
+    width: 1px;
+    height: 48px;
+    background: linear-gradient(to bottom, var(--v), transparent);
     animation: sline 1.6s ease-in-out infinite;
   }
   @keyframes sline {
-    0%   { transform: scaleY(0); transform-origin: top; }
-    49%  { transform: scaleY(1); transform-origin: top; }
-    51%  { transform: scaleY(1); transform-origin: bottom; }
-    100% { transform: scaleY(0); transform-origin: bottom; }
+    0% {
+      transform: scaleY(0);
+      transform-origin: top;
+    }
+    49% {
+      transform: scaleY(1);
+      transform-origin: top;
+    }
+    51% {
+      transform: scaleY(1);
+      transform-origin: bottom;
+    }
+    100% {
+      transform: scaleY(0);
+      transform-origin: bottom;
+    }
   }
   .s-txt {
-    font-family: 'JetBrains Mono', monospace; font-size: .55rem;
-    letter-spacing: .22em; text-transform: uppercase; color: var(--t3); writing-mode: vertical-rl;
+    font-family: "JetBrains Mono", monospace;
+    font-size: 0.55rem;
+    letter-spacing: 0.22em;
+    text-transform: uppercase;
+    color: var(--t3);
+    writing-mode: vertical-rl;
   }
 
   /* Responsive Constraints */
-  @media(max-width: 980px) {
-    .hero-inner { grid-template-columns: 1fr; }
-    .side-stack { max-width: 580px; margin: 0 auto; width: 100%; }
-    .stats { justify-content: center; text-align: center; }
+  @media (max-width: 980px) {
+    .hero-inner {
+      grid-template-columns: 1fr;
+    }
+    .side-stack {
+      max-width: 580px;
+      margin: 0 auto;
+      width: 100%;
+    }
+    .stats {
+      justify-content: center;
+      text-align: center;
+    }
   }
-  @media(max-width: 768px) {
-    .cyber-hero { padding: 8rem 1.2rem 4rem; }
-    .stats { gap: 2rem; flex-wrap: wrap; }
-    .uptime-tag { left: 1.2rem; bottom: 1.4rem; }
-    .scroll-hint { right: 1.2rem; bottom: 1.4rem; }
-    .term-window { font-size: .72rem; }
-    h1.title { text-align: center; }
-    .role-row, .sys-tag { justify-content: center; }
-    .hero-desc { text-align: center; margin-left: auto; margin-right: auto; }
-    .id-frame { aspect-ratio: 4 / 3; }
-    .ctas { justify-content: center; }
+  @media (max-width: 768px) {
+    .cyber-hero {
+      padding: 8rem 1.2rem 4rem;
+    }
+    .stats {
+      gap: 2rem;
+      flex-wrap: wrap;
+    }
+    .uptime-tag {
+      left: 1.2rem;
+      bottom: 1.4rem;
+    }
+    .scroll-hint {
+      right: 1.2rem;
+      bottom: 1.4rem;
+    }
+    .term-window {
+      font-size: 0.72rem;
+    }
+    h1.title {
+      text-align: center;
+    }
+    .role-row,
+    .sys-tag {
+      justify-content: center;
+    }
+    .hero-desc {
+      text-align: center;
+      margin-left: auto;
+      margin-right: auto;
+    }
+    .id-frame {
+      aspect-ratio: 4 / 3;
+    }
+    .ctas {
+      justify-content: center;
+    }
   }
 </style>
 
 <script define:vars={{ roles, termLines }}>
-  const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const reduceMotion = window.matchMedia(
+    "(prefers-reduced-motion: reduce)",
+  ).matches;
 
   /* ─── ROLE TYPEWRITER ─── */
-  const roleEl = document.getElementById('roleEl');
+  const roleEl = document.getElementById("roleEl");
   if (roleEl) {
     if (reduceMotion) {
       roleEl.textContent = roles[0] || "Developer";
     } else {
-      let ri = 0, ci = 0, deleting = false;
+      let ri = 0,
+        ci = 0,
+        deleting = false;
       (function tick() {
         if (!roles || roles.length === 0) return;
         const word = roles[ri];
         if (!deleting) {
-          ci++; 
+          ci++;
           roleEl.textContent = word.slice(0, ci);
-          if (ci === word.length) { deleting = true; setTimeout(tick, 1800); return; }
+          if (ci === word.length) {
+            deleting = true;
+            setTimeout(tick, 1800);
+            return;
+          }
         } else {
-          ci--; 
+          ci--;
           roleEl.textContent = word.slice(0, ci);
-          if (ci === 0) { deleting = false; ri = (ri + 1) % roles.length; }
+          if (ci === 0) {
+            deleting = false;
+            ri = (ri + 1) % roles.length;
+          }
         }
         setTimeout(tick, deleting ? 35 : 55);
       })();
@@ -425,9 +832,9 @@ const PHOTO_ALT = "Rian Pramudya Amanda";
   }
 
   /* ─── TERMINAL TYPED LINES ─── */
-  const termBody = document.getElementById('termBody');
+  const termBody = document.getElementById("termBody");
   function typeInto(el, text, speed) {
-    return new Promise(resolve => {
+    return new Promise((resolve) => {
       let i = 0;
       (function step() {
         el.textContent = text.slice(0, i);
@@ -437,47 +844,53 @@ const PHOTO_ALT = "Rian Pramudya Amanda";
       })();
     });
   }
-  
+
   async function runTerminal() {
     if (!termBody) return;
-    
+
     if (reduceMotion) {
-      termBody.innerHTML = termLines.map(l =>
-        `<div class="t-row"><span class="t-prompt">${l.p}</span></div><div class="t-out">${l.o}</div>`
-      ).join('');
+      termBody.innerHTML = termLines
+        .map(
+          (l) =>
+            `<div class="t-row"><span class="t-prompt">${l.p}</span></div><div class="t-out">${l.o}</div>`,
+        )
+        .join("");
       return;
     }
-    
+
     while (true) {
-      termBody.innerHTML = '';
+      termBody.innerHTML = "";
       for (const l of termLines) {
-        const rowP = document.createElement('div'); rowP.className = 't-row';
-        const prompt = document.createElement('span'); prompt.className = 't-prompt';
-        rowP.appendChild(prompt); 
+        const rowP = document.createElement("div");
+        rowP.className = "t-row";
+        const prompt = document.createElement("span");
+        prompt.className = "t-prompt";
+        rowP.appendChild(prompt);
         termBody.appendChild(rowP);
-        
+
         await typeInto(prompt, l.p, 28);
-        
-        const rowO = document.createElement('div'); rowO.className = 't-out';
+
+        const rowO = document.createElement("div");
+        rowO.className = "t-out";
         termBody.appendChild(rowO);
-        
+
         await typeInto(rowO, l.o, 16);
-        await new Promise(r => setTimeout(r, 450));
+        await new Promise((r) => setTimeout(r, 450));
       }
-      await new Promise(r => setTimeout(r, 3500));
+      await new Promise((r) => setTimeout(r, 3500));
     }
   }
   runTerminal();
 
   /* ─── UPTIME READOUT ─── */
   let uptimeSec = 0;
-  const uptimeEl = document.getElementById('uptime');
+  const uptimeEl = document.getElementById("uptime");
   if (uptimeEl) {
     setInterval(() => {
       uptimeSec++;
-      const h = String(Math.floor(uptimeSec / 3600)).padStart(2, '0');
-      const m = String(Math.floor((uptimeSec % 3600) / 60)).padStart(2, '0');
-      const s = String(uptimeSec % 60).padStart(2, '0');
+      const h = String(Math.floor(uptimeSec / 3600)).padStart(2, "0");
+      const m = String(Math.floor((uptimeSec % 3600) / 60)).padStart(2, "0");
+      const s = String(uptimeSec % 60).padStart(2, "0");
       uptimeEl.textContent = `${h}:${m}:${s}`;
     }, 1000);
   }
