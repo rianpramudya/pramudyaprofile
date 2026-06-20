@@ -8,6 +8,7 @@ const WEB3FORMS_KEY = "25fe095d-6c02-4f9b-9e95-e80c073b3d43";
 const MAX_NAME_LENGTH = 100;
 const MAX_EMAIL_LENGTH = 254;
 const MAX_MESSAGE_LENGTH = 5000;
+const STORAGE_KEY = "pramudya-lang";
 
 export default function Contact() {
   const [lang, setLang] = useState("id");
@@ -30,18 +31,41 @@ export default function Contact() {
   const sectionRef = useRef(null);
   const isSubmittingRef = useRef(false);
 
-  // Sync bahasa: prioritaskan URL params, fallback ke store
   useEffect(() => {
-    const urlLang = new URLSearchParams(window.location.search).get("lang");
-    const initialLang =
-      urlLang === "en" || urlLang === "id" ? urlLang : langStore.get();
+    // ── ROBUST LANG DETECTION ──
+    // Priority: URL param → localStorage → langStore → "id"
+    // Sama persis dengan logika di i18n/index.ts → getLang()
+    const getActiveLang = () => {
+      const urlLang = new URLSearchParams(window.location.search).get("lang");
+      if (urlLang === "en" || urlLang === "id") return urlLang;
+      try {
+        const stored = localStorage.getItem(STORAGE_KEY);
+        if (stored === "en" || stored === "id") return stored;
+      } catch (_) {}
+      const storeLang = langStore.get();
+      if (storeLang === "en" || storeLang === "id") return storeLang;
+      return "id";
+    };
 
-    setLang(initialLang);
-    langStore.set(initialLang);
+    setLang(getActiveLang());
     setMounted(true);
 
-    const unsubscribe = langStore.subscribe((newLang) => setLang(newLang));
-    return () => unsubscribe();
+    // 1. Subscribe ke Nanostores (fallback jika berhasil lintas island)
+    const unsubscribe = langStore.subscribe((newLang) => {
+      if (newLang === "en" || newLang === "id") setLang(newLang);
+    });
+
+    // 2. Listen ke window event yang di-dispatch oleh i18n/index.ts → setLang()
+    //    Ini adalah fix utama — event inilah yang di-fire header saat ganti bahasa
+    const handleLangChange = () => setLang(getActiveLang());
+    window.addEventListener("pramudya-lang-change", handleLangChange);
+    window.addEventListener("langchange", handleLangChange);
+
+    return () => {
+      unsubscribe();
+      window.removeEventListener("pramudya-lang-change", handleLangChange);
+      window.removeEventListener("langchange", handleLangChange);
+    };
   }, []);
 
   const dict = dictionary[lang] ?? dictionary.id;
@@ -217,8 +241,8 @@ export default function Contact() {
                 </span>
               </div>
 
-              {/* Brutalism Hero Title: translateX(8px) konsisten */}
-              <h2 className="font-['Syne','Inter','Helvetica_Neue',sans-serif] font-black uppercase leading-[0.85] tracking-tight mb-8 group cursor-default w-full">
+              {/* Brutalism Hero Title */}
+              <h2 className="font-black uppercase leading-[0.85] tracking-tight mb-8 group cursor-default w-full">
                 <span className="block text-[clamp(2.5rem,6.5vw,4.5rem)] text-[var(--t1)] transition-colors duration-500 group-hover:text-[var(--v)] break-words hyphens-auto">
                   {titleFirst}
                 </span>
@@ -233,26 +257,28 @@ export default function Contact() {
                 {t("contact.desc")}
               </p>
 
+              {/* System Info */}
               <div className="flex flex-col gap-2 font-mono text-[0.6rem] text-[var(--t3)] uppercase tracking-widest border-t border-[var(--border)] pt-6 mb-12">
                 <div className="flex justify-between items-center max-w-sm">
-                  <span>SYSTEM_UPTIME</span>
-                  <span className="text-[var(--t2)]">99.9%</span>
+                  <span>{t("contact.info.uptime")}</span>
+                  <span className="text-[var(--t2)]">{t("contact.info.uptimeValue")}</span>
                 </div>
                 <div className="flex justify-between items-center max-w-sm">
-                  <span>GEO_LOC</span>
+                  <span>{t("contact.info.geo")}</span>
                   <span className="text-[var(--t2)]">
-                    06°54'S 107°36'E (BDO)
+                    {t("contact.info.geoValue")}
                   </span>
                 </div>
                 <div className="flex justify-between items-center max-w-sm">
-                  <span>ENCRYPTION</span>
-                  <span className="text-[var(--v)]">AES-256</span>
+                  <span>{t("contact.info.encryption")}</span>
+                  <span className="text-[var(--v)]">{t("contact.info.encryptionValue")}</span>
                 </div>
               </div>
             </div>
 
             <div>
               <div className="flex flex-col gap-6 mb-10">
+                {/* Email */}
                 <a
                   href={`mailto:${site.email}`}
                   onClick={handleCopyEmail}
@@ -270,9 +296,9 @@ export default function Contact() {
                       <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path>
                       <polyline points="22,6 12,13 2,6"></polyline>
                     </svg>
-                    <span className="group-hover:hidden">PRIMARY_CONTACT</span>
+                    <span className="group-hover:hidden">{t("contact.info.primaryContact")}</span>
                     <span className="hidden group-hover:inline">
-                      {copiedEmail ? "ADDRESS_COPIED!" : "LAUNCH_MAIL_CLIENT"}
+                      {copiedEmail ? t("contact.copySuccess") : t("contact.launchMail")}
                     </span>
                   </span>
                   <span className="font-['Syne','Inter','Helvetica_Neue',sans-serif] text-xl sm:text-2xl font-bold text-[var(--t1)] group-hover:text-[var(--v)] transition-colors break-all relative inline-flex items-center gap-2">
@@ -295,6 +321,7 @@ export default function Contact() {
                   </span>
                 </a>
 
+                {/* Phone / WhatsApp */}
                 <a
                   href="https://wa.me/6285121111260"
                   onClick={handleCopyPhone}
@@ -311,9 +338,9 @@ export default function Contact() {
                     >
                       <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"></path>
                     </svg>
-                    <span className="group-hover:hidden">DIRECT_LINE</span>
+                    <span className="group-hover:hidden">{t("contact.info.directLine")}</span>
                     <span className="hidden group-hover:inline">
-                      {copiedPhone ? "NUMBER_COPIED!" : "LAUNCH_WHATSAPP"}
+                      {copiedPhone ? t("contact.copySuccessPhone") : t("contact.launchWhatsapp")}
                     </span>
                   </span>
                   <span className="font-['Syne','Inter','Helvetica_Neue',sans-serif] text-xl sm:text-2xl font-bold text-[var(--t1)] group-hover:text-[var(--v)] transition-colors relative inline-flex items-center gap-2">
@@ -390,9 +417,9 @@ export default function Contact() {
                 <div className="font-mono relative z-10">
                   <div className="text-[var(--v)] mb-6 text-[0.65rem] tracking-widest uppercase flex items-center gap-2">
                     <span className="w-2 h-2 bg-[var(--v)] rounded-full animate-ping"></span>
-                    TRANSMISSION_SUCCESSFUL
+                    {t("contact.transmissionSuccess")}
                   </div>
-                  <h3 className="text-2xl text-[var(--t1)] font-bold mb-4 font-['Syne','Inter','Helvetica_Neue',sans-serif] uppercase tracking-tight">
+                  <h3 className="text-2xl text-[var(--t1)] font-bold mb-4 uppercase tracking-tight">
                     {t("contact.successTitle")}
                   </h3>
                   <p className="text-[var(--t2)] text-sm leading-relaxed mb-10 max-w-sm">
@@ -434,6 +461,7 @@ export default function Contact() {
                   readOnly
                 />
 
+                {/* Name */}
                 <div className="relative group">
                   <div className="flex justify-between items-end mb-2">
                     <label
@@ -443,7 +471,7 @@ export default function Contact() {
                       {t("contact.nameLabel")}
                     </label>
                     <span className="font-mono text-[0.6rem] text-[var(--v)] opacity-0 group-focus-within:opacity-100 transition-opacity animate-pulse">
-                      _INPUT_ACTIVE
+                      {t("contact.inputActive")}
                     </span>
                   </div>
                   <input
@@ -455,7 +483,7 @@ export default function Contact() {
                     required
                     autoComplete="name"
                     className="w-full bg-transparent border-0 border-b-2 border-[var(--border)] text-[var(--t1)] text-base py-2 focus:outline-none focus:ring-0 focus:border-[var(--v)] transition-all placeholder:text-[var(--t3)]/30 rounded-none shadow-none"
-                    placeholder="// ENTER_NAME..."
+                    placeholder={t("contact.placeholder.name")}
                   />
                   {fieldErrors.name && (
                     <p className="text-[#fb7185] font-mono text-[0.6rem] mt-2 absolute -bottom-5">
@@ -464,6 +492,7 @@ export default function Contact() {
                   )}
                 </div>
 
+                {/* Email */}
                 <div className="relative group">
                   <div className="flex justify-between items-end mb-2">
                     <label
@@ -473,7 +502,7 @@ export default function Contact() {
                       {t("contact.emailLabel")}
                     </label>
                     <span className="font-mono text-[0.6rem] text-[var(--c)] opacity-0 group-focus-within:opacity-100 transition-opacity animate-pulse">
-                      _INPUT_ACTIVE
+                      {t("contact.inputActive")}
                     </span>
                   </div>
                   <input
@@ -486,17 +515,18 @@ export default function Contact() {
                     maxLength={MAX_EMAIL_LENGTH}
                     autoComplete="email"
                     className="w-full bg-transparent border-0 border-b-2 border-[var(--border)] text-[var(--t1)] text-base py-2 focus:outline-none focus:ring-0 focus:border-[var(--c)] transition-all placeholder:text-[var(--t3)]/30 rounded-none shadow-none"
-                    placeholder="// YOU@DOMAIN.COM"
+                    placeholder={t("contact.placeholder.email")}
                   />
                 </div>
 
+                {/* Subject */}
                 <div className="relative group">
                   <div className="flex justify-between items-end mb-2">
                     <label
                       htmlFor="subject"
                       className="font-mono text-[0.6rem] text-[var(--t3)] uppercase tracking-[0.15em] transition-colors group-focus-within:text-[var(--v)]"
                     >
-                      SUBJECT
+                      {t("contact.label.subject")}
                     </label>
                   </div>
                   <input
@@ -506,10 +536,11 @@ export default function Contact() {
                     value={formData.subject}
                     onChange={handleChange}
                     className="w-full bg-transparent border-0 border-b-2 border-[var(--border)] text-[var(--t1)] text-base py-2 focus:outline-none focus:ring-0 focus:border-[var(--v)] transition-all placeholder:text-[var(--t3)]/30 rounded-none shadow-none"
-                    placeholder="// OPTIONAL_IDENTIFIER"
+                    placeholder={t("contact.placeholder.subject")}
                   />
                 </div>
 
+                {/* Message */}
                 <div className="relative group">
                   <div className="flex justify-between items-end mb-2">
                     <label
@@ -531,7 +562,7 @@ export default function Contact() {
                     onChange={handleChange}
                     required
                     className="w-full bg-transparent border-0 border-b-2 border-[var(--border)] text-[var(--t1)] text-base py-2 min-h-[100px] resize-y focus:outline-none focus:ring-0 focus:border-[var(--v)] transition-all placeholder:text-[var(--t3)]/30 rounded-none shadow-none"
-                    placeholder="// TRANSMIT_YOUR_THOUGHTS_HERE..."
+                    placeholder={t("contact.placeholder.message")}
                   />
                   {fieldErrors.message && (
                     <p className="text-[#fb7185] font-mono text-[0.6rem] mt-2 absolute -bottom-5">
@@ -572,7 +603,7 @@ export default function Contact() {
                     {isSubmitting ? (
                       <>
                         <span className="relative z-10 w-3.5 h-3.5 border-2 border-[var(--bg)] border-t-transparent rounded-full animate-spin"></span>
-                        <span className="relative z-10">UPLOADING...</span>
+                        <span className="relative z-10">{t("contact.sending")}</span>
                       </>
                     ) : (
                       <>
