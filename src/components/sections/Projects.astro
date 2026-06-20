@@ -193,6 +193,7 @@ const sortedProjects = [...projects].sort((a, b) => {
                           .slice(0, isFeatured ? 4 : 2)
                           .map((h, hi) => (
                             <li
+                              key={`hl-${dictIdx}-${hi}`}
                               data-i18n={`project${dictIdx}.highlight${hi + 1}`}
                             >
                               {h}
@@ -203,8 +204,8 @@ const sortedProjects = [...projects].sort((a, b) => {
 
                     {techList.length > 0 && (
                       <div class="case-tech">
-                        {techList.map((t) => (
-                          <span class="tech-pill">{t}</span>
+                        {techList.map((t, ti) => (
+                          <span key={`tech-${ti}`} class="tech-pill">{t}</span>
                         ))}
                       </div>
                     )}
@@ -219,7 +220,6 @@ const sortedProjects = [...projects].sort((a, b) => {
                         target="_blank"
                         rel="noopener noreferrer"
                         class="case-link link-demo"
-                        onclick="event.stopPropagation()"
                       >
                         <svg
                           width="14"
@@ -244,7 +244,6 @@ const sortedProjects = [...projects].sort((a, b) => {
                         target="_blank"
                         rel="noopener noreferrer"
                         class="case-link link-code"
-                        onclick="event.stopPropagation()"
                       >
                         <svg
                           width="14"
@@ -867,6 +866,9 @@ const sortedProjects = [...projects].sort((a, b) => {
     const slug = el.getAttribute("data-project-slug");
     if (!slug) return;
 
+    // Set initial aria state
+    el.setAttribute("aria-expanded", "false");
+
     const openModal = (e) => {
       const target = e.target;
       if (target.closest && target.closest("a")) return;
@@ -874,7 +876,12 @@ const sortedProjects = [...projects].sort((a, b) => {
       e.preventDefault();
       if (window.openProjectModal) {
         window.openProjectModal(slug);
+        el.setAttribute("aria-expanded", "true");
       }
+    };
+
+    const closeModalHandler = () => {
+      el.setAttribute("aria-expanded", "false");
     };
 
     el.addEventListener("click", openModal);
@@ -884,6 +891,17 @@ const sortedProjects = [...projects].sort((a, b) => {
         openModal(e);
       }
     });
+
+    // Listen for modal close to reset aria-expanded
+    if (window.closeProjectModal) {
+      const originalClose = window.closeProjectModal;
+      window.closeProjectModal = function(...args) {
+        document.querySelectorAll("[data-project-slug]").forEach(card => {
+          card.setAttribute("aria-expanded", "false");
+        });
+        return originalClose.apply(this, args);
+      };
+    }
   });
 
   const rvObserver = new IntersectionObserver(
