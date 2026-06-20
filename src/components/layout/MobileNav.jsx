@@ -23,16 +23,12 @@ export default function MobileNav() {
   const navRef = useRef(null);
 
   // ── Helpers ──
-  const t = useCallback(
-    (key) => dictionary[lang]?.[key] ?? key,
-    [lang]
-  );
+  const t = useCallback((key) => dictionary[lang]?.[key] ?? key, [lang]);
 
   const closeMenu = useCallback(() => setIsOpen(false), []);
 
   // ── Sync language dari store global ──
   useEffect(() => {
-    // Set initial state dari store
     setLangState(getLang());
 
     const handleLangChange = (e) => {
@@ -100,12 +96,10 @@ export default function MobileNav() {
   const switchLang = useCallback(
     (newLang) => {
       if (newLang === lang) return;
-      // Panggil setLang dari i18n/index yang harusnya trigger langchange event
       setLang(newLang);
-      // Fallback: langsung update state lokal juga kalau event tidak jalan
       setLangState(newLang);
     },
-    [lang]
+    [lang],
   );
 
   const switchTheme = useCallback(
@@ -114,8 +108,7 @@ export default function MobileNav() {
       const root = document.documentElement;
 
       root.classList.add("theme-transition");
-      
-      // FIX: Gunakan setAttribute/removeAttribute seperti Header.astro
+
       if (newTheme === "light") {
         root.setAttribute("data-theme", "light");
       } else {
@@ -125,15 +118,20 @@ export default function MobileNav() {
       localStorage.setItem(STORAGE_THEME, newTheme);
       setThemeState(newTheme);
 
-      // Update meta theme-color
       const themeMeta = document.querySelector('meta[name="theme-color"]');
       if (themeMeta) {
-        themeMeta.setAttribute("content", newTheme === "light" ? "#f7f5fb" : "#06060a");
+        themeMeta.setAttribute(
+          "content",
+          newTheme === "light" ? "#f7f5fb" : "#06060a",
+        );
       }
 
-      setTimeout(() => root.classList.remove("theme-transition"), TRANSITION_DURATION);
+      setTimeout(
+        () => root.classList.remove("theme-transition"),
+        TRANSITION_DURATION,
+      );
     },
-    [theme]
+    [theme],
   );
 
   // ── Styles ──
@@ -144,7 +142,11 @@ export default function MobileNav() {
 
   const getHamburgerStyle = () => ({
     ...btnBaseStyle,
-    background: isOpen ? "var(--bg-2)" : scrolled ? "var(--nav-bg)" : "var(--bg-2)",
+    background: isOpen
+      ? "var(--bg-2)"
+      : scrolled
+        ? "var(--nav-bg)"
+        : "var(--bg-2)",
     color: isOpen || scrolled ? "var(--v)" : "var(--t1)",
     border: `1px solid ${isOpen ? "var(--v)" : "var(--border-2)"}`,
     backdropFilter: scrolled ? "blur(24px)" : "none",
@@ -209,6 +211,29 @@ export default function MobileNav() {
     </a>
   );
 
+  // ── NEW: Download CV Button ──
+  const renderCVButton = () => (
+    <button
+      onClick={() => {
+        window.dispatchEvent(new CustomEvent("open-cv-modal"));
+        closeMenu();
+      }}
+      className={`group block mt-0.5 w-full text-left transition-all duration-300 ${
+        isOpen ? "translate-x-0 opacity-100" : "translate-x-3 opacity-0"
+      }`}
+      style={getStaggerStyle(NAV_ITEMS.length + 1)}
+    >
+      {renderTerminalLine("exec", "cv")}
+      <div
+        className="mt-0.5 pl-3 text-sm font-semibold leading-tight flex items-center gap-1 transition-colors group-hover:text-[var(--v)]"
+        style={{ color: "var(--t1)" }}
+      >
+        CV
+        <DownloadIcon />
+      </div>
+    </button>
+  );
+
   const renderDivider = (index) => (
     <div
       className={`border-t transition-all duration-300 ${isOpen ? "opacity-100" : "opacity-0"}`}
@@ -225,7 +250,7 @@ export default function MobileNav() {
       className={`flex items-center gap-2 transition-all duration-300 ${
         isOpen ? "translate-x-0 opacity-100" : "translate-x-3 opacity-0"
       }`}
-      style={getStaggerStyle(NAV_ITEMS.length + 2)}
+      style={getStaggerStyle(NAV_ITEMS.length + 3)}
     >
       {renderTerminalLine("set", "lang")}
       <div className="flex gap-1 pl-3">
@@ -253,7 +278,7 @@ export default function MobileNav() {
       className={`flex items-center gap-2 transition-all duration-300 ${
         isOpen ? "translate-x-0 opacity-100" : "translate-x-3 opacity-0"
       }`}
-      style={getStaggerStyle(NAV_ITEMS.length + 3)}
+      style={getStaggerStyle(NAV_ITEMS.length + 4)}
     >
       {renderTerminalLine("set", "theme")}
       <div className="flex gap-1 pl-3">
@@ -278,8 +303,11 @@ export default function MobileNav() {
   );
 
   return (
-    <div ref={navRef} className="terminal-nav fixed top-5 right-5 z-[999] md:hidden">
-      {/* Hamburger - FIX: Center alignment dengan transform */}
+    <div
+      ref={navRef}
+      className="terminal-nav fixed top-5 right-5 z-[999] md:hidden"
+    >
+      {/* Hamburger */}
       <button
         type="button"
         onClick={toggleMenu}
@@ -303,8 +331,10 @@ export default function MobileNav() {
           style={{
             background: "var(--bg-2)",
             border: "1px solid var(--border)",
-            boxShadow: "0 8px 32px rgba(0,0,0,0.4), 0 0 0 1px rgba(255,255,255,0.03)",
-            fontFamily: "'JetBrains Mono', 'Fira Code', 'Courier New', monospace",
+            boxShadow:
+              "0 8px 32px rgba(0,0,0,0.4), 0 0 0 1px rgba(255,255,255,0.03)",
+            fontFamily:
+              "'JetBrains Mono', 'Fira Code', 'Courier New', monospace",
           }}
         >
           {/* Terminal Bar */}
@@ -314,7 +344,8 @@ export default function MobileNav() {
           <div className="p-3.5 flex flex-col gap-2">
             {NAV_ITEMS.map(renderNavLink)}
             {renderCTA()}
-            {renderDivider(NAV_ITEMS.length + 1)}
+            {renderCVButton()}
+            {renderDivider(NAV_ITEMS.length + 2)}
             {renderLangSwitcher()}
             {renderThemeSwitcher()}
 
@@ -323,7 +354,7 @@ export default function MobileNav() {
               className={`flex items-center gap-1 transition-all duration-300 ${
                 isOpen ? "opacity-25" : "opacity-0"
               }`}
-              style={getStaggerStyle(NAV_ITEMS.length + 4)}
+              style={getStaggerStyle(NAV_ITEMS.length + 5)}
             >
               <span className="text-[11px]">$</span>
               <span className="w-1 h-3 bg-current animate-pulse" />
@@ -381,7 +412,17 @@ function ThemeButton({ theme, current, onClick, label, children }) {
 
 function MenuIcon() {
   return (
-    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      width="18"
+      height="18"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    >
       <line x1="4" x2="20" y1="6" y2="6" />
       <line x1="4" x2="20" y1="12" y2="12" />
       <line x1="4" x2="20" y1="18" y2="18" />
@@ -391,7 +432,17 @@ function MenuIcon() {
 
 function CloseIcon() {
   return (
-    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      width="18"
+      height="18"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    >
       <path d="M18 6 6 18" />
       <path d="m6 6 12 12" />
     </svg>
@@ -400,16 +451,57 @@ function CloseIcon() {
 
 function ArrowRightIcon() {
   return (
-    <svg xmlns="http://www.w3.org/2000/svg" width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" className="opacity-50 group-hover:opacity-100 group-hover:translate-x-0.5 transition-all">
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      width="11"
+      height="11"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2.5"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      className="opacity-50 group-hover:opacity-100 group-hover:translate-x-0.5 transition-all"
+    >
       <path d="M5 12h14" />
       <path d="m12 5 7 7-7 7" />
     </svg>
   );
 }
 
+function DownloadIcon() {
+  return (
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      width="11"
+      height="11"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2.5"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      className="opacity-50 group-hover:opacity-100 group-hover:translate-y-0.5 transition-all"
+    >
+      <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+      <polyline points="7 10 12 15 17 10" />
+      <line x1="12" x2="12" y1="15" y2="3" />
+    </svg>
+  );
+}
+
 function SunIcon() {
   return (
-    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <svg
+      width="14"
+      height="14"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    >
       <circle cx="12" cy="12" r="4" />
       <path d="M12 2v2M12 20v2M4.93 4.93l1.4 1.4M17.66 17.66l1.4 1.4M2 12h2M20 12h2M6.34 17.66l-1.4 1.4M19.07 4.93l-1.4 1.4" />
     </svg>
@@ -418,7 +510,16 @@ function SunIcon() {
 
 function MoonIcon() {
   return (
-    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <svg
+      width="14"
+      height="14"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    >
       <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z" />
     </svg>
   );
