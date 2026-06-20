@@ -8,7 +8,6 @@ const NAV_ITEMS = [
   { key: "nav.about", href: "#about", cmd: "about" },
   { key: "nav.skills", href: "#skills", cmd: "skills" },
   { key: "nav.projects", href: "#projects", cmd: "projects" },
-  { key: "nav.contact", href: "#contact", cmd: "contact" },
 ];
 
 const STORAGE_THEME = "pramudya-theme";
