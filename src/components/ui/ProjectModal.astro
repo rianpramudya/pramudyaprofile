@@ -355,6 +355,11 @@
   let isOpen = false;
   let currentProject: ProjectData | null = null;
 
+  // [FIX] Simpan scroll position & style asli body agar tidak "pop up" saat modal dibuka
+  let savedScrollY = 0;
+  let bodyOriginalOverflow = "";
+  let bodyOriginalPaddingRight = "";
+
   function getProjects(): ProjectData[] {
     return (window as any).__PROJECTS_DATA__ || [];
   }
@@ -362,11 +367,14 @@
     return ((window as any).__BASE_URL__ || "").replace(/\/$/, "");
   }
 
+  function getScrollbarWidth(): number {
+    return window.innerWidth - document.documentElement.clientWidth;
+  }
+
   function trapFocus(e: KeyboardEvent) {
     if (!isOpen || e.key !== "Tab") return;
     if (!modal) return;
 
-    // [FIX] Filter hanya elemen yang benar-benar visible & focusable
     const focusables = Array.from(
       modal.querySelectorAll<HTMLElement>(
         "a[href], button, textarea, input, select, [tabindex]:not([tabindex='-1']), [contenteditable]"
@@ -399,7 +407,6 @@
     dotsContainer.innerHTML = "";
     slideCount = images.length;
 
-    // [FIX] Counter benar saat images kosong
     if (slideCount === 0) {
       counterEl.textContent = "0";
       totalEl.textContent = "0";
@@ -449,7 +456,6 @@
   function updateCarousel() {
     if (!track || !counterEl || !prevBtn || !nextBtn) return;
 
-    // [FIX] Guard saat tidak ada slide
     if (slideCount === 0) {
       track.style.transform = "translateX(0%)";
       counterEl.textContent = "0";
@@ -481,7 +487,6 @@
   }
 
   function goToSlide(index: number) {
-    // [FIX] Guard slideCount 0 agar tidak index negatif
     if (slideCount === 0) return;
     if (index < 0) index = slideCount - 1;
     if (index >= slideCount) index = 0;
@@ -522,9 +527,6 @@
     else updateCarousel();
   }
 
-  // ═══════════════════════════════════════════════════════════════
-  // RENDER MODAL CONTENT — dipisah agar bisa di-reuse saat ganti bahasa
-  // ═══════════════════════════════════════════════════════════════
   function renderModalContent(project: ProjectData) {
     if (!terminalSlug || !titleEl || !categoryEl || !yearTextEl || !descEl || !highlightsEl || !techStackEl) return;
 
@@ -555,13 +557,11 @@
         btnText !== "projects.viewGithubShort" ? btnText : "SOURCE CODE";
     }
 
-    // [FIX] Null-check githubEl sebelum akses property
     if (githubEl) {
       githubEl.href = project.githubUrl || "#";
       githubEl.style.display = project.githubUrl ? "inline-flex" : "none";
     }
 
-    // Highlights
     highlightsEl.innerHTML = "";
     let hList: string[] = [];
     if (dictIdx) {
@@ -582,7 +582,6 @@
       highlightsEl.appendChild(li);
     });
 
-    // Tech Stack
     techStackEl.innerHTML = "";
     (project.techStack || []).forEach((tStr) => {
       const badge = document.createElement("span");
@@ -599,6 +598,18 @@
     previouslyFocused = document.activeElement;
     isOpen = true;
 
+    // [FIX] Simpan posisi scroll & style body untuk mencegah "pop up" ke atas
+    savedScrollY = window.scrollY || document.documentElement.scrollTop;
+    bodyOriginalOverflow = document.body.style.overflow;
+    bodyOriginalPaddingRight = document.body.style.paddingRight;
+
+    // Kompensasi lebar scrollbar agar layout tidak shift
+    const scrollbarWidth = getScrollbarWidth();
+    if (scrollbarWidth > 0) {
+      document.body.style.paddingRight = `${scrollbarWidth}px`;
+    }
+    document.body.style.overflow = "hidden";
+
     renderModalContent(project);
 
     const images =
@@ -609,10 +620,8 @@
           : [];
     renderSlides(images);
 
-    // Animasi Masuk (Bouncy)
     modal.classList.remove("hidden");
     modal.classList.add("flex");
-    document.body.style.overflow = "hidden";
 
     setTimeout(() => {
       backdrop.classList.remove("opacity-0");
@@ -620,7 +629,6 @@
       content.classList.add("opacity-100", "scale-100", "translate-y-0");
     }, 10);
 
-    // [FIX] Null-check closeBtn sebelum focus
     setTimeout(() => {
       closeBtn?.focus();
     }, 100);
@@ -637,16 +645,24 @@
     content.classList.remove("opacity-100", "scale-100", "translate-y-0");
     content.classList.add("opacity-0", "scale-95", "translate-y-12");
 
-    // [FIX] 400ms → 520ms (harus >= transition duration 500ms)
     setTimeout(() => {
       modal.classList.remove("flex");
       modal.classList.add("hidden");
-      document.body.style.overflow = "";
+
+      // [FIX] Restore body style & scroll position agar kembali ke tempat semula
+      document.body.style.overflow = bodyOriginalOverflow;
+      document.body.style.paddingRight = bodyOriginalPaddingRight;
+
+      const html = document.documentElement;
+      const originalScrollBehavior = html.style.scrollBehavior;
+      html.style.scrollBehavior = "auto";
+      window.scrollTo(0, savedScrollY);
+      html.style.scrollBehavior = originalScrollBehavior;
+
       currentSlide = 0;
       if (track) track.innerHTML = "";
       if (dotsContainer) dotsContainer.innerHTML = "";
 
-      // [FIX] Type-safe focus restore
       if (
         previouslyFocused instanceof HTMLElement &&
         previouslyFocused.isConnected
@@ -657,7 +673,6 @@
     }, 520);
   }
 
-  // [FIX] Null-check semua elemen sebelum attach listener
   if (closeBtn) closeBtn.addEventListener("click", closeModal);
   if (backdrop) backdrop.addEventListener("click", closeModal);
 
@@ -673,13 +688,9 @@
     trackContainer.addEventListener("touchstart", onTouchStart, { passive: true });
     trackContainer.addEventListener("touchmove", onTouchMove, { passive: true });
     trackContainer.addEventListener("touchend", onTouchEnd);
-    // [FIX] Handle touchcancel agar isDragging tidak macet
     trackContainer.addEventListener("touchcancel", onTouchEnd, { passive: true });
   }
 
-  // ═══════════════════════════════════════════════════════════════
-  // FIX: Re-render modal saat bahasa diganti
-  // ═══════════════════════════════════════════════════════════════
   window.addEventListener("pramudya-lang-change", () => {
     if (isOpen && currentProject) {
       renderModalContent(currentProject);
