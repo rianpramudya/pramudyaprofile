@@ -85,8 +85,8 @@
         <div
           class="absolute top-3 left-3 z-20 bg-[var(--bg-2)]/80 border border-[var(--border)] backdrop-blur-sm rounded-full px-3 py-1 text-[0.65rem] tracking-widest font-mono text-[var(--t1)] shadow-sm"
         >
-          <span id="carousel-counter">1</span> / <span id="carousel-total"
-            >1</span
+          <span id="carousel-counter">0</span> / <span id="carousel-total"
+            >0</span
           >
         </div>
 
@@ -322,53 +322,29 @@
     "acnescan-yolo": 6,
   };
 
-  const modal = document.getElementById("project-modal") as HTMLDivElement;
-  const backdrop = document.getElementById("modal-backdrop") as HTMLDivElement;
-  const content = document.getElementById("modal-content") as HTMLDivElement;
-  const closeBtn = document.getElementById(
-    "modal-close-btn",
-  ) as HTMLButtonElement;
-  const scrollArea = content.querySelector(
-    ".custom-scrollbar",
-  ) as HTMLDivElement;
+  const modal = document.getElementById("project-modal") as HTMLDivElement | null;
+  const backdrop = document.getElementById("modal-backdrop") as HTMLDivElement | null;
+  const content = document.getElementById("modal-content") as HTMLDivElement | null;
+  const closeBtn = document.getElementById("modal-close-btn") as HTMLButtonElement | null;
+  const scrollArea = content?.querySelector(".custom-scrollbar") as HTMLDivElement | null;
 
-  const track = document.getElementById("carousel-track") as HTMLDivElement;
-  const trackContainer = document.getElementById(
-    "carousel-track-container",
-  ) as HTMLDivElement;
-  const counterEl = document.getElementById(
-    "carousel-counter",
-  ) as HTMLSpanElement;
-  const totalEl = document.getElementById("carousel-total") as HTMLSpanElement;
-  const dotsContainer = document.getElementById(
-    "carousel-dots",
-  ) as HTMLDivElement;
-  const prevBtn = document.getElementById("carousel-prev") as HTMLButtonElement;
-  const nextBtn = document.getElementById("carousel-next") as HTMLButtonElement;
+  const track = document.getElementById("carousel-track") as HTMLDivElement | null;
+  const trackContainer = document.getElementById("carousel-track-container") as HTMLDivElement | null;
+  const counterEl = document.getElementById("carousel-counter") as HTMLSpanElement | null;
+  const totalEl = document.getElementById("carousel-total") as HTMLSpanElement | null;
+  const dotsContainer = document.getElementById("carousel-dots") as HTMLDivElement | null;
+  const prevBtn = document.getElementById("carousel-prev") as HTMLButtonElement | null;
+  const nextBtn = document.getElementById("carousel-next") as HTMLButtonElement | null;
 
-  const terminalSlug = document.getElementById(
-    "modal-terminal-slug",
-  ) as HTMLSpanElement;
-  const titleEl = document.getElementById("modal-title") as HTMLHeadingElement;
-  const categoryEl = document.getElementById(
-    "modal-category",
-  ) as HTMLSpanElement;
-  const yearTextEl = document.getElementById(
-    "modal-year-text",
-  ) as HTMLSpanElement;
-  const descEl = document.getElementById(
-    "modal-description",
-  ) as HTMLParagraphElement;
-  const highlightsEl = document.getElementById(
-    "modal-highlights",
-  ) as HTMLUListElement;
-  const techStackEl = document.getElementById(
-    "modal-techstack",
-  ) as HTMLDivElement;
-  const githubEl = document.getElementById("modal-github") as HTMLAnchorElement;
-  const githubTextEl = document.getElementById(
-    "modal-github-text",
-  ) as HTMLSpanElement;
+  const terminalSlug = document.getElementById("modal-terminal-slug") as HTMLSpanElement | null;
+  const titleEl = document.getElementById("modal-title") as HTMLHeadingElement | null;
+  const categoryEl = document.getElementById("modal-category") as HTMLSpanElement | null;
+  const yearTextEl = document.getElementById("modal-year-text") as HTMLSpanElement | null;
+  const descEl = document.getElementById("modal-description") as HTMLParagraphElement | null;
+  const highlightsEl = document.getElementById("modal-highlights") as HTMLUListElement | null;
+  const techStackEl = document.getElementById("modal-techstack") as HTMLDivElement | null;
+  const githubEl = document.getElementById("modal-github") as HTMLAnchorElement | null;
+  const githubTextEl = document.getElementById("modal-github-text") as HTMLSpanElement | null;
 
   let currentSlide = 0;
   let slideCount = 0;
@@ -377,7 +353,7 @@
   let touchCurrentX = 0;
   let previouslyFocused: Element | null = null;
   let isOpen = false;
-  let currentProject: ProjectData | null = null; // ← SIMPAN PROJECT AKTIF
+  let currentProject: ProjectData | null = null;
 
   function getProjects(): ProjectData[] {
     return (window as any).__PROJECTS_DATA__ || [];
@@ -388,9 +364,22 @@
 
   function trapFocus(e: KeyboardEvent) {
     if (!isOpen || e.key !== "Tab") return;
-    const focusables = modal.querySelectorAll<HTMLElement>(
-      "a[href], button, textarea, input, select",
-    );
+    if (!modal) return;
+
+    // [FIX] Filter hanya elemen yang benar-benar visible & focusable
+    const focusables = Array.from(
+      modal.querySelectorAll<HTMLElement>(
+        "a[href], button, textarea, input, select, [tabindex]:not([tabindex='-1']), [contenteditable]"
+      )
+    ).filter((el) => {
+      const style = window.getComputedStyle(el);
+      return (
+        style.display !== "none" &&
+        style.visibility !== "hidden" &&
+        !el.hasAttribute("disabled")
+      );
+    });
+
     if (focusables.length === 0) return;
     const first = focusables[0];
     const last = focusables[focusables.length - 1];
@@ -404,10 +393,21 @@
   }
 
   function renderSlides(images: string[]) {
+    if (!track || !dotsContainer || !counterEl || !totalEl) return;
+
     track.innerHTML = "";
     dotsContainer.innerHTML = "";
     slideCount = images.length;
-    totalEl.textContent = String(slideCount);
+
+    // [FIX] Counter benar saat images kosong
+    if (slideCount === 0) {
+      counterEl.textContent = "0";
+      totalEl.textContent = "0";
+    } else {
+      counterEl.textContent = "1";
+      totalEl.textContent = String(slideCount);
+    }
+
     currentSlide = 0;
 
     images.forEach((src, i) => {
@@ -447,15 +447,32 @@
   }
 
   function updateCarousel() {
+    if (!track || !counterEl || !prevBtn || !nextBtn) return;
+
+    // [FIX] Guard saat tidak ada slide
+    if (slideCount === 0) {
+      track.style.transform = "translateX(0%)";
+      counterEl.textContent = "0";
+      prevBtn.style.opacity = "0";
+      prevBtn.style.pointerEvents = "none";
+      nextBtn.style.opacity = "0";
+      nextBtn.style.pointerEvents = "none";
+      return;
+    }
+
     track.style.transform = "translateX(-" + currentSlide * 100 + "%)";
     counterEl.textContent = String(currentSlide + 1);
-    Array.from(dotsContainer.children).forEach((dot, i) => {
-      dot.className =
-        "w-2 h-2 rounded-full transition-all duration-300 " +
-        (i === currentSlide
-          ? "bg-[var(--v)] scale-125"
-          : "bg-[var(--border-2)] hover:bg-[var(--t3)]");
-    });
+
+    if (dotsContainer) {
+      Array.from(dotsContainer.children).forEach((dot, i) => {
+        dot.className =
+          "w-2 h-2 rounded-full transition-all duration-300 " +
+          (i === currentSlide
+            ? "bg-[var(--v)] scale-125"
+            : "bg-[var(--border-2)] hover:bg-[var(--t3)]");
+      });
+    }
+
     const hideArrows = slideCount <= 1;
     prevBtn.style.opacity = hideArrows ? "0" : "1";
     prevBtn.style.pointerEvents = hideArrows ? "none" : "auto";
@@ -464,6 +481,8 @@
   }
 
   function goToSlide(index: number) {
+    // [FIX] Guard slideCount 0 agar tidak index negatif
+    if (slideCount === 0) return;
     if (index < 0) index = slideCount - 1;
     if (index >= slideCount) index = 0;
     currentSlide = index;
@@ -481,10 +500,10 @@
     isDragging = true;
     touchStartX = e.touches[0].clientX;
     touchCurrentX = touchStartX;
-    track.style.transition = "none";
+    if (track) track.style.transition = "none";
   }
   function onTouchMove(e: TouchEvent) {
-    if (!isDragging) return;
+    if (!isDragging || !track || !trackContainer) return;
     touchCurrentX = e.touches[0].clientX;
     const diff = touchCurrentX - touchStartX;
     track.style.transform =
@@ -493,9 +512,9 @@
       "%)";
   }
   function onTouchEnd() {
-    if (!isDragging) return;
+    if (!isDragging || !trackContainer) return;
     isDragging = false;
-    track.style.transition = "transform 300ms ease-out";
+    if (track) track.style.transition = "transform 300ms ease-out";
     const diff = touchCurrentX - touchStartX;
     const threshold = trackContainer.offsetWidth * 0.15;
     if (diff < -threshold) nextSlide();
@@ -507,6 +526,8 @@
   // RENDER MODAL CONTENT — dipisah agar bisa di-reuse saat ganti bahasa
   // ═══════════════════════════════════════════════════════════════
   function renderModalContent(project: ProjectData) {
+    if (!terminalSlug || !titleEl || !categoryEl || !yearTextEl || !descEl || !highlightsEl || !techStackEl) return;
+
     terminalSlug.textContent = project.slug + ".exe";
 
     const dictIdx = slugMap[project.slug] || 0;
@@ -533,8 +554,12 @@
       githubTextEl.textContent =
         btnText !== "projects.viewGithubShort" ? btnText : "SOURCE CODE";
     }
-    githubEl.href = project.githubUrl || "#";
-    githubEl.style.display = project.githubUrl ? "inline-flex" : "none";
+
+    // [FIX] Null-check githubEl sebelum akses property
+    if (githubEl) {
+      githubEl.href = project.githubUrl || "#";
+      githubEl.style.display = project.githubUrl ? "inline-flex" : "none";
+    }
 
     // Highlights
     highlightsEl.innerHTML = "";
@@ -569,12 +594,12 @@
   }
 
   function openModal(project: ProjectData) {
-    if (!project || isOpen) return;
-    currentProject = project; // ← SIMPAN untuk re-render nanti
+    if (!project || isOpen || !modal || !backdrop || !content) return;
+    currentProject = project;
     previouslyFocused = document.activeElement;
     isOpen = true;
 
-    renderModalContent(project); // ← ISI KONTEN
+    renderModalContent(project);
 
     const images =
       project.images && project.images.length > 0
@@ -595,53 +620,62 @@
       content.classList.add("opacity-100", "scale-100", "translate-y-0");
     }, 10);
 
+    // [FIX] Null-check closeBtn sebelum focus
     setTimeout(() => {
-      closeBtn.focus();
+      closeBtn?.focus();
     }, 100);
+
     if (scrollArea) scrollArea.scrollTop = 0;
   }
 
   function closeModal() {
-    if (!isOpen) return;
+    if (!isOpen || !modal || !backdrop || !content) return;
     isOpen = false;
-    currentProject = null; // ← CLEAR
+    currentProject = null;
 
     backdrop.classList.add("opacity-0");
     content.classList.remove("opacity-100", "scale-100", "translate-y-0");
     content.classList.add("opacity-0", "scale-95", "translate-y-12");
 
+    // [FIX] 400ms → 520ms (harus >= transition duration 500ms)
     setTimeout(() => {
       modal.classList.remove("flex");
       modal.classList.add("hidden");
       document.body.style.overflow = "";
       currentSlide = 0;
-      track.innerHTML = "";
-      dotsContainer.innerHTML = "";
+      if (track) track.innerHTML = "";
+      if (dotsContainer) dotsContainer.innerHTML = "";
+
+      // [FIX] Type-safe focus restore
       if (
-        previouslyFocused &&
-        previouslyFocused.isConnected &&
-        "focus" in previouslyFocused
+        previouslyFocused instanceof HTMLElement &&
+        previouslyFocused.isConnected
       ) {
-        (previouslyFocused as HTMLElement).focus();
+        previouslyFocused.focus();
       }
       previouslyFocused = null;
-    }, 400);
+    }, 520);
   }
 
-  closeBtn.addEventListener("click", closeModal);
-  backdrop.addEventListener("click", closeModal);
+  // [FIX] Null-check semua elemen sebelum attach listener
+  if (closeBtn) closeBtn.addEventListener("click", closeModal);
+  if (backdrop) backdrop.addEventListener("click", closeModal);
+
   document.addEventListener("keydown", (e) => {
     if (e.key === "Escape" && isOpen) closeModal();
     trapFocus(e);
   });
 
-  prevBtn.addEventListener("click", prevSlide);
-  nextBtn.addEventListener("click", nextSlide);
-  trackContainer.addEventListener("touchstart", onTouchStart, {
-    passive: true,
-  });
-  trackContainer.addEventListener("touchmove", onTouchMove, { passive: true });
-  trackContainer.addEventListener("touchend", onTouchEnd);
+  if (prevBtn) prevBtn.addEventListener("click", prevSlide);
+  if (nextBtn) nextBtn.addEventListener("click", nextSlide);
+
+  if (trackContainer) {
+    trackContainer.addEventListener("touchstart", onTouchStart, { passive: true });
+    trackContainer.addEventListener("touchmove", onTouchMove, { passive: true });
+    trackContainer.addEventListener("touchend", onTouchEnd);
+    // [FIX] Handle touchcancel agar isDragging tidak macet
+    trackContainer.addEventListener("touchcancel", onTouchEnd, { passive: true });
+  }
 
   // ═══════════════════════════════════════════════════════════════
   // FIX: Re-render modal saat bahasa diganti
