@@ -205,7 +205,9 @@ const sortedProjects = [...projects].sort((a, b) => {
                     {techList.length > 0 && (
                       <div class="case-tech">
                         {techList.map((t, ti) => (
-                          <span key={`tech-${ti}`} class="tech-pill">{t}</span>
+                          <span key={`tech-${ti}`} class="tech-pill">
+                            {t}
+                          </span>
                         ))}
                       </div>
                     )}
@@ -328,6 +330,8 @@ const sortedProjects = [...projects].sort((a, b) => {
     padding: 7rem 2.5rem;
     position: relative;
     overflow: hidden;
+    /* Scroll margin untuk fixed header offset */
+    scroll-margin-top: 5rem;
   }
 
   /* ── AMBIENT BACKGROUND ── */
@@ -467,7 +471,6 @@ const sortedProjects = [...projects].sort((a, b) => {
     grid-column: 1 / -1;
   }
 
-  /* ── Notch diperkecil ke 12px (konsisten dengan Contact/Skills) ── */
   .case-frame {
     background: var(--bg-2);
     border: 1px solid var(--border);
@@ -851,72 +854,83 @@ const sortedProjects = [...projects].sort((a, b) => {
   }
 </style>
 
-<script>
-  const dataEl = document.getElementById("projects-data-export");
-  if (dataEl) {
-    try {
-      window.__PROJECTS_DATA__ = JSON.parse(dataEl.dataset.projects || "[]");
-      window.__BASE_URL__ = dataEl.dataset.baseurl || "";
-    } catch (e) {
-      console.error("Failed to parse projects data:", e);
-    }
-  }
+<script is:inline>
+  // ═══════════════════════════════════════════════════════════════
+  // PROJECTS SECTION — Client-side initialization
+  // ═══════════════════════════════════════════════════════════════
+  (function () {
+    "use strict";
 
-  document.querySelectorAll("[data-project-slug]").forEach((el) => {
-    const slug = el.getAttribute("data-project-slug");
-    if (!slug) return;
-
-    // Set initial aria state
-    el.setAttribute("aria-expanded", "false");
-
-    const openModal = (e) => {
-      const target = e.target;
-      if (target.closest && target.closest("a")) return;
-
-      e.preventDefault();
-      if (window.openProjectModal) {
-        window.openProjectModal(slug);
-        el.setAttribute("aria-expanded", "true");
+    // Export data ke global (diperlukan oleh ProjectModal)
+    const dataEl = document.getElementById("projects-data-export");
+    if (dataEl) {
+      try {
+        window.__PROJECTS_DATA__ = JSON.parse(dataEl.dataset.projects || "[]");
+        window.__BASE_URL__ = dataEl.dataset.baseurl || "";
+      } catch (e) {
+        console.error("Failed to parse projects data:", e);
+        window.__PROJECTS_DATA__ = [];
+        window.__BASE_URL__ = "";
       }
-    };
+    }
 
-    const closeModalHandler = () => {
+    // ── Card click handlers ──
+    document.querySelectorAll("[data-project-slug]").forEach((el) => {
+      const slug = el.getAttribute("data-project-slug");
+      if (!slug) return;
+
       el.setAttribute("aria-expanded", "false");
-    };
 
-    el.addEventListener("click", openModal);
-    el.addEventListener("keydown", (e) => {
-      if (e.key === "Enter" || e.key === " ") {
+      const openModal = (e) => {
+        const target = e.target;
+        if (target.closest && target.closest("a")) return;
         e.preventDefault();
-        openModal(e);
+        if (window.openProjectModal) {
+          window.openProjectModal(slug);
+        }
+      };
+
+      el.addEventListener("click", openModal);
+      el.addEventListener("keydown", (e) => {
+        if (e.key === "Enter" || e.key === " ") {
+          e.preventDefault();
+          openModal(e);
+        }
+      });
+    });
+
+    // ── Listen untuk modal events (reset aria-expanded) ──
+    window.addEventListener("projectmodal:close", () => {
+      document.querySelectorAll("[data-project-slug]").forEach((card) => {
+        card.setAttribute("aria-expanded", "false");
+      });
+    });
+
+    window.addEventListener("projectmodal:open", (e) => {
+      const slug = e.detail?.slug;
+      if (slug) {
+        const card = document.querySelector(
+          '[data-project-slug="' + slug + '"]',
+        );
+        if (card) card.setAttribute("aria-expanded", "true");
       }
     });
 
-    // Listen for modal close to reset aria-expanded
-    if (window.closeProjectModal) {
-      const originalClose = window.closeProjectModal;
-      window.closeProjectModal = function(...args) {
-        document.querySelectorAll("[data-project-slug]").forEach(card => {
-          card.setAttribute("aria-expanded", "false");
+    // ── Scroll reveal observer ──
+    const rvObserver = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            entry.target.classList.add("in");
+            rvObserver.unobserve(entry.target);
+          }
         });
-        return originalClose.apply(this, args);
-      };
-    }
-  });
+      },
+      { threshold: 0.1, rootMargin: "0px 0px -50px 0px" },
+    );
 
-  const rvObserver = new IntersectionObserver(
-    (entries) => {
-      entries.forEach((entry) => {
-        if (entry.isIntersecting) {
-          entry.target.classList.add("in");
-          rvObserver.unobserve(entry.target);
-        }
-      });
-    },
-    { threshold: 0.1, rootMargin: "0px 0px -50px 0px" },
-  );
-
-  document.querySelectorAll(".rv").forEach((el) => {
-    rvObserver.observe(el);
-  });
+    document.querySelectorAll(".rv").forEach((el) => {
+      rvObserver.observe(el);
+    });
+  })();
 </script>
