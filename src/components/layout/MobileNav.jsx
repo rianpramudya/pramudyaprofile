@@ -13,6 +13,26 @@ const NAV_ITEMS = [
 const STORAGE_THEME = "pramudya-theme";
 const TRANSITION_DURATION = 450;
 
+// ═══════════════════════════════════════════════════════════════
+// DYNAMIC NAV HREF — detects sub-pages vs homepage
+// Homepage  → #anchor (smooth scroll, browser pertahankan ?lang=xx)
+// Sub-page  → /baseUrl/?lang=xx#anchor (full navigation kembali ke homepage)
+// ═══════════════════════════════════════════════════════════════
+const getNavHref = (href) => {
+  if (typeof window === "undefined") return href;
+  const path = window.location.pathname.toLowerCase();
+  // Deteksi base path dari <base> tag atau pathname
+  const baseTag = document.querySelector("base");
+  const basePath = baseTag ? baseTag.getAttribute("href").replace(/\/$/, "") : "";
+  const cleanPath = basePath ? path.replace(basePath, "").toLowerCase() : path;
+  const isHome = !["/accesscv", "/cekpin", "/404"].some((p) =>
+    cleanPath.includes(p),
+  );
+  if (isHome) return href;
+  const lang = new URLSearchParams(window.location.search).get("lang") || "id";
+  return `${basePath}/?lang=${lang}${href}`;
+};
+
 export default function MobileNav() {
   const [isOpen, setIsOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
@@ -173,7 +193,7 @@ export default function MobileNav() {
   const renderNavLink = (item, index) => (
     <a
       key={item.key}
-      href={item.href}
+      href={getNavHref(item.href)}
       onClick={closeMenu}
       className={`group block transition-all duration-300 ${
         isOpen ? "translate-x-0 opacity-100" : "translate-x-3 opacity-0"
@@ -192,7 +212,7 @@ export default function MobileNav() {
 
   const renderCTA = () => (
     <a
-      href="#contact"
+      href={getNavHref("#contact")}
       onClick={closeMenu}
       className={`group block mt-0.5 transition-all duration-300 ${
         isOpen ? "translate-x-0 opacity-100" : "translate-x-3 opacity-0"
@@ -210,7 +230,6 @@ export default function MobileNav() {
     </a>
   );
 
-  // ── NEW: Download CV Button ──
   const renderCVButton = () => (
     <button
       onClick={() => {

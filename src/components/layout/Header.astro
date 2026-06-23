@@ -13,6 +13,22 @@ function getLangFromUrl(url: URL): Lang {
 
 const lang = getLangFromUrl(Astro.url);
 
+// ═══════════════════════════════════════════════════════════════
+// DYNAMIC NAVIGATION — detects sub-pages vs homepage
+// ═══════════════════════════════════════════════════════════════
+const currentPath = Astro.url.pathname.toLowerCase();
+const isHomePage = !["/accesscv", "/cekpin", "/404"].some((p) =>
+  currentPath.includes(p),
+);
+
+// Base URL untuk deployment (e.g. /pramudyaprofile/)
+const baseUrl = import.meta.env.BASE_URL.replace(/\/$/, ""); // remove trailing slash
+
+// Homepage  → #anchor (smooth scroll, browser pertahankan ?lang=xx otomatis)
+// Sub-page  → /baseUrl/?lang=xx#anchor (full navigation kembali ke homepage)
+const getNavHref = (href: string) =>
+  isHomePage ? href : `${baseUrl}/?lang=${lang}${href}`;
+
 function ts(key: string): string {
   const dict = dictionary[lang] as Record<string, string | string[]>;
   const val = dict[key];
@@ -23,7 +39,7 @@ function ts(key: string): string {
 
 <header id="header-wrapper">
   <nav id="nav">
-    <a href="#hero" class="nav-brand group">
+    <a href={getNavHref("#hero")} class="nav-brand group">
       <svg
         viewBox="0 0 100 100"
         xmlns="http://www.w3.org/2000/svg"
@@ -62,7 +78,11 @@ function ts(key: string): string {
       {
         navigation.map((item) => (
           <li>
-            <a href={item.href} data-section={item.href} data-i18n={item.key}>
+            <a
+              href={getNavHref(item.href)}
+              data-section={item.href}
+              data-i18n={item.key}
+            >
               {ts(item.key)}
             </a>
           </li>
@@ -374,7 +394,6 @@ function ts(key: string): string {
     text-transform: uppercase;
     border: none;
     cursor: pointer;
-    /* Notch 12px (konsisten dengan Projects/Contact/Skills) */
     clip-path: polygon(
       0 0,
       100% 0,

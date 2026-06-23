@@ -6,9 +6,22 @@ import Footer from "@/components/layout/Footer.astro";
 interface Props {
   title?: string;
   description?: string;
+  ogImage?: string;
+  noIndex?: boolean;
+  class?: string;
+  minimal?: boolean;
 }
 
-const { title = site.title, description = site.description } = Astro.props;
+const {
+  title = site.title,
+  description = site.description,
+  ogImage = "/og-image.jpg",
+  noIndex = false,
+  class: className = "",
+  minimal = false,
+} = Astro.props;
+
+const canonicalURL = new URL(Astro.url.pathname, Astro.site || site.url);
 ---
 
 <!doctype html>
@@ -34,13 +47,17 @@ const { title = site.title, description = site.description } = Astro.props;
     <meta property="og:description" content={description} />
     <meta property="og:type" content="website" />
     <meta property="og:url" content={site.url} />
+    <meta property="og:image" content={ogImage} />
 
     <!-- Twitter -->
     <meta name="twitter:card" content="summary_large_image" />
     <meta name="twitter:title" content={title} />
     <meta name="twitter:description" content={description} />
+    <meta name="twitter:image" content={ogImage} />
 
     <title>{title}</title>
+    <link rel="canonical" href={canonicalURL} />
+    {noIndex && <meta name="robots" content="noindex, nofollow" />}
 
     <!-- Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com" />
@@ -77,35 +94,40 @@ const { title = site.title, description = site.description } = Astro.props;
       })();
     </script>
 
+    <!-- Font Loading Detection — prevents FOUC on custom typefaces -->
+    <script is:inline>
+      document.documentElement.classList.add("fonts-loading");
+      document.fonts.ready.then(() => {
+        document.documentElement.classList.remove("fonts-loading");
+        document.documentElement.classList.add("fonts-loaded");
+      });
+    </script>
+
     <style is:global>
       /* ============================================================
          CSS CUSTOM PROPERTIES
-         Design philosophy:
-           - Dark  → rich deep greens, high-contrast whites, vivid accents
-           - Light → crisp white cards on a very light teal-tinted surface,
-                     deep forest-green text for maximum legibility
          ============================================================ */
 
       /* ---- DARK MODE (default) ---------------------------------- */
       :root {
         color-scheme: dark;
 
-        /* Backgrounds — three clear steps of depth */
-        --bg:   #080e0d;   /* page canvas  */
-        --bg-2: #0f1a18;   /* card surface — noticeably lighter than canvas */
-        --bg-3: #172420;   /* raised / hover state */
+        /* Backgrounds */
+        --bg:   #080e0d;
+        --bg-2: #0f1a18;
+        --bg-3: #172420;
 
-        /* Borders — visible but not loud */
+        /* Borders */
         --border:   #1f3d34;
         --border-2: #2e5547;
 
-        /* Typography — WCAG AA+ */
-        --t1: #e8faf2;     /* primary   — near-white with green tint, 15:1 on --bg */
-        --t2: #7dd8b0;     /* secondary — soft sage, 6:1 on --bg */
-        --t3: #4a9070;     /* muted     — for labels/captions, 4.5:1 on --bg */
+        /* Typography */
+        --t1: #e8faf2;
+        --t2: #7dd8b0;
+        --t3: #4a9070;
 
         /* Brand accent */
-        --v:  #10b981;     /* emerald   */
+        --v:  #10b981;
         --vd: rgba(16, 185, 129, 0.14);
         --v-ring-rest: rgba(16, 185, 129, 0.45);
         --v-ring-hov:  rgba(16, 185, 129, 0.80);
@@ -139,49 +161,63 @@ const { title = site.title, description = site.description } = Astro.props;
         --card-border:  var(--border);
         --card-hover-border: var(--border-2);
         --card-shadow:  var(--shadow-card);
+
+        /* ═══════════════════════════════════════════════════════
+           SUPERPOWER: Design System Tokens
+           ═══════════════════════════════════════════════════════ */
+        --font-display: "Space Grotesk", system-ui, sans-serif;
+        --font-body:    "Inter", system-ui, sans-serif;
+        --font-mono:    "JetBrains Mono", "SF Mono", monospace;
+
+        --ease-out-expo:  cubic-bezier(0.16, 1, 0.3, 1);
+        --ease-out-quart: cubic-bezier(0.25, 1, 0.5, 1);
+        --ease-in-out-sine: cubic-bezier(0.37, 0, 0.63, 1);
+
+        --duration-instant: 150ms;
+        --duration-fast:    250ms;
+        --duration-normal:  400ms;
+        --duration-slow:    700ms;
+        --duration-dramatic: 1200ms;
+
+        --z-bg:      -10;
+        --z-content:  10;
+        --z-overlay:  50;
+        --z-header:  100;
+        --z-modal:   200;
+        --z-cursor:  9999;
       }
 
       /* ---- LIGHT MODE ------------------------------------------ */
       [data-theme="light"] {
         color-scheme: light;
 
-        /* Backgrounds */
-        --bg:   #edf7f2;   /* page canvas — very light teal-mint */
-        --bg-2: #ffffff;   /* card surface — pure white, clear pop */
-        --bg-3: #f4faf7;   /* section tint */
+        --bg:   #edf7f2;
+        --bg-2: #ffffff;
+        --bg-3: #f4faf7;
 
-        /* Borders — crisp and clearly visible */
         --border:   #b2ddc8;
         --border-2: #7ec9a8;
 
-        /* Typography — maximum legibility on white/light-teal */
-        --t1: #0b2d22;     /* primary   — deep forest green, 16:1 on #fff */
-        --t2: #1a5c3f;     /* secondary — forest green, 8:1 on #fff */
-        --t3: #2e7d58;     /* muted     — 5.5:1 on #fff, WCAG AA */
+        --t1: #0b2d22;
+        --t2: #1a5c3f;
+        --t3: #2e7d58;
 
-        /* Brand accent */
         --v:  #059669;
         --vd: rgba(5, 150, 105, 0.10);
         --v-ring-rest: rgba(5, 150, 105, 0.35);
         --v-ring-hov:  rgba(5, 150, 105, 0.65);
 
-        /* Complementary accent */
         --c:  #0d9488;
         --cd: rgba(13, 148, 136, 0.08);
 
-        /* Warning */
         --o:  #b45309;
         --od: rgba(180, 83, 9, 0.09);
 
-        /* Success */
         --g:  #15803d;
 
-        /* Nav */
         --nav-bg: rgba(237, 247, 242, 0.92);
 
-        /* Glow & atmosphere */
         --shadow-v:   rgba(5, 150, 105, 0.15);
-        /* Card shadow: crisp bottom edge + subtle lift */
         --shadow-card: 0 1px 2px rgba(11, 45, 34, 0.06),
                        0 4px 12px rgba(11, 45, 34, 0.08),
                        0 0 0 1px rgba(126, 201, 168, 0.45);
@@ -190,7 +226,6 @@ const { title = site.title, description = site.description } = Astro.props;
         --grid-line:  rgba(5, 150, 105, 0.06);
         --noise-op: 0.10;
 
-        /* Card specifics */
         --card-bg:           var(--bg-2);
         --card-border:       var(--border);
         --card-hover-border: var(--v);
@@ -222,6 +257,17 @@ const { title = site.title, description = site.description } = Astro.props;
 
       html {
         scroll-behavior: smooth;
+        -webkit-font-smoothing: antialiased;
+        -moz-osx-font-smoothing: grayscale;
+        text-rendering: optimizeLegibility;
+      }
+
+      html.fonts-loading body {
+        opacity: 0;
+      }
+      html.fonts-loaded body {
+        opacity: 1;
+        transition: opacity 0.3s ease;
       }
 
       body {
@@ -232,18 +278,31 @@ const { title = site.title, description = site.description } = Astro.props;
         -moz-osx-font-smoothing: grayscale;
         overflow-x: hidden;
         transition: background 0.35s, color 0.35s;
+        cursor: none; /* Custom cursor takes over on desktop */
+        min-height: 100vh;
       }
 
       /* ============================================================
          TYPOGRAPHY HELPERS
          ============================================================ */
+      .font-display { font-family: var(--font-display); }
+      .font-body    { font-family: var(--font-body);    }
+      .font-mono    { font-family: var(--font-mono);    }
+
       .text-t1  { color: var(--t1); }
       .text-t2  { color: var(--t2); }
       .text-t3  { color: var(--t3); }
       .text-v   { color: var(--v);  }
       .text-c   { color: var(--c);  }
 
-      /* Ensure heading tags inherit the theme colour by default */
+      /* Gradient text — brand emerald flow */
+      .text-gradient {
+        background: linear-gradient(135deg, var(--v) 0%, var(--c) 100%);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+      }
+
       h1, h2, h3, h4, h5, h6 {
         color: var(--t1);
         line-height: 1.2;
@@ -253,7 +312,6 @@ const { title = site.title, description = site.description } = Astro.props;
         color: var(--t1);
       }
 
-      /* Links */
       a {
         color: var(--v);
         text-decoration: none;
@@ -261,6 +319,12 @@ const { title = site.title, description = site.description } = Astro.props;
       }
       a:hover {
         color: var(--c);
+      }
+
+      img {
+        max-width: 100%;
+        height: auto;
+        display: block;
       }
 
       /* ============================================================
@@ -277,9 +341,7 @@ const { title = site.title, description = site.description } = Astro.props;
       .border-border-2 { border-color: var(--border-2); }
 
       /* ============================================================
-         CARD — the core utility class
-         Apply to any card element in your components.
-         Usage: class="card" (or compose via Tailwind @apply)
+         CARD
          ============================================================ */
       .card {
         background:    var(--card-bg);
@@ -300,16 +362,14 @@ const { title = site.title, description = site.description } = Astro.props;
         transform: translateY(-2px);
       }
 
-      /* Light-mode extra: card header label readability */
       [data-theme="light"] .card {
-        /* Subtle inner top highlight to reinforce the "lifted paper" feel */
         box-shadow:
           var(--card-shadow),
           inset 0 1px 0 rgba(255, 255, 255, 0.90);
       }
 
       /* ============================================================
-         BADGE / TAG (PEKERJAAN, ORGANISASI, PENDIDIKAN labels)
+         BADGE / TAG
          ============================================================ */
       .badge {
         display:        inline-flex;
@@ -333,7 +393,7 @@ const { title = site.title, description = site.description } = Astro.props;
       }
 
       /* ============================================================
-         SECTION headings
+         SECTION HEADINGS
          ============================================================ */
       .section-label {
         font-size:      0.70rem;
@@ -390,16 +450,7 @@ const { title = site.title, description = site.description } = Astro.props;
       }
 
       /* ============================================================
-         REDUCED MOTION
-         ============================================================ */
-      @media (prefers-reduced-motion: reduce) {
-        [data-aos] { opacity: 1; transform: none; }
-        html.theme-transition,
-        html.theme-transition * { transition: none !important; }
-      }
-
-      /* ============================================================
-         UTILITY: grid / orb atmosphere (used in hero sections)
+         UTILITY: grid / orb atmosphere
          ============================================================ */
       .bg-grid {
         background-image:
@@ -416,19 +467,519 @@ const { title = site.title, description = site.description } = Astro.props;
       }
       .orb-v { background: var(--orb-v); }
       .orb-c { background: var(--orb-c); }
+
+      /* ═══════════════════════════════════════════════════════════════
+         ═══════════════════════════════════════════════════════════════
+         SUPERPOWER: ATMOSPHERIC & INTERACTION LAYERS
+         ═══════════════════════════════════════════════════════════════
+         ═══════════════════════════════════════════════════════════════ */
+
+      /* ═══════════════════════════════════════════════════════════════
+         SUPERPOWER: ATMOSPHERIC LAYERS — DARK & LIGHT AWARE
+         ═══════════════════════════════════════════════════════════════ */
+
+      /* ── LAYER 1: LIVING DATA MESH ── */
+      .layer-mesh {
+        position: fixed;
+        inset: 0;
+        z-index: var(--z-bg);
+        pointer-events: none;
+        overflow: hidden;
+      }
+
+      .mesh-grid {
+        position: absolute;
+        inset: -50%;
+        width: 200%;
+        height: 200%;
+      }
+
+      .mesh-line {
+        position: absolute;
+        opacity: 0;
+        animation: meshPulse 8s var(--ease-in-out-sine) infinite;
+        animation-delay: var(--delay);
+      }
+
+      /* DARK MODE mesh */
+      .mesh-line-h {
+        height: 1px;
+        width: 30%;
+        left: var(--pos);
+        top: var(--pos);
+        background: linear-gradient(
+          90deg,
+          transparent 0%,
+          var(--orb-v) 20%,
+          var(--shadow-v) 50%,
+          var(--orb-v) 80%,
+          transparent 100%
+        );
+      }
+
+      .mesh-line-v {
+        width: 1px;
+        height: 30%;
+        left: var(--pos);
+        top: var(--pos);
+        background: linear-gradient(
+          180deg,
+          transparent 0%,
+          var(--orb-c) 20%,
+          var(--cd) 50%,
+          var(--orb-c) 80%,
+          transparent 100%
+        );
+      }
+
+      /* LIGHT MODE mesh — lebih terlihat, warna lebih solid */
+      [data-theme="light"] .mesh-line-h {
+        background: linear-gradient(
+          90deg,
+          transparent 0%,
+          rgba(5, 150, 105, 0.18) 20%,
+          rgba(5, 150, 105, 0.35) 50%,
+          rgba(5, 150, 105, 0.18) 80%,
+          transparent 100%
+        );
+      }
+
+      [data-theme="light"] .mesh-line-v {
+        background: linear-gradient(
+          180deg,
+          transparent 0%,
+          rgba(13, 148, 136, 0.15) 20%,
+          rgba(13, 148, 136, 0.30) 50%,
+          rgba(13, 148, 136, 0.15) 80%,
+          transparent 100%
+        );
+      }
+
+      [data-theme="light"] .mesh-line {
+        animation-name: meshPulseLight;
+      }
+
+      @keyframes meshPulse {
+        0%, 100% { opacity: 0; transform: scaleX(0.5); }
+        50% { opacity: 0.5; transform: scaleX(1); }
+      }
+
+      @keyframes meshPulseLight {
+        0%, 100% { opacity: 0; transform: scaleX(0.5); }
+        50% { opacity: 0.75; transform: scaleX(1); }
+      }
+
+      .mesh-node {
+        position: absolute;
+        left: var(--x);
+        top: var(--y);
+        width: 3px;
+        height: 3px;
+        border-radius: 50%;
+        background: var(--v);
+        opacity: 0;
+        box-shadow: 0 0 20px 2px var(--vd);
+        animation: nodePulse 6s var(--ease-in-out-sine) infinite;
+        animation-delay: var(--delay);
+      }
+
+      [data-theme="light"] .mesh-node {
+        background: #059669;
+        box-shadow: 0 0 20px 4px rgba(5, 150, 105, 0.35);
+        animation-name: nodePulseLight;
+      }
+
+      @keyframes nodePulse {
+        0%, 100% { opacity: 0; transform: scale(0.5); }
+        50% { opacity: 0.7; transform: scale(1); }
+      }
+
+      @keyframes nodePulseLight {
+        0%, 100% { opacity: 0; transform: scale(0.5); }
+        50% { opacity: 0.9; transform: scale(1); }
+      }
+
+      /* ── LAYER 2: NOISE TEXTURE ── */
+      .layer-noise {
+        position: fixed;
+        inset: 0;
+        z-index: calc(var(--z-bg) + 1);
+        pointer-events: none;
+        opacity: var(--noise-op);
+        mix-blend-mode: overlay;
+      }
+      .layer-noise svg {
+        width: 100%;
+        height: 100%;
+      }
+
+      /* ── LAYER 3: CURSOR SPOTLIGHT ── */
+      .layer-spotlight {
+        position: fixed;
+        inset: 0;
+        z-index: calc(var(--z-bg) + 2);
+        pointer-events: none;
+        background: radial-gradient(
+          600px circle at var(--mouse-x, 50%) var(--mouse-y, 50%),
+          var(--vd) 0%,
+          var(--cd) 40%,
+          transparent 70%
+        );
+        transition: background 0.15s ease-out;
+        will-change: background;
+      }
+
+      [data-theme="light"] .layer-spotlight {
+        background: radial-gradient(
+          600px circle at var(--mouse-x, 50%) var(--mouse-y, 50%),
+          rgba(5, 150, 105, 0.10) 0%,
+          rgba(13, 148, 136, 0.06) 40%,
+          transparent 70%
+        );
+      }
+
+      /* ── LAYER 4: CUSTOM CURSOR ── */
+      .layer-cursor {
+        position: fixed;
+        top: 0;
+        left: 0;
+        z-index: var(--z-cursor);
+        pointer-events: none;
+        mix-blend-mode: difference;
+        will-change: transform;
+      }
+
+      .cursor-dot {
+        width: 6px;
+        height: 6px;
+        background: var(--v);
+        border-radius: 50%;
+        position: absolute;
+        top: -3px;
+        left: -3px;
+        transition: transform 0.15s ease-out, opacity 0.2s ease;
+        will-change: transform;
+      }
+
+      [data-theme="light"] .cursor-dot {
+        background: #059669;
+      }
+
+      .cursor-ring {
+        width: 40px;
+        height: 40px;
+        border: 1px solid var(--v-ring-rest);
+        border-radius: 50%;
+        position: absolute;
+        top: -20px;
+        left: -20px;
+        transition:
+          width 0.3s var(--ease-out-expo),
+          height 0.3s var(--ease-out-expo),
+          border-color 0.3s ease,
+          top 0.3s var(--ease-out-expo),
+          left 0.3s var(--ease-out-expo);
+        will-change: transform;
+      }
+
+      [data-theme="light"] .cursor-ring {
+        border-color: rgba(5, 150, 105, 0.40);
+      }
+
+      .cursor-glow {
+        width: 60px;
+        height: 60px;
+        background: radial-gradient(circle, var(--vd) 0%, transparent 70%);
+        border-radius: 50%;
+        position: absolute;
+        top: -30px;
+        left: -30px;
+        opacity: 0;
+        transition: opacity 0.3s ease, transform 0.3s var(--ease-out-expo);
+      }
+
+      [data-theme="light"] .cursor-glow {
+        background: radial-gradient(circle, rgba(5, 150, 105, 0.12) 0%, transparent 70%);
+      }
+
+      .layer-cursor.hovering .cursor-dot {
+        transform: scale(2.5);
+        opacity: 0.5;
+      }
+      .layer-cursor.hovering .cursor-ring {
+        width: 60px;
+        height: 60px;
+        top: -30px;
+        left: -30px;
+        border-color: var(--v-ring-hov);
+      }
+      [data-theme="light"] .layer-cursor.hovering .cursor-ring {
+        border-color: rgba(5, 150, 105, 0.80);
+      }
+      .layer-cursor.hovering .cursor-glow {
+        opacity: 1;
+        transform: scale(1.5);
+      }
+      .layer-cursor.clicking .cursor-dot {
+        transform: scale(0.8);
+      }
+      .layer-cursor.clicking .cursor-ring {
+        transform: scale(0.9);
+      }
+
+      /* ── LAYER 5: VIGNETTE ── */
+      .layer-vignette {
+        position: fixed;
+        inset: 0;
+        z-index: calc(var(--z-bg) + 3);
+        pointer-events: none;
+        box-shadow: inset 0 0 150px 60px rgba(8, 14, 13, 0.7);
+      }
+      [data-theme="light"] .layer-vignette {
+        box-shadow: inset 0 0 150px 60px rgba(237, 247, 242, 0.55);
+      }
+
+      /* ── CONTENT SHELL ── */
+      .content-shell {
+        position: relative;
+        z-index: var(--z-content);
+        min-height: 100vh;
+      }
+
+      /* ── PAGE ENTRANCE ── */
+      @keyframes pageEnter {
+        from {
+          opacity: 0;
+          transform: translateY(20px);
+          filter: blur(4px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+          filter: blur(0);
+        }
+      }
+      main.content-shell {
+        animation: pageEnter 0.8s var(--ease-out-expo) both;
+        animation-delay: 0.1s;
+      }
+
+      /* ── SCROLL REVEAL (complement to AOS) ── */
+      .reveal {
+        opacity: 0;
+        transform: translateY(40px);
+        transition: opacity 0.8s var(--ease-out-expo),
+                    transform 0.8s var(--ease-out-expo);
+      }
+      .reveal.visible {
+        opacity: 1;
+        transform: translateY(0);
+      }
+      .reveal-delay-1 { transition-delay: 0.1s; }
+      .reveal-delay-2 { transition-delay: 0.2s; }
+      .reveal-delay-3 { transition-delay: 0.3s; }
+      .reveal-delay-4 { transition-delay: 0.4s; }
+
+      .reveal-stagger > * {
+        opacity: 0;
+        transform: translateY(30px);
+        transition: opacity 0.6s var(--ease-out-expo),
+                    transform 0.6s var(--ease-out-expo);
+      }
+      .reveal-stagger.visible > *:nth-child(1) { transition-delay: 0.05s; opacity: 1; transform: translateY(0); }
+      .reveal-stagger.visible > *:nth-child(2) { transition-delay: 0.1s;  opacity: 1; transform: translateY(0); }
+      .reveal-stagger.visible > *:nth-child(3) { transition-delay: 0.15s; opacity: 1; transform: translateY(0); }
+      .reveal-stagger.visible > *:nth-child(4) { transition-delay: 0.2s;  opacity: 1; transform: translateY(0); }
+      .reveal-stagger.visible > *:nth-child(5) { transition-delay: 0.25s; opacity: 1; transform: translateY(0); }
+      .reveal-stagger.visible > *:nth-child(6) { transition-delay: 0.3s;  opacity: 1; transform: translateY(0); }
+      .reveal-stagger.visible > *:nth-child(7) { transition-delay: 0.35s; opacity: 1; transform: translateY(0); }
+      .reveal-stagger.visible > *:nth-child(8) { transition-delay: 0.4s;  opacity: 1; transform: translateY(0); }
+
+      /* ── MAGNETIC HOVER ── */
+      .magnetic {
+        display: inline-block;
+        transition: transform 0.3s var(--ease-out-expo);
+        will-change: transform;
+      }
+
+      /* ── GLITCH TEXT ── */
+      .glitch-text {
+        position: relative;
+        display: inline-block;
+      }
+      .glitch-text::before,
+      .glitch-text::after {
+        content: attr(data-text);
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        opacity: 0;
+      }
+      .glitch-text:hover::before {
+        animation: glitch-1 0.3s linear;
+        color: var(--c);
+        opacity: 0.8;
+      }
+      .glitch-text:hover::after {
+        animation: glitch-2 0.3s linear;
+        color: var(--o);
+        opacity: 0.8;
+      }
+      @keyframes glitch-1 {
+        0%  { clip-path: inset(20% 0 60% 0); transform: translate(-2px, 0); }
+        20% { clip-path: inset(60% 0 10% 0); transform: translate(2px, 0); }
+        40% { clip-path: inset(40% 0 30% 0); transform: translate(-1px, 0); }
+        60% { clip-path: inset(80% 0 5% 0);  transform: translate(1px, 0); }
+        80% { clip-path: inset(10% 0 70% 0); transform: translate(-2px, 0); }
+        100%{ clip-path: inset(50% 0 20% 0); transform: translate(0, 0); }
+      }
+      @keyframes glitch-2 {
+        0%  { clip-path: inset(10% 0 70% 0); transform: translate(2px, 0); }
+        20% { clip-path: inset(50% 0 20% 0); transform: translate(-2px, 0); }
+        40% { clip-path: inset(30% 0 40% 0); transform: translate(1px, 0); }
+        60% { clip-path: inset(70% 0 10% 0); transform: translate(-1px, 0); }
+        80% { clip-path: inset(20% 0 60% 0); transform: translate(2px, 0); }
+        100%{ clip-path: inset(60% 0 10% 0); transform: translate(0, 0); }
+      }
+
+      /* ── AMBIENT GLOW (card border glow on hover) ── */
+      .ambient-glow {
+        position: relative;
+      }
+      .ambient-glow::before {
+        content: "";
+        position: absolute;
+        inset: -1px;
+        border-radius: inherit;
+        background: linear-gradient(
+          135deg,
+          var(--vd) 0%,
+          transparent 40%,
+          transparent 60%,
+          var(--cd) 100%
+        );
+        z-index: -1;
+        opacity: 0;
+        transition: opacity 0.5s ease;
+      }
+      .ambient-glow:hover::before {
+        opacity: 1;
+      }
+
+      /* ============================================================
+         RESPONSIVE
+         ============================================================ */
+      @media (max-width: 768px) {
+        .layer-vignette {
+          box-shadow: inset 0 0 80px 30px rgba(8, 14, 13, 0.6);
+        }
+        [data-theme="light"] .layer-vignette {
+          box-shadow: inset 0 0 80px 30px rgba(237, 247, 242, 0.4);
+        }
+        .mesh-line-h, .mesh-line-v {
+          opacity: 0.5;
+        }
+      }
+
+      /* ============================================================
+         REDUCED MOTION
+         ============================================================ */
+      @media (prefers-reduced-motion: reduce) {
+        [data-aos] { opacity: 1; transform: none; }
+        html.theme-transition,
+        html.theme-transition * { transition: none !important; }
+
+        .layer-mesh,
+        .layer-spotlight,
+        .layer-cursor {
+          display: none !important;
+        }
+        .reveal, .reveal-stagger > * {
+          opacity: 1 !important;
+          transform: none !important;
+        }
+        body { cursor: auto !important; }
+      }
+
+      /* Hide custom cursor on touch devices */
+      @media (hover: none) and (pointer: coarse) {
+        .layer-cursor { display: none !important; }
+        body { cursor: auto !important; }
+      }
     </style>
   </head>
 
-  <body class="font-sans antialiased overflow-x-hidden">
+  <body class={`font-sans antialiased overflow-x-hidden ${className}`.trim()} style={minimal ? "cursor: auto;" : ""} data-minimal={minimal ? "" : undefined}>
+
+    {/* ═══════════════════════════════════════════════════════════════
+        ATMOSPHERIC LAYERS (Superpower)
+        ═══════════════════════════════════════════════════════════════ */}
+    {!minimal && (
+    <>
+    <!-- LAYER 1: Living Data Mesh -->
+    <div class="layer-mesh" aria-hidden="true">
+      <div class="mesh-grid">
+        <div class="mesh-line mesh-line-h" style="--delay:0s; --pos:15%;"></div>
+        <div class="mesh-line mesh-line-h" style="--delay:2s; --pos:35%;"></div>
+        <div class="mesh-line mesh-line-h" style="--delay:4s; --pos:55%;"></div>
+        <div class="mesh-line mesh-line-h" style="--delay:1s; --pos:75%;"></div>
+        <div class="mesh-line mesh-line-h" style="--delay:3s; --pos:90%;"></div>
+        <div class="mesh-line mesh-line-v" style="--delay:0.5s; --pos:10%;"></div>
+        <div class="mesh-line mesh-line-v" style="--delay:2.5s; --pos:30%;"></div>
+        <div class="mesh-line mesh-line-v" style="--delay:4.5s; --pos:50%;"></div>
+        <div class="mesh-line mesh-line-v" style="--delay:1.5s; --pos:70%;"></div>
+        <div class="mesh-line mesh-line-v" style="--delay:3.5s; --pos:85%;"></div>
+      </div>
+      <div class="mesh-nodes">
+        <div class="mesh-node" style="--x:20%; --y:25%; --delay:0s;"></div>
+        <div class="mesh-node" style="--x:70%; --y:15%; --delay:1.5s;"></div>
+        <div class="mesh-node" style="--x:40%; --y:60%; --delay:3s;"></div>
+        <div class="mesh-node" style="--x:85%; --y:45%; --delay:4.5s;"></div>
+        <div class="mesh-node" style="--x:15%; --y:80%; --delay:2s;"></div>
+        <div class="mesh-node" style="--x:60%; --y:75%; --delay:5s;"></div>
+      </div>
+    </div>
+
+    <!-- LAYER 2: Noise Texture -->
+    <div class="layer-noise" aria-hidden="true">
+      <svg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
+        <filter id="noiseFilter">
+          <feTurbulence type="fractalNoise" baseFrequency="0.85" numOctaves="4" stitchTiles="stitch" />
+          <feColorMatrix type="saturate" values="0" />
+        </filter>
+        <rect width="100%" height="100%" filter="url(#noiseFilter)" opacity="0.03" />
+      </svg>
+    </div>
+
+    <!-- LAYER 3: Cursor Spotlight -->
+    <div class="layer-spotlight" aria-hidden="true" id="spotlight"></div>
+
+    <!-- LAYER 4: Custom Cursor -->
+    <div class="layer-cursor" aria-hidden="true" id="custom-cursor">
+      <div class="cursor-dot"></div>
+      <div class="cursor-ring"></div>
+      <div class="cursor-glow"></div>
+    </div>
+
+    <!-- LAYER 5: Vignette -->
+    <div class="layer-vignette" aria-hidden="true"></div>
+    </>
+    )}
+
+    {/* ═══════════════════════════════════════════════════════════════
+        EXISTING CONTENT (unchanged logic)
+        ═══════════════════════════════════════════════════════════════ */}
     <Header />
 
-    <main>
+    <main class="content-shell">
       <slot />
     </main>
 
     <Footer />
 
-    <!-- ===== GLOBAL SCRIPTS ===== -->
+    <!-- ===== GLOBAL SCRIPTS (unchanged logic) ===== -->
     <script>
       import { initLang } from "@/i18n/index";
 
@@ -461,6 +1012,216 @@ const { title = site.title, description = site.description } = Astro.props;
       });
 
       initLang();
+    </script>
+
+    {/* ═══════════════════════════════════════════════════════════════
+        SUPERPOWER: CLIENT-SIDE INTERACTION ENGINE
+        ═══════════════════════════════════════════════════════════════ */}
+        <script is:inline>
+      (function() {
+        "use strict";
+
+        const prefersReducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+        const isTouchDevice = window.matchMedia("(hover: none) and (pointer: coarse)").matches;
+        const isMinimal = document.body.hasAttribute("data-minimal");
+
+        if (prefersReducedMotion || isMinimal) return;
+
+        // ── Elements ──
+        const spotlight = document.getElementById("spotlight");
+        const cursor = document.getElementById("custom-cursor");
+        const cursorRing = cursor?.querySelector(".cursor-ring");
+
+        let mouseX = 0;
+        let mouseY = 0;
+        let ringX = 0;
+        let ringY = 0;
+        let rafId = null;
+
+        // ── Core Render Loop (60fps) ──
+        function render() {
+          if (spotlight) {
+            spotlight.style.setProperty("--mouse-x", mouseX + "px");
+            spotlight.style.setProperty("--mouse-y", mouseY + "px");
+          }
+
+          if (cursor) {
+            cursor.style.transform = `translate3d(${mouseX}px, ${mouseY}px, 0)`;
+          }
+
+          if (cursorRing) {
+            ringX += (mouseX - ringX) * 0.22;
+            ringY += (mouseY - ringY) * 0.22;
+            cursorRing.style.transform = `translate3d(${ringX - mouseX}px, ${ringY - mouseY}px, 0)`;
+          }
+
+          rafId = requestAnimationFrame(render);
+        }
+
+        // ── Mouse Move ──
+        function onMouseMove(e) {
+          mouseX = e.clientX;
+          mouseY = e.clientY;
+        }
+
+        // ── Hover States ──
+        function onMouseEnterInteractive() {
+          if (cursor) cursor.classList.add("hovering");
+        }
+        function onMouseLeaveInteractive() {
+          if (cursor) cursor.classList.remove("hovering");
+        }
+        function onMouseDown() {
+          if (cursor) cursor.classList.add("clicking");
+        }
+        function onMouseUp() {
+          if (cursor) cursor.classList.remove("clicking");
+        }
+
+        // ── Magnetic Effect ──
+        function initMagnetic() {
+          document.querySelectorAll(".magnetic").forEach(el => {
+            el.addEventListener("mousemove", onMagneticMove);
+            el.addEventListener("mouseleave", onMagneticLeave);
+          });
+        }
+        function onMagneticMove(e) {
+          const rect = this.getBoundingClientRect();
+          const x = e.clientX - rect.left - rect.width / 2;
+          const y = e.clientY - rect.top - rect.height / 2;
+          this.style.transform = `translate3d(${x * 0.3}px, ${y * 0.3}px, 0)`;
+        }
+        function onMagneticLeave() {
+          this.style.transform = "translate3d(0, 0, 0)";
+        }
+
+        // ── Scroll Reveal ──
+        let revealObserver = null;
+        function initScrollReveal() {
+          if (revealObserver) revealObserver.disconnect();
+          revealObserver = new IntersectionObserver(
+            (entries) => {
+              entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                  entry.target.classList.add("visible");
+                }
+              });
+            },
+            { threshold: 0.1, rootMargin: "0px 0px -50px 0px" }
+          );
+          document.querySelectorAll(".reveal, .reveal-stagger").forEach(el => {
+            revealObserver.observe(el);
+          });
+        }
+
+        // ── Smooth Scroll ──
+        function initSmoothScroll() {
+          document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener("click", onAnchorClick);
+          });
+        }
+        function onAnchorClick(e) {
+          const target = document.querySelector(this.getAttribute("href"));
+          if (target) {
+            e.preventDefault();
+            target.scrollIntoView({ behavior: "smooth", block: "start" });
+          }
+        }
+
+        // ── Hover listeners ──
+        const interactiveSelectors = "a, button, [role=button], input, textarea, select, .magnetic";
+        function attachHoverListeners(root) {
+          root.querySelectorAll(interactiveSelectors).forEach(el => {
+            el.addEventListener("mouseenter", onMouseEnterInteractive);
+            el.addEventListener("mouseleave", onMouseLeaveInteractive);
+          });
+        }
+
+        // ── Dynamic elements observer ──
+        let dynObserver = null;
+        function initDynObserver() {
+          if (dynObserver) dynObserver.disconnect();
+          dynObserver = new MutationObserver((mutations) => {
+            mutations.forEach(mutation => {
+              mutation.addedNodes.forEach(node => {
+                if (node.nodeType !== 1) return;
+                const targets = node.matches?.(interactiveSelectors)
+                  ? [node]
+                  : node.querySelectorAll?.(interactiveSelectors) || [];
+                targets.forEach(el => {
+                  el.addEventListener("mouseenter", onMouseEnterInteractive);
+                  el.addEventListener("mouseleave", onMouseLeaveInteractive);
+                });
+              });
+            });
+          });
+          dynObserver.observe(document.body, { childList: true, subtree: true });
+        }
+
+        // ── Cleanup ──
+        function cleanup() {
+          if (rafId) {
+            cancelAnimationFrame(rafId);
+            rafId = null;
+          }
+          document.removeEventListener("mousemove", onMouseMove);
+          document.removeEventListener("mousedown", onMouseDown);
+          document.removeEventListener("mouseup", onMouseUp);
+
+          document.querySelectorAll(interactiveSelectors).forEach(el => {
+            el.removeEventListener("mouseenter", onMouseEnterInteractive);
+            el.removeEventListener("mouseleave", onMouseLeaveInteractive);
+          });
+
+          document.querySelectorAll('a[href^="#"]').forEach(el => {
+            el.removeEventListener("click", onAnchorClick);
+          });
+
+          document.querySelectorAll(".magnetic").forEach(el => {
+            el.removeEventListener("mousemove", onMagneticMove);
+            el.removeEventListener("mouseleave", onMagneticLeave);
+          });
+
+          if (revealObserver) {
+            revealObserver.disconnect();
+            revealObserver = null;
+          }
+          if (dynObserver) {
+            dynObserver.disconnect();
+            dynObserver = null;
+          }
+        }
+
+        // ── Initialize ──
+        if (!isTouchDevice) {
+          document.addEventListener("mousemove", onMouseMove, { passive: true });
+          document.addEventListener("mousedown", onMouseDown);
+          document.addEventListener("mouseup", onMouseUp);
+          attachHoverListeners(document);
+          initDynObserver();
+          rafId = requestAnimationFrame(render);
+        }
+
+        initMagnetic();
+        initScrollReveal();
+        initSmoothScroll();
+
+        // Re-init on Astro page transitions (cleanup first)
+        document.addEventListener("astro:before-swap", cleanup);
+        document.addEventListener("astro:page-load", () => {
+          if (document.body.hasAttribute("data-minimal")) return;
+          initMagnetic();
+          initScrollReveal();
+          initSmoothScroll();
+          if (!isTouchDevice) {
+            attachHoverListeners(document);
+            initDynObserver();
+            rafId = requestAnimationFrame(render);
+          }
+        });
+
+        window.addEventListener("beforeunload", cleanup);
+      })();
     </script>
   </body>
 </html>
