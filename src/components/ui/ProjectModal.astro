@@ -4,25 +4,27 @@
 
 <div
   id="project-modal"
-  class="fixed inset-0 z-[1000] hidden items-center justify-center p-4 sm:p-6 md:p-8"
+  class="fixed inset-0 z-[300] hidden items-center justify-center p-4 sm:p-6 md:p-8"
   role="dialog"
   aria-modal="true"
   aria-labelledby="modal-title"
 >
-  {/* ── BACKDROP ── */}
+  {/* ── BACKDROP (FADE IN/OUT) ── */}
   <div
     id="modal-backdrop"
-    class="absolute inset-0 bg-[var(--bg)]/90 backdrop-blur-md opacity-0 transition-opacity duration-500 ease-out"
-  ></div>
+    class="absolute inset-0 bg-[var(--bg)]/85 backdrop-blur-sm opacity-0 transition-opacity duration-500 ease-out"
+  >
+  </div>
 
-  {/* ── MODAL BOX ── */}
+  {/* ── MODAL BOX (SPRING ANIMATION) ── */}
   <div
     id="modal-content"
-    class="relative w-full max-w-4xl bg-[var(--bg-2)] border border-[var(--border)] rounded-sm shadow-[0_30px_60px_-15px_rgba(0,0,0,0.6)] z-10 flex flex-col overflow-hidden opacity-0 scale-95 translate-y-12 transition-all duration-500 ease-[cubic-bezier(0.34,1.56,0.64,1)] pointer-events-auto max-h-[92vh] md:max-h-[88vh]"
-    style="clip-path: polygon(0 0, 100% 0, 100% calc(100% - 16px), calc(100% - 16px) 100%, 0 100%);"
+    class="relative w-full max-w-4xl bg-[var(--bg-2)] border border-[var(--border)] rounded-xl shadow-[0_30px_60px_-15px_rgba(0,0,0,0.6)] z-10 flex flex-col overflow-hidden opacity-0 scale-95 translate-y-12 transition-all duration-500 ease-[cubic-bezier(0.34,1.56,0.64,1)] pointer-events-auto max-h-[95vh] md:max-h-[90vh]"
   >
-    {/* Terminal Header */}
-    <div class="flex items-center justify-between px-4 py-3 bg-[var(--bg-3)] border-b border-[var(--border)] flex-shrink-0 relative z-30">
+    {/* Terminal Header ala Cyberpunk */}
+    <div
+      class="flex items-center justify-between px-4 py-3 bg-[var(--bg-3)] border-b border-[var(--border)] flex-shrink-0 relative z-30"
+    >
       <div class="flex gap-2">
         <button
           id="modal-close-btn"
@@ -30,86 +32,238 @@
           aria-label="Tutup modal"
           type="button"
         >
-          <svg xmlns="http://www.w3.org/2000/svg" width="8" height="8" viewBox="0 0 24 24" fill="none" stroke="black" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" class="opacity-0 group-hover:opacity-100 transition-opacity"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            width="8"
+            height="8"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="black"
+            stroke-width="3"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            class="opacity-0 group-hover:opacity-100 transition-opacity"
+            ><path d="M18 6 6 18"></path><path d="m6 6 12 12"></path></svg
+          >
         </button>
-        <div class="w-3.5 h-3.5 rounded-full bg-[#fbbf24] border border-transparent"></div>
-        <div class="w-3.5 h-3.5 rounded-full bg-[var(--g)] border border-transparent"></div>
+        <div
+          class="w-3.5 h-3.5 rounded-full bg-[#fbbf24] border border-transparent"
+        >
+        </div>
+        <div
+          class="w-3.5 h-3.5 rounded-full bg-[var(--g)] border border-transparent"
+        >
+        </div>
       </div>
-      <div class="text-[0.6rem] font-mono text-[var(--t3)] tracking-widest uppercase ml-4 truncate">
-        sys.view_project // <span id="modal-terminal-slug" class="text-[var(--v)]"></span>
+      <div
+        class="text-[0.6rem] font-mono text-[var(--t3)] tracking-widest uppercase ml-4 truncate"
+      >
+        sys.view_project // <span
+          id="modal-terminal-slug"
+          class="text-[var(--v)]"></span>
       </div>
     </div>
 
-    {/* Ambient Glow */}
-    <div class="absolute top-12 right-0 w-48 h-48 bg-[var(--orb-v)] rounded-full blur-[60px] pointer-events-none z-0"></div>
+    {/* Ambient Glow di Pojok Kanan Atas */}
+    <div
+      class="absolute top-12 right-0 w-48 h-48 bg-[var(--orb-v)] rounded-full blur-[60px] pointer-events-none z-0"
+    >
+    </div>
 
-    {/* ── Body: flex col dengan scrollable content ── */}
-    <div class="flex flex-col flex-1 overflow-hidden relative z-10">
-
-      {/* ── Image Carousel (flex-shrink-0) ── */}
-      <div class="relative w-full h-56 sm:h-64 md:h-72 lg:h-80 bg-gradient-to-br from-[var(--bg-3)] to-[var(--bg-2)] border-b border-[var(--border)] flex-shrink-0">
-        <div class="absolute top-3 left-3 z-20 bg-[var(--bg-2)]/80 border border-[var(--border)] backdrop-blur-sm rounded-full px-3 py-1 text-[0.65rem] tracking-widest font-mono text-[var(--t1)] shadow-sm">
-          <span id="carousel-counter">1</span> / <span id="carousel-total">1</span>
+    {/* ── Scrollable Body ── */}
+    <div
+      class="flex flex-col flex-1 overflow-y-auto custom-scrollbar relative z-10"
+    >
+      {/* ── Image Carousel ── */}
+      <div
+        class="relative w-full h-64 sm:h-72 md:h-80 lg:h-96 bg-gradient-to-br from-[var(--bg-3)] to-[var(--bg-2)] border-b border-[var(--border)] flex-shrink-0"
+      >
+        {/* Slide Counter */}
+        <div
+          class="absolute top-3 left-3 z-20 bg-[var(--bg-2)]/80 border border-[var(--border)] backdrop-blur-sm rounded-full px-3 py-1 text-[0.65rem] tracking-widest font-mono text-[var(--t1)] shadow-sm"
+        >
+          <span id="carousel-counter">1</span> / <span id="carousel-total"
+            >1</span
+          >
         </div>
 
-        <div id="carousel-track-container" class="relative w-full h-full overflow-hidden touch-pan-y cursor-grab active:cursor-grabbing">
-          <div id="carousel-track" class="flex h-full transition-transform duration-300 ease-out will-change-transform" style="transform: translateX(0%);"></div>
+        {/* Carousel Track */}
+        <div
+          id="carousel-track-container"
+          class="relative w-full h-full overflow-hidden touch-pan-y cursor-grab active:cursor-grabbing"
+        >
+          <div
+            id="carousel-track"
+            class="flex h-full transition-transform duration-300 ease-out will-change-transform"
+            style="transform: translateX(0%);"
+          >
+          </div>
         </div>
 
-        <button id="carousel-prev" class="absolute left-3 top-1/2 -translate-y-1/2 z-20 w-10 h-10 rounded-full bg-[var(--bg-3)]/80 backdrop-blur-sm border border-[var(--border)] hover:bg-[var(--vd)] hover:border-[var(--v)] text-[var(--t3)] hover:text-[var(--v)] flex items-center justify-center transition-all shadow-lg" aria-label="Slide sebelumnya" type="button">
-          <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m15 18-6-6 6-6"/></svg>
+        {/* Nav Arrows */}
+        <button
+          id="carousel-prev"
+          class="absolute left-3 top-1/2 -translate-y-1/2 z-20 w-10 h-10 rounded-full bg-[var(--bg-3)]/80 backdrop-blur-sm border border-[var(--border)] hover:bg-[var(--vd)] hover:border-[var(--v)] text-[var(--t3)] hover:text-[var(--v)] flex items-center justify-center transition-all shadow-lg"
+          aria-label="Slide sebelumnya"
+          type="button"
+        >
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            width="18"
+            height="18"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+            stroke-linecap="round"
+            stroke-linejoin="round"><path d="m15 18-6-6 6-6"></path></svg
+          >
         </button>
-        <button id="carousel-next" class="absolute right-3 top-1/2 -translate-y-1/2 z-20 w-10 h-10 rounded-full bg-[var(--bg-3)]/80 backdrop-blur-sm border border-[var(--border)] hover:bg-[var(--vd)] hover:border-[var(--v)] text-[var(--t3)] hover:text-[var(--v)] flex items-center justify-center transition-all shadow-lg" aria-label="Slide berikutnya" type="button">
-          <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"/></svg>
+        <button
+          id="carousel-next"
+          class="absolute right-3 top-1/2 -translate-y-1/2 z-20 w-10 h-10 rounded-full bg-[var(--bg-3)]/80 backdrop-blur-sm border border-[var(--border)] hover:bg-[var(--vd)] hover:border-[var(--v)] text-[var(--t3)] hover:text-[var(--v)] flex items-center justify-center transition-all shadow-lg"
+          aria-label="Slide berikutnya"
+          type="button"
+        >
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            width="18"
+            height="18"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+            stroke-linecap="round"
+            stroke-linejoin="round"><path d="m9 18 6-6-6-6"></path></svg
+          >
         </button>
 
-        <div id="carousel-dots" class="absolute bottom-4 left-1/2 -translate-x-1/2 z-20 flex gap-2"></div>
+        {/* Dots Indicator */}
+        <div
+          id="carousel-dots"
+          class="absolute bottom-4 left-1/2 -translate-x-1/2 z-20 flex gap-2"
+        >
+        </div>
       </div>
 
-      {/* ── Text Content (SCROLLABLE) ── */}
-      <div class="w-full flex-1 overflow-y-auto custom-scrollbar p-6 md:p-8 pt-6">
+      {/* ── Text Content ── */}
+      <div class="w-full flex-1 flex flex-col p-6 md:p-8 pt-6">
+        {/* Category & Year */}
         <div class="flex items-center gap-3 mb-4">
-          <span id="modal-category" class="text-[0.65rem] font-mono font-bold text-[var(--c)] uppercase tracking-[0.15em] px-2.5 py-1 bg-[var(--cd)] border border-[var(--c)]/20 rounded-sm"></span>
+          <span
+            id="modal-category"
+            class="text-[0.65rem] font-mono font-bold text-[var(--c)] uppercase tracking-[0.15em] px-2.5 py-1 bg-[var(--cd)] border border-[var(--c)]/20 rounded"
+          ></span>
           <span class="text-[var(--t3)]">//</span>
-          <span id="modal-year" class="text-[0.65rem] font-mono text-[var(--t3)] flex items-center gap-1.5 px-2.5 py-1 bg-[var(--bg-3)] border border-[var(--border)] rounded-sm">
-            <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="18" height="18" x="3" y="4" rx="2" ry="2"/><line x1="16" x2="16" y1="2" y2="6"/><line x1="8" x2="8" y1="2" y2="6"/><line x1="3" x2="21" y1="10" y2="10"/></svg>
+          <span
+            id="modal-year"
+            class="text-[0.65rem] font-mono text-[var(--t3)] flex items-center gap-1.5 px-2.5 py-1 bg-[var(--bg-3)] border border-[var(--border)] rounded"
+          >
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              width="12"
+              height="12"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              ><rect width="18" height="18" x="3" y="4" rx="2" ry="2"
+              ></rect><line x1="16" x2="16" y1="2" y2="6"></line><line
+                x1="8"
+                x2="8"
+                y1="2"
+                y2="6"></line><line x1="3" x2="21" y1="10" y2="10"></line></svg
+            >
             <span id="modal-year-text"></span>
           </span>
         </div>
 
-        {/* Title: pakai font-syne (Syne) yang sudah di-load di BaseLayout */}
-        <h2 id="modal-title" class="text-2xl md:text-3xl font-bold text-[var(--t1)] mb-5 font-syne uppercase tracking-tight leading-tight"></h2>
-        <p id="modal-description" class="text-[var(--t2)] text-sm md:text-[0.9rem] leading-relaxed mb-8 font-light"></p>
+        {/* Title */}
+        <h2
+          id="modal-title"
+          class="text-2xl md:text-3xl font-bold text-[var(--t1)] mb-5 font-['Syne'] uppercase tracking-tight leading-tight"
+        >
+        </h2>
 
+        {/* Long Description */}
+        <p
+          id="modal-description"
+          class="text-[var(--t2)] text-sm md:text-[0.9rem] leading-relaxed mb-8 font-light"
+        >
+        </p>
+
+        {/* Highlights & Tech Stack Grid */}
         <div class="grid grid-cols-1 md:grid-cols-2 gap-8 mb-8">
           <div>
-            <h3 class="text-[0.65rem] font-mono tracking-widest text-[var(--t3)] uppercase mb-4 flex items-center gap-2">
-              <span class="w-4 h-px bg-[var(--border-2)]"></span> HIGHLIGHTS
+            <h3
+              class="text-[0.65rem] font-mono tracking-widest text-[var(--t3)] uppercase mb-4 flex items-center gap-2"
+            >
+              <span class="w-4 h-px bg-[var(--border-2)]"></span>
+              <span data-i18n="projects.highlightsLabel">HIGHLIGHTS</span>
             </h3>
             <ul id="modal-highlights" class="space-y-2.5"></ul>
           </div>
 
           <div>
-            <h3 class="text-[0.65rem] font-mono tracking-widest text-[var(--t3)] uppercase mb-4 flex items-center gap-2">
-              <span class="w-4 h-px bg-[var(--border-2)]"></span> TECH STACK
+            <h3
+              class="text-[0.65rem] font-mono tracking-widest text-[var(--t3)] uppercase mb-4 flex items-center gap-2"
+            >
+              <span class="w-4 h-px bg-[var(--border-2)]"></span>
+              <span data-i18n="projects.techStackLabel">TECH STACK</span>
             </h3>
             <div id="modal-techstack" class="flex flex-wrap gap-2"></div>
           </div>
         </div>
 
-        <div class="pt-6 border-t border-[var(--border)]">
+        {/* CTA (Sticky/Bottom area behavior) */}
+        <div class="mt-auto pt-6 border-t border-[var(--border)]">
           <a
             id="modal-github"
             href="#"
             target="_blank"
             rel="noopener noreferrer"
-            class="group relative overflow-hidden inline-flex items-center justify-center gap-2 px-6 py-3.5 bg-[var(--v)] text-[var(--bg)] shadow-lg hover:shadow-[0_8px_30px_var(--shadow-v)] transition-all duration-300 hover:-translate-y-0.5 w-full sm:w-auto"
-            style="clip-path: polygon(0 0, 100% 0, 100% calc(100% - 10px), calc(100% - 10px) 100%, 0 100%);"
+            class="group relative overflow-hidden inline-flex items-center justify-center gap-2 px-6 py-3.5 rounded bg-[var(--v)] text-[var(--bg)] shadow-lg hover:shadow-[0_8px_30px_var(--shadow-v)] transition-all duration-300 hover:-translate-y-0.5 w-full sm:w-auto"
           >
-            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" class="relative z-10"><path d="M15 22v-4a4.8 4.8 0 0 0-1-3.5c3 0 6-2 6-5.5.08-1.25-.27-2.48-1-3.5.28-1.15.28-2.35 0-3.5 0 0-1 0-3 1.5-2.64-.5-5.36-.5-8 0C6 2 5 2 5 2c-.3 1.15-.3 2.35 0 3.5A5.403 5.403 0 0 0 4 9c0 3.5 3 5.5 6 5.5-.39.49-.68 1.05-.85 1.65-.17.6-.22 1.23-.15 1.85v4"/><path d="M9 18c-4.51 2-5-2-7-2"/></svg>
-            <span id="modal-github-text" class="text-xs font-mono tracking-widest font-bold uppercase relative z-10">SOURCE CODE</span>
-            <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" class="group-hover:translate-x-1 transition-transform relative z-10"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
-            <div class="absolute inset-0 bg-white/20 translate-y-full group-hover:translate-y-0 transition-transform duration-300 ease-out pointer-events-none"></div>
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              width="16"
+              height="16"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2.5"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              class="relative z-10"
+              ><path
+                d="M15 22v-4a4.8 4.8 0 0 0-1-3.5c3 0 6-2 6-5.5.08-1.25-.27-2.48-1-3.5.28-1.15.28-2.35 0-3.5 0 0-1 0-3 1.5-2.64-.5-5.36-.5-8 0C6 2 5 2 5 2c-.3 1.15-.3 2.35 0 3.5A5.403 5.403 0 0 0 4 9c0 3.5 3 5.5 6 5.5-.39.49-.68 1.05-.85 1.65-.17.6-.22 1.23-.15 1.85v4"
+              ></path><path d="M9 18c-4.51 2-5-2-7-2"></path></svg
+            >
+            <span
+              id="modal-github-text"
+              class="text-xs font-mono tracking-widest font-bold uppercase relative z-10"
+              >SOURCE CODE</span
+            >
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              width="14"
+              height="14"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2.5"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              class="group-hover:translate-x-1 transition-transform relative z-10"
+              ><path d="M5 12h14"></path><path d="m12 5 7 7-7 7"></path></svg
+            >
+            {/* Sweep Effect */}
+            <div
+              class="absolute inset-0 bg-white/20 translate-y-full group-hover:translate-y-0 transition-transform duration-300 ease-out pointer-events-none rounded"
+            >
+            </div>
           </a>
         </div>
       </div>
@@ -142,208 +296,359 @@
   import { t } from "@/i18n/index";
 
   type ProjectData = {
-    slug: string; title: string; description: string; longDescription?: string;
-    category: string; year?: string; highlights?: string[]; techStack?: string[];
-    githubUrl?: string; images?: string[]; image?: string;
+    slug: string;
+    title: string;
+    description: string;
+    longDescription?: string;
+    category: string;
+    year?: string;
+    highlights?: string[];
+    techStack?: string[];
+    githubUrl?: string;
+    images?: string[];
+    image?: string;
   };
 
   const slugMap: Record<string, number> = {
-    'website-pemerintahan-subang': 1,
-    'astra-logistic-tracking': 2,
-    'dompet-rantau': 3,
-    'portfolio-cms': 4,
-    'amazon-recommendation': 5,
-    'acnescan-yolo': 6
+    "website-pemerintahan-subang": 1,
+    "astra-logistic-tracking": 2,
+    "dompet-rantau": 3,
+    "portfolio-cms": 4,
+    "amazon-recommendation": 5,
+    "acnescan-yolo": 6,
   };
 
-  const modal = document.getElementById('project-modal') as HTMLDivElement;
-  const backdrop = document.getElementById('modal-backdrop') as HTMLDivElement;
-  const content = document.getElementById('modal-content') as HTMLDivElement;
-  const closeBtn = document.getElementById('modal-close-btn') as HTMLButtonElement;
-  const scrollArea = content.querySelector('.custom-scrollbar') as HTMLDivElement;
+  const modal = document.getElementById("project-modal") as HTMLDivElement;
+  const backdrop = document.getElementById("modal-backdrop") as HTMLDivElement;
+  const content = document.getElementById("modal-content") as HTMLDivElement;
+  const closeBtn = document.getElementById(
+    "modal-close-btn",
+  ) as HTMLButtonElement;
+  const scrollArea = content.querySelector(
+    ".custom-scrollbar",
+  ) as HTMLDivElement;
 
-  const track = document.getElementById('carousel-track') as HTMLDivElement;
-  const trackContainer = document.getElementById('carousel-track-container') as HTMLDivElement;
-  const counterEl = document.getElementById('carousel-counter') as HTMLSpanElement;
-  const totalEl = document.getElementById('carousel-total') as HTMLSpanElement;
-  const dotsContainer = document.getElementById('carousel-dots') as HTMLDivElement;
-  const prevBtn = document.getElementById('carousel-prev') as HTMLButtonElement;
-  const nextBtn = document.getElementById('carousel-next') as HTMLButtonElement;
+  const track = document.getElementById("carousel-track") as HTMLDivElement;
+  const trackContainer = document.getElementById(
+    "carousel-track-container",
+  ) as HTMLDivElement;
+  const counterEl = document.getElementById(
+    "carousel-counter",
+  ) as HTMLSpanElement;
+  const totalEl = document.getElementById("carousel-total") as HTMLSpanElement;
+  const dotsContainer = document.getElementById(
+    "carousel-dots",
+  ) as HTMLDivElement;
+  const prevBtn = document.getElementById("carousel-prev") as HTMLButtonElement;
+  const nextBtn = document.getElementById("carousel-next") as HTMLButtonElement;
 
-  const terminalSlug = document.getElementById('modal-terminal-slug') as HTMLSpanElement;
-  const titleEl = document.getElementById('modal-title') as HTMLHeadingElement;
-  const categoryEl = document.getElementById('modal-category') as HTMLSpanElement;
-  const yearTextEl = document.getElementById('modal-year-text') as HTMLSpanElement;
-  const descEl = document.getElementById('modal-description') as HTMLParagraphElement;
-  const highlightsEl = document.getElementById('modal-highlights') as HTMLUListElement;
-  const techStackEl = document.getElementById('modal-techstack') as HTMLDivElement;
-  const githubEl = document.getElementById('modal-github') as HTMLAnchorElement;
-  const githubTextEl = document.getElementById('modal-github-text') as HTMLSpanElement;
+  const terminalSlug = document.getElementById(
+    "modal-terminal-slug",
+  ) as HTMLSpanElement;
+  const titleEl = document.getElementById("modal-title") as HTMLHeadingElement;
+  const categoryEl = document.getElementById(
+    "modal-category",
+  ) as HTMLSpanElement;
+  const yearTextEl = document.getElementById(
+    "modal-year-text",
+  ) as HTMLSpanElement;
+  const descEl = document.getElementById(
+    "modal-description",
+  ) as HTMLParagraphElement;
+  const highlightsEl = document.getElementById(
+    "modal-highlights",
+  ) as HTMLUListElement;
+  const techStackEl = document.getElementById(
+    "modal-techstack",
+  ) as HTMLDivElement;
+  const githubEl = document.getElementById("modal-github") as HTMLAnchorElement;
+  const githubTextEl = document.getElementById(
+    "modal-github-text",
+  ) as HTMLSpanElement;
 
-  let currentSlide = 0; let slideCount = 0; let isDragging = false;
-  let touchStartX = 0; let touchCurrentX = 0; let previouslyFocused: Element | null = null;
+  let currentSlide = 0;
+  let slideCount = 0;
+  let isDragging = false;
+  let touchStartX = 0;
+  let touchCurrentX = 0;
+  let previouslyFocused: Element | null = null;
   let isOpen = false;
+  let currentProject: ProjectData | null = null; // ← SIMPAN PROJECT AKTIF
 
-  function getProjects(): ProjectData[] { return (window as any).__PROJECTS_DATA__ || []; }
-  function getBaseUrl(): string { return ((window as any).__BASE_URL__ || '').replace(/\/$/, ''); }
+  function getProjects(): ProjectData[] {
+    return (window as any).__PROJECTS_DATA__ || [];
+  }
+  function getBaseUrl(): string {
+    return ((window as any).__BASE_URL__ || "").replace(/\/$/, "");
+  }
 
   function trapFocus(e: KeyboardEvent) {
-    if (!isOpen || e.key !== 'Tab') return;
-    const focusables = modal.querySelectorAll<HTMLElement>('a[href], button, textarea, input, select');
+    if (!isOpen || e.key !== "Tab") return;
+    const focusables = modal.querySelectorAll<HTMLElement>(
+      "a[href], button, textarea, input, select",
+    );
     if (focusables.length === 0) return;
-    const first = focusables[0]; const last = focusables[focusables.length - 1];
-    if (e.shiftKey && document.activeElement === first) { e.preventDefault(); last.focus(); }
-    else if (!e.shiftKey && document.activeElement === last) { e.preventDefault(); first.focus(); }
+    const first = focusables[0];
+    const last = focusables[focusables.length - 1];
+    if (e.shiftKey && document.activeElement === first) {
+      e.preventDefault();
+      last.focus();
+    } else if (!e.shiftKey && document.activeElement === last) {
+      e.preventDefault();
+      first.focus();
+    }
   }
 
   function renderSlides(images: string[]) {
-    track.innerHTML = ''; dotsContainer.innerHTML = '';
-    slideCount = images.length; totalEl.textContent = String(slideCount); currentSlide = 0;
+    track.innerHTML = "";
+    dotsContainer.innerHTML = "";
+    slideCount = images.length;
+    totalEl.textContent = String(slideCount);
+    currentSlide = 0;
 
     images.forEach((src, i) => {
-      const slide = document.createElement('div');
-      slide.className = 'w-full h-full flex-shrink-0 flex items-center justify-center bg-[var(--bg)] relative';
+      const slide = document.createElement("div");
+      slide.className =
+        "w-full h-full flex-shrink-0 flex items-center justify-center bg-[var(--bg)] relative";
 
-      const grid = document.createElement('div');
-      grid.className = 'absolute inset-0 pointer-events-none opacity-[0.03]';
-      grid.style.backgroundImage = 'linear-gradient(var(--v) 1px, transparent 1px), linear-gradient(90deg, var(--v) 1px, transparent 1px)';
-      grid.style.backgroundSize = '20px 20px';
+      const grid = document.createElement("div");
+      grid.className = "absolute inset-0 pointer-events-none opacity-[0.03]";
+      grid.style.backgroundImage =
+        "linear-gradient(var(--v) 1px, transparent 1px), linear-gradient(90deg, var(--v) 1px, transparent 1px)";
+      grid.style.backgroundSize = "20px 20px";
       slide.appendChild(grid);
 
-      const img = document.createElement('img');
+      const img = document.createElement("img");
       const base = getBaseUrl();
-      const cleanSrc = src.replace(/^\//, '');
-      img.src = base ? base + '/' + cleanSrc : '/' + cleanSrc;
-      img.alt = 'Slide ' + (i + 1); img.className = 'w-full h-full object-contain relative z-10 drop-shadow-2xl'; img.draggable = false;
-      slide.appendChild(img); track.appendChild(slide);
+      const cleanSrc = src.replace(/^\//, "");
+      img.src = base ? base + "/" + cleanSrc : "/" + cleanSrc;
+      img.alt = "Slide " + (i + 1);
+      img.className =
+        "w-full h-full object-contain relative z-10 drop-shadow-2xl";
+      img.draggable = false;
+      slide.appendChild(img);
+      track.appendChild(slide);
 
-      const dot = document.createElement('button');
-      dot.type = 'button';
-      dot.className = 'w-2 h-2 rounded-full transition-all duration-300 ' + (i === 0 ? 'bg-[var(--v)] scale-125' : 'bg-[var(--border-2)] hover:bg-[var(--t3)]');
-      dot.addEventListener('click', () => goToSlide(i));
+      const dot = document.createElement("button");
+      dot.type = "button";
+      dot.className =
+        "w-2 h-2 rounded-full transition-all duration-300 " +
+        (i === 0
+          ? "bg-[var(--v)] scale-125"
+          : "bg-[var(--border-2)] hover:bg-[var(--t3)]");
+      dot.addEventListener("click", () => goToSlide(i));
       dotsContainer.appendChild(dot);
     });
     updateCarousel();
   }
 
   function updateCarousel() {
-    track.style.transform = 'translateX(-' + (currentSlide * 100) + '%)';
+    track.style.transform = "translateX(-" + currentSlide * 100 + "%)";
     counterEl.textContent = String(currentSlide + 1);
     Array.from(dotsContainer.children).forEach((dot, i) => {
-      dot.className = 'w-2 h-2 rounded-full transition-all duration-300 ' + (i === currentSlide ? 'bg-[var(--v)] scale-125' : 'bg-[var(--border-2)] hover:bg-[var(--t3)]');
+      dot.className =
+        "w-2 h-2 rounded-full transition-all duration-300 " +
+        (i === currentSlide
+          ? "bg-[var(--v)] scale-125"
+          : "bg-[var(--border-2)] hover:bg-[var(--t3)]");
     });
     const hideArrows = slideCount <= 1;
-    prevBtn.style.opacity = hideArrows ? '0' : '1'; prevBtn.style.pointerEvents = hideArrows ? 'none' : 'auto';
-    nextBtn.style.opacity = hideArrows ? '0' : '1'; nextBtn.style.pointerEvents = hideArrows ? 'none' : 'auto';
+    prevBtn.style.opacity = hideArrows ? "0" : "1";
+    prevBtn.style.pointerEvents = hideArrows ? "none" : "auto";
+    nextBtn.style.opacity = hideArrows ? "0" : "1";
+    nextBtn.style.pointerEvents = hideArrows ? "none" : "auto";
   }
 
   function goToSlide(index: number) {
     if (index < 0) index = slideCount - 1;
     if (index >= slideCount) index = 0;
-    currentSlide = index; updateCarousel();
+    currentSlide = index;
+    updateCarousel();
   }
 
-  function nextSlide() { goToSlide(currentSlide + 1); }
-  function prevSlide() { goToSlide(currentSlide - 1); }
+  function nextSlide() {
+    goToSlide(currentSlide + 1);
+  }
+  function prevSlide() {
+    goToSlide(currentSlide - 1);
+  }
 
-  function onTouchStart(e: TouchEvent) { isDragging = true; touchStartX = e.touches[0].clientX; touchCurrentX = touchStartX; track.style.transition = 'none'; }
-  function onTouchMove(e: TouchEvent) { if (!isDragging) return; touchCurrentX = e.touches[0].clientX; const diff = touchCurrentX - touchStartX; track.style.transform = 'translateX(' + (-currentSlide * 100 + (diff / trackContainer.offsetWidth) * 100) + '%)'; }
-  function onTouchEnd() { if (!isDragging) return; isDragging = false; track.style.transition = 'transform 300ms ease-out'; const diff = touchCurrentX - touchStartX; const threshold = trackContainer.offsetWidth * 0.15; if (diff < -threshold) nextSlide(); else if (diff > threshold) prevSlide(); else updateCarousel(); }
+  function onTouchStart(e: TouchEvent) {
+    isDragging = true;
+    touchStartX = e.touches[0].clientX;
+    touchCurrentX = touchStartX;
+    track.style.transition = "none";
+  }
+  function onTouchMove(e: TouchEvent) {
+    if (!isDragging) return;
+    touchCurrentX = e.touches[0].clientX;
+    const diff = touchCurrentX - touchStartX;
+    track.style.transform =
+      "translateX(" +
+      (-currentSlide * 100 + (diff / trackContainer.offsetWidth) * 100) +
+      "%)";
+  }
+  function onTouchEnd() {
+    if (!isDragging) return;
+    isDragging = false;
+    track.style.transition = "transform 300ms ease-out";
+    const diff = touchCurrentX - touchStartX;
+    const threshold = trackContainer.offsetWidth * 0.15;
+    if (diff < -threshold) nextSlide();
+    else if (diff > threshold) prevSlide();
+    else updateCarousel();
+  }
 
-  function openModal(project: ProjectData) {
-    if (!project || isOpen) return;
-    previouslyFocused = document.activeElement;
-    isOpen = true;
-
-    terminalSlug.textContent = project.slug + '.exe';
+  // ═══════════════════════════════════════════════════════════════
+  // RENDER MODAL CONTENT — dipisah agar bisa di-reuse saat ganti bahasa
+  // ═══════════════════════════════════════════════════════════════
+  function renderModalContent(project: ProjectData) {
+    terminalSlug.textContent = project.slug + ".exe";
 
     const dictIdx = slugMap[project.slug] || 0;
-    const title = dictIdx ? t('project' + dictIdx + '.title') : project.title;
-    let desc = dictIdx ? t('project' + dictIdx + '.longDesc') : project.longDescription;
-    if (!desc || desc.includes('project') || desc === 'project' + dictIdx + '.longDesc') {
-      desc = dictIdx ? t('project' + dictIdx + '.desc') : project.description;
+    const title = dictIdx ? t("project" + dictIdx + ".title") : project.title;
+    let desc = dictIdx
+      ? t("project" + dictIdx + ".longDesc")
+      : project.longDescription;
+    if (
+      !desc ||
+      desc.includes("project") ||
+      desc === "project" + dictIdx + ".longDesc"
+    ) {
+      desc = dictIdx ? t("project" + dictIdx + ".desc") : project.description;
     }
-    if (!desc || desc.includes('project')) desc = project.description;
+    if (!desc || desc.includes("project")) desc = project.description;
 
     titleEl.textContent = title;
-    categoryEl.textContent = project.category || '';
-    yearTextEl.textContent = project.year || '';
+    categoryEl.textContent = project.category || "";
+    yearTextEl.textContent = project.year || "";
     descEl.textContent = desc;
 
     if (githubTextEl) {
-      const btnText = t('projects.viewGithubShort');
-      githubTextEl.textContent = (btnText !== 'projects.viewGithubShort') ? btnText : 'SOURCE CODE';
+      const btnText = t("projects.viewGithubShort");
+      githubTextEl.textContent =
+        btnText !== "projects.viewGithubShort" ? btnText : "SOURCE CODE";
     }
-    githubEl.href = project.githubUrl || '#';
-    githubEl.style.display = project.githubUrl ? 'inline-flex' : 'none';
+    githubEl.href = project.githubUrl || "#";
+    githubEl.style.display = project.githubUrl ? "inline-flex" : "none";
 
-    highlightsEl.innerHTML = '';
+    // Highlights
+    highlightsEl.innerHTML = "";
     let hList: string[] = [];
     if (dictIdx) {
       for (let i = 1; i <= 5; i++) {
-        const h = t('project' + dictIdx + '.highlight' + i);
-        if (h && h !== 'project' + dictIdx + '.highlight' + i) hList.push(h);
+        const h = t("project" + dictIdx + ".highlight" + i);
+        if (h && h !== "project" + dictIdx + ".highlight" + i) hList.push(h);
       }
     }
     if (hList.length === 0) hList = project.highlights || [];
 
     hList.forEach((h) => {
-      const li = document.createElement('li');
-      li.className = 'flex items-start gap-2.5 text-sm text-[var(--t2)]';
-      li.innerHTML = '<svg class="w-4 h-4 text-[var(--g)] mt-0.5 flex-shrink-0" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg><span class="leading-relaxed">' + h + '</span>';
+      const li = document.createElement("li");
+      li.className = "flex items-start gap-2.5 text-sm text-[var(--t2)]";
+      li.innerHTML =
+        '<svg class="w-4 h-4 text-[var(--g)] mt-0.5 flex-shrink-0" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg><span class="leading-relaxed">' +
+        h +
+        "</span>";
       highlightsEl.appendChild(li);
     });
 
-    techStackEl.innerHTML = '';
+    // Tech Stack
+    techStackEl.innerHTML = "";
     (project.techStack || []).forEach((tStr) => {
-      const badge = document.createElement('span');
-      badge.className = 'inline-flex items-center px-2.5 py-1.5 rounded-sm bg-[var(--bg-3)] border border-[var(--border)] text-[var(--t3)] font-mono text-[0.6rem] uppercase tracking-wider shadow-inner';
+      const badge = document.createElement("span");
+      badge.className =
+        "inline-flex items-center px-2.5 py-1.5 rounded bg-[var(--bg-3)] border border-[var(--border)] text-[var(--t3)] font-mono text-[0.6rem] uppercase tracking-wider shadow-inner";
       badge.textContent = tStr;
       techStackEl.appendChild(badge);
     });
+  }
 
-    const images = project.images && project.images.length > 0 ? project.images : (project.image ? [project.image] : []);
+  function openModal(project: ProjectData) {
+    if (!project || isOpen) return;
+    currentProject = project; // ← SIMPAN untuk re-render nanti
+    previouslyFocused = document.activeElement;
+    isOpen = true;
+
+    renderModalContent(project); // ← ISI KONTEN
+
+    const images =
+      project.images && project.images.length > 0
+        ? project.images
+        : project.image
+          ? [project.image]
+          : [];
     renderSlides(images);
 
-    modal.classList.remove('hidden'); modal.classList.add('flex');
-    document.body.style.overflow = 'hidden';
+    // Animasi Masuk (Bouncy)
+    modal.classList.remove("hidden");
+    modal.classList.add("flex");
+    document.body.style.overflow = "hidden";
 
-    requestAnimationFrame(() => {
-      backdrop.classList.remove('opacity-0');
-      content.classList.remove('opacity-0', 'scale-95', 'translate-y-12');
-      content.classList.add('opacity-100', 'scale-100', 'translate-y-0');
-    });
+    setTimeout(() => {
+      backdrop.classList.remove("opacity-0");
+      content.classList.remove("opacity-0", "scale-95", "translate-y-12");
+      content.classList.add("opacity-100", "scale-100", "translate-y-0");
+    }, 10);
 
-    setTimeout(() => { if (closeBtn) closeBtn.focus(); }, 100);
+    setTimeout(() => {
+      closeBtn.focus();
+    }, 100);
     if (scrollArea) scrollArea.scrollTop = 0;
   }
 
   function closeModal() {
     if (!isOpen) return;
     isOpen = false;
-    backdrop.classList.add('opacity-0');
-    content.classList.remove('opacity-100', 'scale-100', 'translate-y-0');
-    content.classList.add('opacity-0', 'scale-95', 'translate-y-12');
+    currentProject = null; // ← CLEAR
+
+    backdrop.classList.add("opacity-0");
+    content.classList.remove("opacity-100", "scale-100", "translate-y-0");
+    content.classList.add("opacity-0", "scale-95", "translate-y-12");
 
     setTimeout(() => {
-      modal.classList.remove('flex'); modal.classList.add('hidden');
-      document.body.style.overflow = '';
-      currentSlide = 0; track.innerHTML = ''; dotsContainer.innerHTML = '';
-      if (previouslyFocused && previouslyFocused.isConnected && 'focus' in previouslyFocused) {
+      modal.classList.remove("flex");
+      modal.classList.add("hidden");
+      document.body.style.overflow = "";
+      currentSlide = 0;
+      track.innerHTML = "";
+      dotsContainer.innerHTML = "";
+      if (
+        previouslyFocused &&
+        previouslyFocused.isConnected &&
+        "focus" in previouslyFocused
+      ) {
         (previouslyFocused as HTMLElement).focus();
       }
       previouslyFocused = null;
     }, 400);
   }
 
-  closeBtn.addEventListener('click', closeModal); 
-  backdrop.addEventListener('click', closeModal);
-  document.addEventListener('keydown', (e) => { if (e.key === 'Escape' && isOpen) { e.preventDefault(); closeModal(); } trapFocus(e); });
+  closeBtn.addEventListener("click", closeModal);
+  backdrop.addEventListener("click", closeModal);
+  document.addEventListener("keydown", (e) => {
+    if (e.key === "Escape" && isOpen) closeModal();
+    trapFocus(e);
+  });
 
-  prevBtn.addEventListener('click', prevSlide); nextBtn.addEventListener('click', nextSlide);
-  trackContainer.addEventListener('touchstart', onTouchStart, { passive: true }); trackContainer.addEventListener('touchmove', onTouchMove, { passive: true }); trackContainer.addEventListener('touchend', onTouchEnd);
+  prevBtn.addEventListener("click", prevSlide);
+  nextBtn.addEventListener("click", nextSlide);
+  trackContainer.addEventListener("touchstart", onTouchStart, {
+    passive: true,
+  });
+  trackContainer.addEventListener("touchmove", onTouchMove, { passive: true });
+  trackContainer.addEventListener("touchend", onTouchEnd);
 
-  (window as any).openProjectModal = function(slug: string) {
+  // ═══════════════════════════════════════════════════════════════
+  // FIX: Re-render modal saat bahasa diganti
+  // ═══════════════════════════════════════════════════════════════
+  window.addEventListener("pramudya-lang-change", () => {
+    if (isOpen && currentProject) {
+      renderModalContent(currentProject);
+    }
+  });
+
+  (window as any).openProjectModal = function (slug: string) {
     const project = getProjects().find((p: ProjectData) => p.slug === slug);
     if (project) openModal(project);
   };
